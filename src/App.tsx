@@ -1,6 +1,6 @@
 import { ChakraProvider, createSystem, defaultConfig } from '@chakra-ui/react';
 import { colors } from './styles/colors.ts';
-import { Auth } from './pages/Auth.tsx'
+import { SignIn } from './pages/auth/sign-in/sign-in.tsx'
 
 const system = createSystem(defaultConfig, {
   theme: {
@@ -13,7 +13,7 @@ const system = createSystem(defaultConfig, {
 export function App() {
   return (
       <ChakraProvider  value={system}>
-         <Auth />
+         <SignIn />
       </ChakraProvider>
   );
 }
