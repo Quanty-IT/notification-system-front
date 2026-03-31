@@ -1,15 +1,8 @@
-import {
-  Box,
-  Button,
-  Field,
-  Image,
-  Input,
-  Link,
-  Text,
-  VStack,
-} from '@chakra-ui/react';
+import { Box, Image, Link, Text, VStack } from '@chakra-ui/react';
 
 import Logo from '../../../assets/logo.png';
+import { Button } from '../components/button';
+import { Input } from '../components/input';
 
 export const SignIn = () => {
   return (
@@ -62,69 +55,19 @@ export const SignIn = () => {
             </VStack>
 
             <VStack gap={4} align='stretch'>
-              <Field.Root>
-                <Field.Label color='text' fontWeight='semibold' mb={1.5}>
-                  Email
-                </Field.Label>
+              <Input
+                label='Email'
+                type='email'
+                placeholder='Enter your email'
+              />
 
-                <Input
-                  type='email'
-                  placeholder='Enter your email'
-                  h='3rem'
-                  px={4}
-                  py={2}
-                  lineHeight='1.2'
-                  bg='white'
-                  border='1px solid'
-                  borderColor='inputBorder'
-                  borderRadius='lg'
-                  color='text'
-                  _placeholder={{ color: 'placeholder' }}
-                  _hover={{ borderColor: 'primary' }}
-                  _focusVisible={{
-                    borderColor: 'primary',
-                    boxShadow: '0 0 0 1px var(--chakra-colors-primary)',
-                  }}
-                />
-              </Field.Root>
+              <Input
+                label='Password'
+                type='password'
+                placeholder='Enter your password'
+              />
 
-              <Field.Root>
-                <Field.Label color='text' fontWeight='semibold' mb={1.5}>
-                  Password
-                </Field.Label>
-
-                <Input
-                  type='password'
-                  placeholder='Enter your password'
-                  h='3rem'
-                  px={4}
-                  py={2}
-                  lineHeight='1.2'
-                  bg='white'
-                  border='1px solid'
-                  borderColor='inputBorder'
-                  borderRadius='lg'
-                  color='text'
-                  _placeholder={{ color: 'placeholder' }}
-                  _hover={{ borderColor: 'primary' }}
-                  _focusVisible={{
-                    borderColor: 'primary',
-                    boxShadow: '0 0 0 1px var(--chakra-colors-primary)',
-                  }}
-                />
-              </Field.Root>
-
-              <Button
-                mt={2}
-                bg='primary'
-                color='white'
-                h='3rem'
-                w='100%'
-                fontWeight='bold'
-                borderRadius='lg'
-                _hover={{ bg: 'secondary' }}
-                _active={{ bg: 'secondary' }}
-              >
+              <Button mt={2} w='100%'>
                 Sign in
               </Button>
             </VStack>
