@@ -1,4 +1,4 @@
-import { Button as ChakraButton, ButtonProps } from '@chakra-ui/react';
+import { ButtonProps, Button as ChakraButton } from '@chakra-ui/react';
 
 type ButtonVisual = 'primary' | 'secondary';
 
@@ -23,14 +23,5 @@ const visualStyles: Record<ButtonVisual, ButtonProps> = {
 };
 
 export const Button = ({ visual = 'primary', ...props }: Props) => {
-  return (
-    <ChakraButton
-      h='3rem'
-      px={4}
-      borderRadius='lg'
-      fontWeight='bold'
-      {...visualStyles[visual]}
-      {...props}
-    />
-  );
+  return <ChakraButton h='3rem' px={4} borderRadius='lg' fontWeight='bold' {...visualStyles[visual]} {...props} />;
 };

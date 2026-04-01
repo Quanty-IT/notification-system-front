@@ -5,14 +5,8 @@ import { ROUTES } from './routes.constants';
 export function Router() {
   return (
     <Routes>
-      <Route
-        path={ROUTES.AUTH.SIGN_IN}
-        element={ <SignIn /> }
-      />
-      <Route
-        path={ROUTES.AUTH.FORGOT_PASSWORD}
-        element={ <ForgotPassword /> }
-      />
+      <Route path={ROUTES.AUTH.SIGN_IN} element={<SignIn />} />
+      <Route path={ROUTES.AUTH.FORGOT_PASSWORD} element={<ForgotPassword />} />
     </Routes>
   );
 }

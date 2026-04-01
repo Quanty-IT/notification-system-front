@@ -1,4 +1,4 @@
-import { Field, Input as ChakraInput, InputProps } from '@chakra-ui/react';
+import { Input as ChakraInput, Field, InputProps } from '@chakra-ui/react';
 
 type Props = InputProps & {
   label: string;
