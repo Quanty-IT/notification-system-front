@@ -1,6 +1,8 @@
 import { Box, Image, Link, Text, VStack } from '@chakra-ui/react';
 
 import Logo from '../../../assets/logo.png';
+import { ROUTES } from '../../../routes';
+import { Link as RouterLink } from 'react-router-dom';
 
 export const ForgotPassword = () => {
   return (
@@ -53,6 +55,7 @@ export const ForgotPassword = () => {
             </VStack>
 
             <Link
+              asChild
               alignSelf='center'
               color='primary'
               fontSize='sm'
@@ -62,7 +65,7 @@ export const ForgotPassword = () => {
                 color: 'secondary',
               }}
             >
-              Back to sign in
+              <RouterLink to={ROUTES.AUTH.SIGN_IN}>Back to sign in</RouterLink>
             </Link>
           </VStack>
         </Box>

@@ -3,6 +3,8 @@ import { Box, Image, Link, Text, VStack } from '@chakra-ui/react';
 import Logo from '../../../assets/logo.png';
 import { Button } from '../components/button';
 import { Input } from '../components/input';
+import { ROUTES } from '../../../routes';
+import { Link as RouterLink } from 'react-router-dom';
 
 export const SignIn = () => {
   return (
@@ -73,6 +75,7 @@ export const SignIn = () => {
             </VStack>
 
             <Link
+              asChild
               alignSelf='center'
               color='primary'
               fontSize='sm'
@@ -82,7 +85,9 @@ export const SignIn = () => {
                 color: 'secondary',
               }}
             >
-              Forgot your password?
+              <RouterLink to={ROUTES.AUTH.FORGOT_PASSWORD}>
+                Forgot your password?
+              </RouterLink>
             </Link>
           </VStack>
         </Box>

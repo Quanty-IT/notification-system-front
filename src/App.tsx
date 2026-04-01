@@ -1,6 +1,7 @@
 import { ChakraProvider, createSystem, defaultConfig } from '@chakra-ui/react';
 import { colors } from './styles/colors.ts';
-import { ForgotPassword } from './pages/index.ts';
+import { Router } from './routes';
+import { BrowserRouter } from 'react-router-dom';
 
 const system = createSystem(defaultConfig, {
   theme: {
@@ -13,7 +14,9 @@ const system = createSystem(defaultConfig, {
 export function App() {
   return (
       <ChakraProvider  value={system}>
-        <ForgotPassword />
+        <BrowserRouter>
+          <Router />
+        </BrowserRouter>
       </ChakraProvider>
   );
 }
