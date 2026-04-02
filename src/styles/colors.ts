@@ -9,4 +9,6 @@ export const colors = {
   textSecondary: { value: '#5B665A' },
   inputBorder: { value: '#C7D1C2' },
   placeholder: { value: '#7A8578' },
+
+  error: { value: '#E63946' },
 } as const;

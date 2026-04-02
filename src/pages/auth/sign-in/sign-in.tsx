@@ -1,14 +1,57 @@
-import { Box, Image, Link, Text, VStack } from '@chakra-ui/react';
-import { Link as RouterLink } from 'react-router-dom';
+import { Box, Field, Image, Link, Text, VStack } from '@chakra-ui/react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation } from '@tanstack/react-query';
+import { useForm } from 'react-hook-form';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import Logo from '../../../assets/logo.png';
+import { FormErrorInline } from '../../../components';
 import { ROUTES } from '../../../routes';
+import { signIn } from '../../../services';
 import { Button } from '../components/button';
 import { Input } from '../components/input';
+import { SignInFormData, signInSchema } from './schema';
 
 export const SignIn = () => {
+  const navigate = useNavigate();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    clearErrors,
+  } = useForm<SignInFormData>({
+    resolver: zodResolver(signInSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
+
+  const mutation = useMutation({
+    mutationFn: signIn,
+    onSuccess: () => {
+      navigate(ROUTES.DASHBOARD.BASE);
+    },
+    onError: () => {
+      clearErrors();
+    },
+  });
+
+  const onSubmit = (data: SignInFormData) => {
+    mutation.mutate(data);
+  };
+
   return (
-    <Box minH='100vh' display='flex' alignItems='center' justifyContent='center' bg='background' px={4} py={8}>
-      <VStack gap={6} w='100%' maxW='28rem'>
+    <Box
+      minH='100vh'
+      display='flex'
+      flexDirection='column'
+      alignItems='center'
+      justifyContent='center'
+      bg='background'
+      px={4}
+    >
+      <VStack gap={8} w='100%' maxW='28rem'>
         <Box
           bg='surface'
           w='100%'
@@ -19,25 +62,36 @@ export const SignIn = () => {
         >
           <VStack gap={6} align='stretch'>
             <VStack gap={3}>
-              <Image src={Logo} alt='John Deere logo' w='7rem' h='7rem' objectFit='contain' />
-
+              <Image src={Logo} alt='Logo' w='7rem' h='7rem' objectFit='contain' />
               <VStack gap={1}>
                 <Text fontSize={{ base: '2xl', md: '3xl' }} fontWeight='extrabold' color='primary' textAlign='center'>
                   Welcome back
                 </Text>
-
                 <Text fontSize='sm' color='textSecondary' textAlign='center'>
                   Sign in to your account to continue
                 </Text>
               </VStack>
             </VStack>
 
-            <VStack gap={4} align='stretch'>
-              <Input label='Email' type='email' placeholder='Enter your email' />
+            <VStack gap={3} align='stretch'>
+              <Field.Root invalid={!!errors.email}>
+                <Input label='Email' type='email' placeholder='Enter your email' {...register('email')} />
+                <FormErrorInline message={errors.email?.message} />
+              </Field.Root>
 
-              <Input label='Password' type='password' placeholder='Enter your password' />
+              <Field.Root invalid={!!errors.password}>
+                <Input label='Password' type='password' placeholder='Enter your password' {...register('password')} />
+                <FormErrorInline message={errors.password?.message} />
+              </Field.Root>
 
-              <Button mt={2} w='100%'>
+              <Button
+                type='submit'
+                loading={mutation.isPending}
+                loadingText='Signing In...'
+                visual='primary'
+                onClick={handleSubmit(onSubmit)}
+                w='100%'
+              >
                 Sign in
               </Button>
             </VStack>
