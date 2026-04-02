@@ -1,15 +1,17 @@
 import { Input as ChakraInput, Field, InputProps } from '@chakra-ui/react';
 
 type Props = InputProps & {
-  label: string;
+  label?: string;
 };
 
 export const Input = ({ label, ...props }: Props) => {
   return (
-    <Field.Root>
-      <Field.Label mb={1.5} fontWeight='semibold' color='text'>
-        {label}
-      </Field.Label>
+    <>
+      {label && (
+        <Field.Label fontWeight='semibold' color='text'>
+          {label}
+        </Field.Label>
+      )}
 
       <ChakraInput
         h='3rem'
@@ -21,6 +23,8 @@ export const Input = ({ label, ...props }: Props) => {
         borderColor='inputBorder'
         bg='white'
         color='text'
+        outline='none'
+        boxShadow='none'
         _placeholder={{
           color: 'placeholder',
           opacity: 1,
@@ -29,9 +33,14 @@ export const Input = ({ label, ...props }: Props) => {
         _focusVisible={{
           borderColor: 'primary',
           boxShadow: '0 0 0 1px var(--chakra-colors-primary)',
+          outline: 'none',
+        }}
+        _invalid={{
+          borderColor: 'red.500',
+          boxShadow: '0 0 0 1px var(--chakra-colors-red-500)',
         }}
         {...props}
       />
-    </Field.Root>
+    </>
   );
 };
