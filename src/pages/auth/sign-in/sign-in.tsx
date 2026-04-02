@@ -5,14 +5,17 @@ import { useForm } from 'react-hook-form';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import Logo from '../../../assets/logo.png';
 import { FormErrorInline } from '../../../components';
+import { useAuth } from '../../../contexts';
 import { ROUTES } from '../../../routes';
 import { signIn } from '../../../services';
+import { storage } from '../../../shared';
 import { Button } from '../components/button';
 import { Input } from '../components/input';
 import { SignInFormData, signInSchema } from './schema';
 
 export const SignIn = () => {
   const navigate = useNavigate();
+  const { setIsAuthenticated } = useAuth();
 
   const {
     register,
@@ -29,7 +32,10 @@ export const SignIn = () => {
 
   const mutation = useMutation({
     mutationFn: signIn,
-    onSuccess: () => {
+    onSuccess: (data) => {
+      const { accessToken, refreshToken } = data;
+      storage.token.setTokens(accessToken, refreshToken);
+      setIsAuthenticated(true);
       navigate(ROUTES.DASHBOARD.BASE);
     },
     onError: () => {
