@@ -5,7 +5,14 @@ import { AuthProvider } from './contexts';
 import { Router } from './routes';
 import { colors } from './styles/colors.ts';
 
-const system = createSystem(defaultConfig, { theme: { tokens: { colors: colors } } });
+const system = createSystem(defaultConfig, {
+  theme: {
+    tokens: {
+      colors: colors
+    }
+  }
+});
+
 const queryClient = new QueryClient();
 
 export function App() {
@@ -14,6 +21,7 @@ export function App() {
       <ChakraProvider value={system}>
         <BrowserRouter>
           <AuthProvider>
+            {/* Sidebar removida daqui para não aparecer no Login */}
             <Router />
           </AuthProvider>
         </BrowserRouter>
