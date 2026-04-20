@@ -2,7 +2,7 @@ import { Box, Flex } from '@chakra-ui/react';
 import { Outlet } from 'react-router-dom';
 import { Sidebar } from './sidebar';
 
-export const AppLayout = () => {
+export const Layout = () => {
   return (
     <Flex minH='100vh' bg='background'>
       <Sidebar />

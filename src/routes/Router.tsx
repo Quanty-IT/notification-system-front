@@ -1,13 +1,12 @@
-import { Route, Routes, Navigate } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
+import { Layout } from '../components/layout.tsx';
 import { Dashboard, ForgotPassword, SignIn } from '../pages';
 import { ProtectedRoute } from './ProtectedRoute.tsx';
 import { ROUTES } from './routes.constants.ts';
-import { AppLayout } from '../components/layout.tsx'; // Certifique-se de criar este arquivo
 
 export function Router() {
   return (
     <Routes>
-      {/* --- ROTAS PÚBLICAS (Sem Sidebar) --- */}
       <Route
         path={ROUTES.AUTH.SIGN_IN}
         element={
@@ -25,15 +24,13 @@ export function Router() {
         }
       />
 
-      {/* --- ROTAS PROTEGIDAS (Com Sidebar via Layout) --- */}
       <Route
         element={
           <ProtectedRoute requireAuth={true}>
-            <AppLayout />
+            <Layout />
           </ProtectedRoute>
         }
       >
-        {/* Todas as rotas aqui dentro renderizarão dentro do Outlet do AppLayout */}
         <Route path={ROUTES.DASHBOARD.BASE} element={<Dashboard />} />
 
         {/* Exemplo de futuras rotas:
@@ -41,9 +38,8 @@ export function Router() {
         */}
       </Route>
 
-      {/* Redirecionamento para rota não encontrada ou raiz */}
-      <Route path="/" element={<Navigate to={ROUTES.DASHBOARD.BASE} replace />} />
-      <Route path="*" element={<Navigate to={ROUTES.DASHBOARD.BASE} replace />} />
+      <Route path='/' element={<Navigate to={ROUTES.DASHBOARD.BASE} replace />} />
+      <Route path='*' element={<Navigate to={ROUTES.DASHBOARD.BASE} replace />} />
     </Routes>
   );
 }
