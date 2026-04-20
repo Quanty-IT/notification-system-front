@@ -1,5 +1,11 @@
 import { Badge, Box, Button, Flex, Grid, Heading, HStack, Spinner, Stack, Text } from '@chakra-ui/react';
-import { History, Mail, MessageSquare, Monitor, Send } from 'lucide-react';
+import {
+  ChatCircleTextIcon,
+  ClockCounterClockwiseIcon,
+  EnvelopeIcon,
+  MonitorIcon,
+  PaperPlaneTiltIcon,
+} from '@phosphor-icons/react';
 import React, { useEffect, useState } from 'react';
 import { api } from '../../services/axios';
 
@@ -52,11 +58,11 @@ const TypeIcon = ({ type }: { type: Communication['type'] }) => {
 
   switch (type) {
     case 'Email':
-      return <Mail {...iconProps} />;
+      return <EnvelopeIcon {...iconProps} />;
     case 'Whatsapp':
-      return <MessageSquare {...iconProps} />;
+      return <ChatCircleTextIcon {...iconProps} />;
     case 'Teams':
-      return <Monitor {...iconProps} />;
+      return <MonitorIcon {...iconProps} />;
     default:
       return null;
   }
@@ -146,7 +152,7 @@ export const Dashboard: React.FC = () => {
             _hover={{ bg: 'secondary' }}
           >
             <HStack gap='2'>
-              <Send size={18} />
+              <PaperPlaneTiltIcon size={18} />
               <Text>Send New</Text>
             </HStack>
           </Button>
@@ -163,7 +169,7 @@ export const Dashboard: React.FC = () => {
             _hover={{ bg: 'gray.50' }}
           >
             <HStack gap='2'>
-              <History size={18} />
+              <ClockCounterClockwiseIcon size={18} />
               <Text>History</Text>
             </HStack>
           </Button>
