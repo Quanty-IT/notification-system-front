@@ -1,5 +1,5 @@
 import { HStack, Text } from '@chakra-ui/react';
-import { XCircle } from 'phosphor-react';
+import { XCircleIcon } from '@phosphor-icons/react';
 import { FormErrorInlineProps } from './types';
 
 export const FormErrorInline = ({ message }: FormErrorInlineProps) => {
@@ -8,7 +8,7 @@ export const FormErrorInline = ({ message }: FormErrorInlineProps) => {
       {' '}
       {message && (
         <>
-          <XCircle size={14} weight='duotone' color='var(--chakra-colors-error)' />
+          <XCircleIcon size={14} weight='duotone' color='var(--chakra-colors-error)' />
           <Text color='error' fontSize='xs'>
             {message}
           </Text>

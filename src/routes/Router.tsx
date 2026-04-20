@@ -1,7 +1,8 @@
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
+import { Layout } from '../components/layout.tsx';
 import { Dashboard, ForgotPassword, SignIn } from '../pages';
-import { ProtectedRoute } from './ProtectedRoute';
-import { ROUTES } from './routes.constants';
+import { ProtectedRoute } from './ProtectedRoute.tsx';
+import { ROUTES } from './routes.constants.ts';
 
 export function Router() {
   return (
@@ -22,14 +23,23 @@ export function Router() {
           </ProtectedRoute>
         }
       />
+
       <Route
-        path={ROUTES.DASHBOARD.BASE}
         element={
-          <ProtectedRoute>
-            <Dashboard />
+          <ProtectedRoute requireAuth={true}>
+            <Layout />
           </ProtectedRoute>
         }
-      />
+      >
+        <Route path={ROUTES.DASHBOARD.BASE} element={<Dashboard />} />
+
+        {/* Exemplo de futuras rotas:
+        <Route path="/templates" element={<Templates />} /> 
+        */}
+      </Route>
+
+      <Route path='/' element={<Navigate to={ROUTES.DASHBOARD.BASE} replace />} />
+      <Route path='*' element={<Navigate to={ROUTES.DASHBOARD.BASE} replace />} />
     </Routes>
   );
 }
