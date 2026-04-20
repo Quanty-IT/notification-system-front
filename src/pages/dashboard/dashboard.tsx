@@ -1,8 +1,8 @@
+import { Badge, Box, Button, Flex, Grid, Heading, HStack, Spinner, Stack, Text } from '@chakra-ui/react';
+import { History, Mail, MessageSquare, Monitor, Send } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { api } from '../../services/axios';
-import { Send, History, Mail, MessageSquare, Monitor } from 'lucide-react';
 
-// 1. Definição de Tipos Oficiais
 interface Communication {
   id: string;
   title: string;
@@ -13,32 +13,84 @@ interface Communication {
 }
 
 const MOCK_DATA: Communication[] = [
-  { id: '1', title: 'Manutenção Programada', type: 'Email', recipients: 'Todos os funcionários', status: 'Sent', timeline: '2024-05-20 10:00' },
-  { id: '2', title: 'Atualização de Segurança', type: 'Teams', recipients: 'Equipe de TI', status: 'Sent', timeline: '2024-05-20 09:30' },
-  { id: '3', title: 'Lembrete de Reunião', type: 'Whatsapp', recipients: 'Gerentes', status: 'Scheduled', timeline: '2024-05-21 14:00' },
-  { id: '4', title: 'Falha no Envio de Relatório', type: 'Email', recipients: 'financeiro@jd.com', status: 'Failed', timeline: '2024-05-19 18:00' },
+  {
+    id: '1',
+    title: 'Manutenção Programada',
+    type: 'Email',
+    recipients: 'Todos os funcionários',
+    status: 'Sent',
+    timeline: '2024-05-20 10:00',
+  },
+  {
+    id: '2',
+    title: 'Atualização de Segurança',
+    type: 'Teams',
+    recipients: 'Equipe de TI',
+    status: 'Sent',
+    timeline: '2024-05-20 09:30',
+  },
+  {
+    id: '3',
+    title: 'Lembrete de Reunião',
+    type: 'Whatsapp',
+    recipients: 'Gerentes',
+    status: 'Scheduled',
+    timeline: '2024-05-21 14:00',
+  },
+  {
+    id: '4',
+    title: 'Falha no Envio de Relatório',
+    type: 'Email',
+    recipients: 'financeiro@jd.com',
+    status: 'Failed',
+    timeline: '2024-05-19 18:00',
+  },
 ];
 
 const TypeIcon = ({ type }: { type: Communication['type'] }) => {
-  const props = { size: 16, className: 'text-gray-500' };
+  const iconProps = { size: 16 };
+
   switch (type) {
-    case 'Email': return <Mail {...props} />;
-    case 'Whatsapp': return <MessageSquare {...props} />;
-    case 'Teams': return <Monitor {...props} />;
-    default: return null;
+    case 'Email':
+      return <Mail {...iconProps} />;
+    case 'Whatsapp':
+      return <MessageSquare {...iconProps} />;
+    case 'Teams':
+      return <Monitor {...iconProps} />;
+    default:
+      return null;
   }
 };
 
 const StatusBadge = ({ status }: { status: Communication['status'] }) => {
-  const colors = {
-    Sent: 'bg-green-100 text-green-800',
-    Scheduled: 'bg-blue-100 text-blue-800',
-    Failed: 'bg-red-100 text-red-800',
+  const statusStyles = {
+    Sent: {
+      bg: 'green.100',
+      color: 'green.800',
+    },
+    Scheduled: {
+      bg: 'blue.100',
+      color: 'blue.800',
+    },
+    Failed: {
+      bg: 'red.100',
+      color: 'red.800',
+    },
   };
+
   return (
-    <span className={`px-3 py-1 rounded-full text-xs font-bold w-max ${colors[status]}`}>
+    <Badge
+      px='3'
+      py='1'
+      borderRadius='full'
+      fontSize='xs'
+      fontWeight='bold'
+      textTransform='none'
+      bg={statusStyles[status].bg}
+      color={statusStyles[status].color}
+    >
       {status}
-    </span>
+    </Badge>
   );
 };
 
@@ -52,12 +104,13 @@ export const Dashboard: React.FC = () => {
         const response = await api.get('/communications');
         setData(response.data);
       } catch (error) {
-        console.error("Falha ao carregar dados da API. Usando dados mocados como fallback.", error);
+        console.error('Falha ao carregar dados da API. Usando dados mocados como fallback.', error);
         setData(MOCK_DATA);
       } finally {
         setLoading(false);
       }
     };
+
     fetchData();
   }, []);
 
@@ -68,68 +121,176 @@ export const Dashboard: React.FC = () => {
   ];
 
   return (
-    <div className="w-full overflow-x-hidden py-10 px-4 md:px-8 lg:px-12 max-w-7xl mx-auto">
-      <div className="flex flex-wrap justify-between items-center gap-4 mb-12">
-        <h1 className="text-3xl font-bold text-gray-800 tracking-tight">Dashboard</h1>
-        <div className="flex gap-4">
-          <button className="flex items-center gap-2 bg-[#136906] text-white px-6 py-2.5 rounded-xl font-bold hover:brightness-110 transition-all shadow-lg">
-            <Send size={18} /> Send New
-          </button>
-          <button className="flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-6 py-2.5 rounded-xl font-bold hover:bg-gray-50 transition-all">
-            <History size={18} /> History
-          </button>
-        </div>
-      </div>
+    <Box
+      w='full'
+      overflowX='hidden'
+      py={{ base: '10', md: '12' }}
+      px={{ base: '4', md: '8', lg: '12' }}
+      maxW='7xl'
+      mx='auto'
+    >
+      <Flex wrap='wrap' justify='space-between' align='center' gap='4' mb='12'>
+        <Heading size='xl' color='text' letterSpacing='tight'>
+          Dashboard
+        </Heading>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-12">
-        {stats.map((stat) => (
-          <div
-            key={stat.label}
-            className="bg-[#F4FBF4] p-6 rounded-3xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center"
+        <HStack gap='4' wrap='wrap'>
+          <Button
+            bg='primary'
+            color='white'
+            px='6'
+            py='2.5'
+            borderRadius='xl'
+            fontWeight='bold'
+            boxShadow='lg'
+            _hover={{ bg: 'secondary' }}
           >
-            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">{stat.label}</span>
-            <span className="mt-2 text-4xl font-black text-gray-900">{stat.value}</span>
-          </div>
+            <HStack gap='2'>
+              <Send size={18} />
+              <Text>Send New</Text>
+            </HStack>
+          </Button>
+
+          <Button
+            bg='surface'
+            color='text'
+            borderWidth='1px'
+            borderColor='inputBorder'
+            px='6'
+            py='2.5'
+            borderRadius='xl'
+            fontWeight='bold'
+            _hover={{ bg: 'gray.50' }}
+          >
+            <HStack gap='2'>
+              <History size={18} />
+              <Text>History</Text>
+            </HStack>
+          </Button>
+        </HStack>
+      </Flex>
+
+      <Grid
+        templateColumns={{
+          base: '1fr',
+          md: 'repeat(2, 1fr)',
+          lg: 'repeat(3, 1fr)',
+        }}
+        gap={{ base: '4', md: '6' }}
+        mb='12'
+      >
+        {stats.map((stat) => (
+          <Flex
+            key={stat.label}
+            direction='column'
+            align='center'
+            justify='center'
+            textAlign='center'
+            bg='background'
+            p='6'
+            borderRadius='3xl'
+            boxShadow='sm'
+            borderWidth='1px'
+            borderColor='gray.100'
+          >
+            <Text fontSize='xs' fontWeight='bold' color='textSecondary' textTransform='uppercase' letterSpacing='wider'>
+              {stat.label}
+            </Text>
+
+            <Text mt='2' fontSize='4xl' fontWeight='black' color='text'>
+              {stat.value}
+            </Text>
+          </Flex>
         ))}
-      </div>
+      </Grid>
 
-      <div className="space-y-4">
-        <h2 className="text-xl font-bold text-gray-800">Recent Timeline</h2>
+      <Stack gap='4'>
+        <Heading size='md' color='text'>
+          Recent Timeline
+        </Heading>
 
-        <div className="w-full overflow-x-auto max-w-full pb-4">
-          <div className="grid grid-cols-5 gap-4 min-w-[800px] px-6 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider mb-4">
-            <div>Title</div>
-            <div>Channel</div>
-            <div>Recipients</div>
-            <div>Status</div>
-            <div className="text-right">Date</div>
-          </div>
+        <Box w='full' overflowX='auto' maxW='full' pb='4'>
+          <Grid templateColumns='repeat(5, 1fr)' gap='4' minW='800px' px='6' py='3' mb='4'>
+            <Text fontSize='xs' fontWeight='bold' color='textSecondary' textTransform='uppercase' letterSpacing='wider'>
+              Title
+            </Text>
+            <Text fontSize='xs' fontWeight='bold' color='textSecondary' textTransform='uppercase' letterSpacing='wider'>
+              Channel
+            </Text>
+            <Text fontSize='xs' fontWeight='bold' color='textSecondary' textTransform='uppercase' letterSpacing='wider'>
+              Recipients
+            </Text>
+            <Text fontSize='xs' fontWeight='bold' color='textSecondary' textTransform='uppercase' letterSpacing='wider'>
+              Status
+            </Text>
+            <Text
+              fontSize='xs'
+              fontWeight='bold'
+              color='textSecondary'
+              textTransform='uppercase'
+              letterSpacing='wider'
+              textAlign='right'
+            >
+              Date
+            </Text>
+          </Grid>
 
           {loading ? (
-            <div className="min-w-[800px] px-6 py-10 text-center text-gray-400">Loading records...</div>
+            <Flex
+              minW='800px'
+              px='6'
+              py='10'
+              justify='center'
+              align='center'
+              direction='column'
+              gap='3'
+              color='textSecondary'
+            >
+              <Spinner color='primary' />
+              <Text>Loading records...</Text>
+            </Flex>
           ) : (
-            <div className="flex flex-col space-y-4 min-w-[800px]">
+            <Stack gap='4' minW='800px'>
               {data.map((comm) => (
-                <div
+                <Grid
                   key={comm.id}
-                  className="grid grid-cols-5 gap-4 min-w-[800px] items-center bg-white p-5 rounded-2xl shadow-sm border border-gray-100 text-sm"
+                  templateColumns='repeat(5, 1fr)'
+                  gap='4'
+                  alignItems='center'
+                  bg='surface'
+                  p='5'
+                  borderRadius='2xl'
+                  boxShadow='sm'
+                  borderWidth='1px'
+                  borderColor='gray.100'
+                  fontSize='sm'
                 >
-                  <div className="truncate font-medium text-gray-800">{comm.title}</div>
-                  <div className="flex items-center gap-2 text-gray-600">
+                  <Text truncate fontWeight='medium' color='text'>
+                    {comm.title}
+                  </Text>
+
+                  <HStack gap='2' color='textSecondary'>
                     <TypeIcon type={comm.type} />
-                    <span>{comm.type}</span>
-                  </div>
-                  <div className="truncate text-gray-500">{comm.recipients}</div>
-                  <div>
+                    <Text>{comm.type}</Text>
+                  </HStack>
+
+                  <Text truncate color='textSecondary'>
+                    {comm.recipients}
+                  </Text>
+
+                  <Box>
                     <StatusBadge status={comm.status} />
-                  </div>
-                  <div className="text-right text-gray-500">{comm.timeline}</div>
-                </div>
+                  </Box>
+
+                  <Text textAlign='right' color='textSecondary'>
+                    {comm.timeline}
+                  </Text>
+                </Grid>
               ))}
-            </div>
+            </Stack>
           )}
-        </div>
-      </div>
-    </div>
+        </Box>
+      </Stack>
+    </Box>
   );
 };

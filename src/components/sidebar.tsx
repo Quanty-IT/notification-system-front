@@ -1,69 +1,151 @@
-import React from 'react';
+import React, { useState } from 'react';
+import {
+  Box,
+  Button,
+  Flex,
+  Icon,
+  Image,
+  Text,
+  VStack,
+} from '@chakra-ui/react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Home, PlusSquare, LayoutTemplate, LogOut } from 'lucide-react';
 import { useAuth } from '../contexts/auth-context/auth-context';
 import logo from '../assets/logo.png';
 
 const NAV_ITEMS = [
-    { to: '/dashboard', label: 'Dashboard', icon: Home },
-    { to: '/send-new', label: 'Send New', icon: PlusSquare },
-    { to: '/templates', label: 'Templates', icon: LayoutTemplate },
+  { to: '/dashboard', label: 'Dashboard', icon: Home },
+  { to: '/send-new', label: 'Send New', icon: PlusSquare },
+  { to: '/templates', label: 'Templates', icon: LayoutTemplate },
 ];
 
+const SIDEBAR_COLLAPSED_WIDTH = '88px';
+const SIDEBAR_EXPANDED_WIDTH = '220px';
+
 export const Sidebar: React.FC = () => {
-    const { logout } = useAuth();
-    const navigate = useNavigate();
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+  const [isExpanded, setIsExpanded] = useState(false);
 
-    const handleLogout = () => {
-        logout();
-        navigate('/login');
-    };
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
-    return (
-        <aside
-            className="group group/sidebar fixed left-0 top-0 z-50 flex h-screen w-20 shrink-0 flex-col bg-[#367C2B] shadow-2xl transition-all duration-300 ease-in-out hover:w-48"
+  return (
+    <Box
+      position="fixed"
+      top="0"
+      left="0"
+      h="100vh"
+      w={isExpanded ? SIDEBAR_EXPANDED_WIDTH : SIDEBAR_COLLAPSED_WIDTH}
+      bg="primary"
+      boxShadow="2xl"
+      zIndex="1000"
+      overflow="hidden"
+      transition="width 0.25s ease"
+      onMouseEnter={() => setIsExpanded(true)}
+      onMouseLeave={() => setIsExpanded(false)}
+    >
+      <Flex
+        h="88px"
+        align="center"
+        gap="3"
+        px="4"
+        borderBottom="1px solid"
+        borderColor="whiteAlpha.200"
+      >
+        <Image
+          src={logo}
+          alt="John Deere"
+          boxSize="40px"
+          minW="40px"
+          objectFit="contain"
+        />
+
+        <Text
+          color="tertiary"
+          fontSize="xl"
+          fontWeight="extrabold"
+          whiteSpace="nowrap"
+          overflow="hidden"
+          opacity={isExpanded ? 1 : 0}
+          maxW={isExpanded ? '140px' : '0'}
+          transition="all 0.2s ease"
         >
-            <div className="flex h-20 shrink-0 items-center gap-4 border-b border-white/10 pl-5 pr-4">
-                <img
-                    src={logo}
-                    alt="John Deere"
-                    className="w-12 h-12 shrink-0 object-contain"
-                />
-                <span className="whitespace-nowrap text-2xl font-extrabold tracking-tight text-[#FFDE00] opacity-0 transition-opacity duration-200 group-hover/sidebar:opacity-100">
-                    JD Notify
-                </span>
-            </div>
+          JD Notify
+        </Text>
+      </Flex>
 
-            <nav className="flex flex-1 flex-col gap-2 px-2 py-6">
-                {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
-                    <NavLink
-                        key={to}
-                        to={to}
-                        className={({ isActive }) =>
-                            `group flex items-center gap-4 rounded-2xl py-4 pl-5 pr-4 text-sm font-bold transition-all duration-200 ${isActive
-                                ? 'scale-[0.97] bg-[#285c20] text-white shadow-[inset_0px_4px_6px_rgba(0,0,0,0.3)]'
-                                : 'text-white/70 hover:bg-white/10 hover:text-white'
-                            }`
-                        }
-                    >
-                        <Icon
-                            size={20}
-                            className="shrink-0 transition-transform duration-200 group-hover:translate-x-1"
-                        />
-                        <span className="truncate opacity-0 transition-all duration-200 group-hover/sidebar:opacity-100 group-hover:translate-x-1">{label}</span>
-                    </NavLink>
-                ))}
-            </nav>
+      <VStack align="stretch" gap="2" px="2" py="6">
+        {NAV_ITEMS.map(({ to, label, icon }) => (
+          <NavLink key={to} to={to}>
+            {({ isActive }) => (
+              <Flex
+                align="center"
+                gap="4"
+                h="56px"
+                px="5"
+                borderRadius="2xl"
+                color={isActive ? 'white' : 'whiteAlpha.800'}
+                bg={isActive ? 'secondary' : 'transparent'}
+                boxShadow={isActive ? 'inset 0 4px 6px rgba(0,0,0,0.25)' : 'none'}
+                transition="all 0.2s ease"
+                _hover={{
+                  bg: isActive ? 'secondary' : 'whiteAlpha.200',
+                  color: 'white',
+                }}
+              >
+                <Icon as={icon} boxSize="5" minW="20px" />
 
-            <div className="px-2 pb-8">
-                <button
-                    onClick={handleLogout}
-                    className="group flex w-full items-center gap-4 rounded-2xl py-4 pl-5 pr-4 text-sm font-bold text-white/70 transition-all hover:bg-red-900/20 hover:text-white"
+                <Text
+                  whiteSpace="nowrap"
+                  overflow="hidden"
+                  textOverflow="ellipsis"
+                  fontSize="sm"
+                  fontWeight="bold"
+                  opacity={isExpanded ? 1 : 0}
+                  maxW={isExpanded ? '120px' : '0'}
+                  transition="all 0.2s ease"
                 >
-                    <LogOut size={20} className="shrink-0 transition-transform duration-200 group-hover:translate-x-1" />
-                    <span className="opacity-0 transition-all duration-200 group-hover/sidebar:opacity-100 group-hover:translate-x-1">Logout</span>
-                </button>
-            </div>
-        </aside>
-    );
+                  {label}
+                </Text>
+              </Flex>
+            )}
+          </NavLink>
+        ))}
+      </VStack>
+
+      <Box position="absolute" bottom="0" left="0" right="0" px="2" pb="8">
+        <Button
+          onClick={handleLogout}
+          variant="ghost"
+          w="full"
+          h="56px"
+          justifyContent="flex-start"
+          px="5"
+          borderRadius="2xl"
+          color="whiteAlpha.800"
+          _hover={{
+            bg: 'whiteAlpha.200',
+            color: 'white',
+          }}
+        >
+          <Flex align="center" gap="4">
+            <Icon as={LogOut} boxSize="5" minW="20px" />
+
+            <Text
+              whiteSpace="nowrap"
+              overflow="hidden"
+              opacity={isExpanded ? 1 : 0}
+              maxW={isExpanded ? '120px' : '0'}
+              transition="all 0.2s ease"
+            >
+              Logout
+            </Text>
+          </Flex>
+        </Button>
+      </Box>
+    </Box>
+  );
 };
