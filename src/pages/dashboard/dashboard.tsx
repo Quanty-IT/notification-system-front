@@ -1,4 +1,4 @@
-import { Badge, Box, Button, Flex, Grid, Heading, HStack, Spinner, Stack, Text } from '@chakra-ui/react';
+import { Badge, Box, Button, Flex, Grid, Heading, HStack, Stack, Text } from '@chakra-ui/react';
 import {
   ChatCircleTextIcon,
   ClockCounterClockwiseIcon,
@@ -6,8 +6,9 @@ import {
   MonitorIcon,
   PaperPlaneTiltIcon,
 } from '@phosphor-icons/react';
-import React, { useEffect, useState } from 'react';
-import { api } from '../../services/axios';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '../../routes/routes.constants';
 
 interface Communication {
   id: string;
@@ -20,36 +21,36 @@ interface Communication {
 
 const MOCK_DATA: Communication[] = [
   {
-    id: '1',
-    title: 'Manutenção Programada',
+    id: '39d6b7f5-6e0d-44e4-a58a-ba84827b7edf',
+    title: 'Welcome to the system',
     type: 'Email',
-    recipients: 'Todos os funcionários',
+    recipients: 'john.smith@company.com',
     status: 'Sent',
-    timeline: '2024-05-20 10:00',
+    timeline: '04/20/2026 14:56',
   },
   {
-    id: '2',
-    title: 'Atualização de Segurança',
+    id: '8f8d3b46-7f4d-4e88-9d25-7d7c7d0a1234',
+    title: 'Security Update',
     type: 'Teams',
-    recipients: 'Equipe de TI',
+    recipients: 'IT Team',
     status: 'Sent',
-    timeline: '2024-05-20 09:30',
+    timeline: '04/20/2026 16:30',
   },
   {
-    id: '3',
-    title: 'Lembrete de Reunião',
-    type: 'Whatsapp',
-    recipients: 'Gerentes',
-    status: 'Scheduled',
-    timeline: '2024-05-21 14:00',
-  },
-  {
-    id: '4',
-    title: 'Falha no Envio de Relatório',
+    id: '2bb1ec5d-2667-463f-a4f4-f73c44d9a321',
+    title: 'New equipment added',
     type: 'Email',
-    recipients: 'financeiro@jd.com',
+    recipients: 'assets@company.com',
+    status: 'Scheduled',
+    timeline: '04/21/2026 09:00',
+  },
+  {
+    id: '7bc22a1e-7780-43ef-87f8-45d4f1cb9912',
+    title: 'Report delivery failed',
+    type: 'Email',
+    recipients: 'finance@company.com',
     status: 'Failed',
-    timeline: '2024-05-19 18:00',
+    timeline: '04/19/2026 18:00',
   },
 ];
 
@@ -101,29 +102,7 @@ const StatusBadge = ({ status }: { status: Communication['status'] }) => {
 };
 
 export const Dashboard: React.FC = () => {
-  const [data, setData] = useState<Communication[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await api.get('/communications');
-
-        const data = Array.isArray(response.data)
-          ? response.data
-          : response.data.communications || response.data.data || [];
-
-        setData(data);
-      } catch (error) {
-        console.error('Falha ao carregar dados da API. Usando dados mocados como fallback.', error);
-        setData(MOCK_DATA);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
+  const navigate = useNavigate();
 
   const stats = [
     { label: 'Today', value: '128' },
@@ -246,75 +225,59 @@ export const Dashboard: React.FC = () => {
             </Text>
           </Grid>
 
-          {loading ? (
-            <Flex
-              minW='800px'
-              px='6'
-              py='10'
-              justify='center'
-              align='center'
-              direction='column'
-              gap='3'
-              color='textSecondary'
-            >
-              <Spinner color='primary' />
-              <Text>Loading records...</Text>
-            </Flex>
-          ) : (
-            <Stack gap='4' minW='800px'>
-              {Array.isArray(data) && data.length > 0 ? (
-                data.map((comm) => (
-                  <Grid
-                    key={comm.id}
-                    templateColumns='repeat(5, 1fr)'
-                    gap='4'
-                    alignItems='center'
-                    bg='surface'
-                    p='5'
-                    borderRadius='2xl'
-                    boxShadow='sm'
-                    borderWidth='1px'
-                    borderColor='gray.100'
-                    fontSize='sm'
-                  >
-                    <Text truncate fontWeight='medium' color='text'>
-                      {comm.title}
-                    </Text>
+          <Stack gap='4' minW='800px'>
+            {MOCK_DATA.map((comm) => (
+              <Grid
+                key={comm.id}
+                templateColumns='repeat(5, 1fr)'
+                gap='4'
+                alignItems='center'
+                bg='surface'
+                p='5'
+                borderRadius='2xl'
+                boxShadow='sm'
+                borderWidth='1px'
+                borderColor='gray.100'
+                fontSize='sm'
+                cursor='pointer'
+                role='button'
+                tabIndex={0}
+                transition='all 0.2s ease'
+                _hover={{
+                  borderColor: 'primary',
+                  transform: 'translateY(-1px)',
+                }}
+                onClick={() => navigate(ROUTES.COMMUNICATIONS.byId(comm.id))}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    navigate(ROUTES.COMMUNICATIONS.byId(comm.id));
+                  }
+                }}
+              >
+                <Text truncate fontWeight='medium' color='text'>
+                  {comm.title}
+                </Text>
 
-                    <HStack gap='2' color='textSecondary'>
-                      <TypeIcon type={comm.type} />
-                      <Text>{comm.type}</Text>
-                    </HStack>
+                <HStack gap='2' color='textSecondary'>
+                  <TypeIcon type={comm.type} />
+                  <Text>{comm.type}</Text>
+                </HStack>
 
-                    <Text truncate color='textSecondary'>
-                      {comm.recipients}
-                    </Text>
+                <Text truncate color='textSecondary'>
+                  {comm.recipients}
+                </Text>
 
-                    <Box>
-                      <StatusBadge status={comm.status} />
-                    </Box>
+                <Box>
+                  <StatusBadge status={comm.status} />
+                </Box>
 
-                    <Text textAlign='right' color='textSecondary'>
-                      {comm.timeline}
-                    </Text>
-                  </Grid>
-                ))
-              ) : (
-                <Flex
-                  minW='800px'
-                  px='6'
-                  py='10'
-                  justify='center'
-                  align='center'
-                  direction='column'
-                  gap='3'
-                  color='textSecondary'
-                >
-                  <Text>No records found</Text>
-                </Flex>
-              )}
-            </Stack>
-          )}
+                <Text textAlign='right' color='textSecondary'>
+                  {comm.timeline}
+                </Text>
+              </Grid>
+            ))}
+          </Stack>
         </Box>
       </Stack>
     </Box>
