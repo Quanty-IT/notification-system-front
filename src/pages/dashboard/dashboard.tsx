@@ -108,7 +108,12 @@ export const Dashboard: React.FC = () => {
     const fetchData = async () => {
       try {
         const response = await api.get('/communications');
-        setData(response.data);
+
+        const dadosSeguros = Array.isArray(response.data)
+          ? response.data
+          : response.data.communications || response.data.data || [];
+
+        setData(dadosSeguros);
       } catch (error) {
         console.error('Falha ao carregar dados da API. Usando dados mocados como fallback.', error);
         setData(MOCK_DATA);
@@ -257,42 +262,57 @@ export const Dashboard: React.FC = () => {
             </Flex>
           ) : (
             <Stack gap='4' minW='800px'>
-              {data.map((comm) => (
-                <Grid
-                  key={comm.id}
-                  templateColumns='repeat(5, 1fr)'
-                  gap='4'
-                  alignItems='center'
-                  bg='surface'
-                  p='5'
-                  borderRadius='2xl'
-                  boxShadow='sm'
-                  borderWidth='1px'
-                  borderColor='gray.100'
-                  fontSize='sm'
+              {Array.isArray(data) && data.length > 0 ? (
+                data.map((comm) => (
+                  <Grid
+                    key={comm.id}
+                    templateColumns='repeat(5, 1fr)'
+                    gap='4'
+                    alignItems='center'
+                    bg='surface'
+                    p='5'
+                    borderRadius='2xl'
+                    boxShadow='sm'
+                    borderWidth='1px'
+                    borderColor='gray.100'
+                    fontSize='sm'
+                  >
+                    <Text truncate fontWeight='medium' color='text'>
+                      {comm.title}
+                    </Text>
+
+                    <HStack gap='2' color='textSecondary'>
+                      <TypeIcon type={comm.type} />
+                      <Text>{comm.type}</Text>
+                    </HStack>
+
+                    <Text truncate color='textSecondary'>
+                      {comm.recipients}
+                    </Text>
+
+                    <Box>
+                      <StatusBadge status={comm.status} />
+                    </Box>
+
+                    <Text textAlign='right' color='textSecondary'>
+                      {comm.timeline}
+                    </Text>
+                  </Grid>
+                ))
+              ) : (
+                <Flex
+                  minW='800px'
+                  px='6'
+                  py='10'
+                  justify='center'
+                  align='center'
+                  direction='column'
+                  gap='3'
+                  color='textSecondary'
                 >
-                  <Text truncate fontWeight='medium' color='text'>
-                    {comm.title}
-                  </Text>
-
-                  <HStack gap='2' color='textSecondary'>
-                    <TypeIcon type={comm.type} />
-                    <Text>{comm.type}</Text>
-                  </HStack>
-
-                  <Text truncate color='textSecondary'>
-                    {comm.recipients}
-                  </Text>
-
-                  <Box>
-                    <StatusBadge status={comm.status} />
-                  </Box>
-
-                  <Text textAlign='right' color='textSecondary'>
-                    {comm.timeline}
-                  </Text>
-                </Grid>
-              ))}
+                  <Text>No records found</Text>
+                </Flex>
+              )}
             </Stack>
           )}
         </Box>

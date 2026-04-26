@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Layout } from '../components/layout.tsx';
 import { Dashboard, ForgotPassword, SignIn } from '../pages';
+import { Templates } from '../pages/templates';
 import { ProtectedRoute } from './ProtectedRoute.tsx';
 import { ROUTES } from './routes.constants.ts';
 
@@ -32,10 +33,7 @@ export function Router() {
         }
       >
         <Route path={ROUTES.DASHBOARD.BASE} element={<Dashboard />} />
-
-        {/* Exemplo de futuras rotas:
-        <Route path="/templates" element={<Templates />} /> 
-        */}
+        <Route path={ROUTES.TEMPLATES.BASE} element={<Templates />} />
       </Route>
 
       <Route path='/' element={<Navigate to={ROUTES.DASHBOARD.BASE} replace />} />
