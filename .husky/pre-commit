@@ -1,2 +1,1 @@
-pnpm format
-git diff --name-only --cached | xargs git add
+pnpm exec biome check --write --staged --no-errors-on-unmatched
