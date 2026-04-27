@@ -1,7 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
-import { Layout } from '../components/layout.tsx';
-import { Dashboard, ForgotPassword, SignIn } from '../pages';
-import { Templates } from '../pages/templates';
+import { Layout } from '../components';
+import { Dashboard, ForgotPassword, SignIn, Templates } from '../pages';
 import { ProtectedRoute } from './ProtectedRoute.tsx';
 import { ROUTES } from './routes.constants.ts';
 

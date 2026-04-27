@@ -1,6 +1,6 @@
 export const ROUTES = {
   DASHBOARD: {
-    BASE: '/dashboard', // ← era '/'
+    BASE: '/',
   },
   AUTH: {
     SIGN_IN: '/auth/sign-in',

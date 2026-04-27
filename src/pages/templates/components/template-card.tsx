@@ -15,10 +15,10 @@ export const TemplateCard = ({ template, onToggle, isToggling }: TemplateCardPro
   return (
     <Box
       border='2px solid'
-      borderColor='green.200'
+      borderColor='gray.200'
       borderRadius='2xl'
       p={5}
-      bg={template.isActive ? 'green.50' : 'white'}
+      bg='gray.50'
       display='flex'
       flexDirection='column'
       gap={3}
@@ -26,17 +26,20 @@ export const TemplateCard = ({ template, onToggle, isToggling }: TemplateCardPro
       transition='all 0.2s ease'
       _hover={{
         boxShadow: 'md',
-        borderColor: 'green.400',
+        borderColor: 'green.300',
         transform: 'translateY(-2px)',
       }}
     >
       <Heading
         as='h3'
         size='md'
-        color='green.800'
+        color='gray.800'
         cursor='pointer'
         lineHeight='1.3'
-        _hover={{ textDecoration: 'underline', color: 'green.600' }}
+        _hover={{
+          textDecoration: 'underline',
+          color: 'green.700',
+        }}
         onClick={() => navigate(`/templates/${template.id}`)}
       >
         {template.title}

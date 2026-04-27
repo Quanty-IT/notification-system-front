@@ -109,11 +109,11 @@ export const Dashboard: React.FC = () => {
       try {
         const response = await api.get('/communications');
 
-        const dadosSeguros = Array.isArray(response.data)
+        const data = Array.isArray(response.data)
           ? response.data
           : response.data.communications || response.data.data || [];
 
-        setData(dadosSeguros);
+        setData(data);
       } catch (error) {
         console.error('Falha ao carregar dados da API. Usando dados mocados como fallback.', error);
         setData(MOCK_DATA);

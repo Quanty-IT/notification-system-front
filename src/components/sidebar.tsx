@@ -4,11 +4,12 @@ import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.png';
 import { useAuth } from '../contexts/auth-context/auth-context';
+import { ROUTES } from '../routes/routes.constants';
 
 const NAV_ITEMS = [
-  { to: '/dashboard', label: 'Dashboard', icon: HouseIcon },
+  { to: ROUTES.DASHBOARD.BASE, label: 'Dashboard', icon: HouseIcon },
   { to: '/send-new', label: 'Send New', icon: PlusSquareIcon },
-  { to: '/templates', label: 'Templates', icon: SquaresFourIcon },
+  { to: ROUTES.TEMPLATES.BASE, label: 'Templates', icon: SquaresFourIcon },
 ];
 
 const SIDEBAR_COLLAPSED_WIDTH = '88px';
