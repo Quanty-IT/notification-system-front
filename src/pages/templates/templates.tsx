@@ -7,15 +7,15 @@ import type { Template } from './types';
 const MOCK_DATA: Template[] = [
   {
     id: '1',
-    title: 'Boas Vindas!',
-    description: 'Mensagem de boas-vindas enviada automaticamente para novos colaboradores ao ingressar na empresa.',
+    title: 'Welcome!',
+    description: 'Welcome message automatically sent to new employees when they join the company.',
     isActive: true,
     createdAt: '2024-05-01',
   },
   {
     id: '2',
-    title: 'Nova Máquina',
-    description: 'Comunicado enviado ao setor responsável sempre que um novo equipamento é adicionado ao inventário.',
+    title: 'New Equipment',
+    description: 'Notification sent to the responsible department whenever new equipment is added to inventory.',
     isActive: false,
     createdAt: '2024-05-02',
   },
@@ -34,13 +34,14 @@ export const Templates: React.FC = () => {
   }, []);
 
   const handleToggle = async (id: string, isActive: boolean) => {
-    setData((prev) => prev.map((t) => (t.id === id ? { ...t, isActive } : t)));
+    setData((prev) => prev.map((template) => (template.id === id ? { ...template, isActive } : template)));
     setTogglingId(id);
+
     try {
       await api.patch(`/templates/${id}`, { isActive });
     } catch (err) {
-      console.error('Erro ao atualizar template.', err);
-      setData((prev) => prev.map((t) => (t.id === id ? { ...t, isActive: !isActive } : t)));
+      console.error('Failed to update template.', err);
+      setData((prev) => prev.map((template) => (template.id === id ? { ...template, isActive: !isActive } : template)));
     } finally {
       setTogglingId(null);
     }
@@ -86,8 +87,8 @@ export const Templates: React.FC = () => {
         </Grid>
       ) : data.length === 0 ? (
         <Flex justify='center' align='center' direction='column' gap='3' py='16' color='textSecondary'>
-          <Text fontSize='lg'>Nenhum template encontrado.</Text>
-          <Text fontSize='sm'>Clique em "Create Template" para criar o primeiro.</Text>
+          <Text fontSize='lg'>No templates found.</Text>
+          <Text fontSize='sm'>Click "Create Template" to create the first one.</Text>
         </Flex>
       ) : (
         <Grid

@@ -30,7 +30,7 @@ export const TemplateToggle = ({ isActive, onChange, isLoading }: TemplateToggle
         minW='42px'
         style={{ transition: 'color 0.3s' }}
       >
-        {isActive ? 'Ativo' : 'Inativo'}
+        {isActive ? 'Active' : 'Inactive'}
       </Text>
 
       <Box

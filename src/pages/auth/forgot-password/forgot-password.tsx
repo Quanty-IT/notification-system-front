@@ -1,7 +1,7 @@
 import { Box, Image, Link, Text, VStack } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
 import Logo from '../../../assets/logo.png';
-import { ROUTES } from '../../../routes';
+import { ROUTES } from '../../../routes/routes.constants';
 
 export const ForgotPassword = () => {
   return (

@@ -8,7 +8,7 @@ import {
 } from '@phosphor-icons/react';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ROUTES } from '../../routes/routes.constants';
+import { getCommunicationDetailPath } from '../../routes/routes.constants';
 
 interface Communication {
   id: string;
@@ -247,11 +247,11 @@ export const Dashboard: React.FC = () => {
                   borderColor: 'primary',
                   transform: 'translateY(-1px)',
                 }}
-                onClick={() => navigate(ROUTES.COMMUNICATIONS.byId(comm.id))}
+                onClick={() => navigate(getCommunicationDetailPath(comm.id))}
                 onKeyDown={(event) => {
                   if (event.key === 'Enter' || event.key === ' ') {
                     event.preventDefault();
-                    navigate(ROUTES.COMMUNICATIONS.byId(comm.id));
+                    navigate(getCommunicationDetailPath(comm.id));
                   }
                 }}
               >

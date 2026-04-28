@@ -7,7 +7,7 @@ import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import Logo from '../../../assets/logo.png';
 import { FormErrorInline } from '../../../components';
 import { useAuth } from '../../../contexts';
-import { ROUTES } from '../../../routes';
+import { ROUTES } from '../../../routes/routes.constants';
 import { signIn } from '../../../services';
 import { storage } from '../../../shared';
 import { Button } from '../components/button';

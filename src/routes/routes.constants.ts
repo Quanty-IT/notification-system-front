@@ -1,14 +1,14 @@
 export const ROUTES = {
+  AUTH: {
+    SIGN_IN: '/auth/sign-in',
+    FORGOT_PASSWORD: '/auth/forgot-password',
+  },
   DASHBOARD: {
     BASE: '/',
   },
   COMMUNICATIONS: {
-    DETAIL: '/communications/:id',
-    byId: (id: string) => `/communications/${id}`,
-  },
-  AUTH: {
-    SIGN_IN: '/auth/sign-in',
-    FORGOT_PASSWORD: '/auth/forgot-password',
+    BASE: '/communications',
+    DETAILS: '/communications/:id',
   },
   TEMPLATES: {
     BASE: '/templates',
@@ -16,3 +16,5 @@ export const ROUTES = {
     DETAIL: '/templates/:id',
   },
 } as const;
+
+export const getCommunicationDetailPath = (id: string) => `/communications/${id}`;
