@@ -28,7 +28,7 @@
         "noUnknownAtRules": "off",
         "noConsole": {
           "level": "warn",
-           "options": {
+          "options": {
             "allow": ["error", "warn", "info", "assert"]
           }
         }
