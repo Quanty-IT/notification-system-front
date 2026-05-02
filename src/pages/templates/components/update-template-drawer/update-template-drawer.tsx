@@ -1,6 +1,7 @@
 import { Button, Drawer, Field, HStack, Input, Spinner, Text, Textarea, VStack } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { FormErrorInline } from '../../../../components';
@@ -21,6 +22,7 @@ export const UpdateTemplateDrawer = ({ isOpen, onClose, uuid }: UpdateTemplateDr
     handleSubmit,
     formState: { errors, isDirty },
     reset,
+    clearErrors,
   } = useForm<UpdateTemplateFormData>({
     resolver: zodResolver(updateTemplateSchema),
     defaultValues: {
@@ -57,7 +59,29 @@ export const UpdateTemplateDrawer = ({ isOpen, onClose, uuid }: UpdateTemplateDr
       reset();
       onClose();
     },
+    onError: () => {
+      clearErrors();
+    },
   });
+
+  const getErrorMessage = (): string | undefined => {
+    if (!updateMutation.error) return undefined;
+
+    const axiosError = updateMutation.error as AxiosError;
+
+    if (axiosError.response?.status === 409) {
+      return 'Template with this name already exists';
+    }
+
+    return 'Error updating template. Try again later.';
+  };
+
+  const backendError = getErrorMessage();
+  const hasNameError = !!errors.name || !!backendError;
+
+  const handleInputChange = () => {
+    if (updateMutation.error) updateMutation.reset();
+  };
 
   const onSubmit = (data: UpdateTemplateFormData) => {
     if (!uuid) return;
@@ -79,6 +103,7 @@ export const UpdateTemplateDrawer = ({ isOpen, onClose, uuid }: UpdateTemplateDr
   const handleClose = () => {
     if (updateMutation.isPending) return;
 
+    updateMutation.reset();
     reset();
     onClose();
   };
@@ -136,7 +161,7 @@ export const UpdateTemplateDrawer = ({ isOpen, onClose, uuid }: UpdateTemplateDr
 
             {!isLoadingTemplate && !isErrorTemplate && templateQuery.data && (
               <VStack as='form' id='update-template-form' gap={5} align='stretch' onSubmit={handleSubmit(onSubmit)}>
-                <Field.Root invalid={!!errors.name} position='relative' pb='22px'>
+                <Field.Root invalid={hasNameError} position='relative' pb='22px'>
                   <Field.Label mb={1} color='primary' fontWeight='bold' fontSize='sm'>
                     Name *
                   </Field.Label>
@@ -146,29 +171,29 @@ export const UpdateTemplateDrawer = ({ isOpen, onClose, uuid }: UpdateTemplateDr
                     h='2.75rem'
                     bg='white'
                     border='1px solid'
-                    borderColor={errors.name ? 'error' : 'inputBorder'}
+                    borderColor={hasNameError ? 'error' : 'inputBorder'}
                     borderRadius='md'
                     color='gray.900'
                     fontWeight='medium'
                     px={4}
                     _placeholder={{ color: 'placeholder' }}
-                    _hover={{ borderColor: errors.name ? 'error' : 'primary' }}
+                    _hover={{ borderColor: hasNameError ? 'error' : 'primary' }}
                     _focus={{
-                      borderColor: errors.name ? 'error' : 'primary',
-                      outline: errors.name
+                      borderColor: hasNameError ? 'error' : 'primary',
+                      outline: hasNameError
                         ? '1px solid var(--chakra-colors-error)'
                         : '1px solid var(--chakra-colors-primary)',
                       outlineOffset: '0px',
                     }}
                     _autofill={{
-                      boxShadow: errors.name
+                      boxShadow: hasNameError
                         ? '0 0 0px 1000px white inset, 0 0 0 1px var(--chakra-colors-error) !important'
                         : '0 0 0px 1000px white inset',
                     }}
-                    {...register('name')}
+                    {...register('name', { onChange: handleInputChange })}
                   />
 
-                  <FormErrorInline message={errors.name?.message} />
+                  <FormErrorInline message={errors.name?.message || backendError} />
                 </Field.Root>
 
                 <Field.Root invalid={!!errors.description} position='relative' pb='22px'>
@@ -203,7 +228,7 @@ export const UpdateTemplateDrawer = ({ isOpen, onClose, uuid }: UpdateTemplateDr
                         ? '0 0 0px 1000px white inset, 0 0 0 1px var(--chakra-colors-error) !important'
                         : '0 0 0px 1000px white inset',
                     }}
-                    {...register('description')}
+                    {...register('description', { onChange: handleInputChange })}
                   />
 
                   <FormErrorInline message={errors.description?.message} />
