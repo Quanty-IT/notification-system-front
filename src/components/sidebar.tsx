@@ -14,6 +14,7 @@ const NAV_ITEMS = [
 
 const SIDEBAR_COLLAPSED_WIDTH = '88px';
 const SIDEBAR_EXPANDED_WIDTH = '220px';
+const ICON_COLUMN_WIDTH = '72px';
 
 export const Sidebar: React.FC = () => {
   const { logout } = useAuth();
@@ -40,8 +41,10 @@ export const Sidebar: React.FC = () => {
       onMouseEnter={() => setIsExpanded(true)}
       onMouseLeave={() => setIsExpanded(false)}
     >
-      <Flex h='88px' align='center' gap='3' px='4' borderBottom='1px solid' borderColor='whiteAlpha.200'>
-        <Image src={logo} alt='John Deere' boxSize='40px' minW='40px' objectFit='contain' />
+      <Flex h='88px' align='center' px='2' borderBottom='1px solid' borderColor='whiteAlpha.200'>
+        <Flex w={ICON_COLUMN_WIDTH} h='88px' align='center' justify='center' flexShrink={0}>
+          <Image src={logo} alt='John Deere' boxSize='40px' objectFit='contain' />
+        </Flex>
 
         <Text
           color='tertiary'
@@ -51,7 +54,7 @@ export const Sidebar: React.FC = () => {
           overflow='hidden'
           opacity={isExpanded ? 1 : 0}
           maxW={isExpanded ? '140px' : '0'}
-          transition='all 0.2s ease'
+          transition='opacity 0.2s ease, max-width 0.25s ease'
         >
           JD Notify
         </Text>
@@ -63,20 +66,20 @@ export const Sidebar: React.FC = () => {
             {({ isActive }) => (
               <Flex
                 align='center'
-                gap='4'
                 h='56px'
-                px='5'
                 borderRadius='2xl'
                 color={isActive ? 'white' : 'whiteAlpha.800'}
                 bg={isActive ? 'secondary' : 'transparent'}
                 boxShadow={isActive ? 'inset 0 4px 6px rgba(0,0,0,0.25)' : 'none'}
-                transition='all 0.2s ease'
+                transition='background 0.2s ease, color 0.2s ease'
                 _hover={{
                   bg: isActive ? 'secondary' : 'whiteAlpha.200',
                   color: 'white',
                 }}
               >
-                <Icon as={icon} boxSize='5' minW='20px' />
+                <Flex w={ICON_COLUMN_WIDTH} h='56px' align='center' justify='center' flexShrink={0}>
+                  <Icon as={icon} boxSize='5' />
+                </Flex>
 
                 <Text
                   whiteSpace='nowrap'
@@ -86,7 +89,7 @@ export const Sidebar: React.FC = () => {
                   fontWeight='bold'
                   opacity={isExpanded ? 1 : 0}
                   maxW={isExpanded ? '120px' : '0'}
-                  transition='all 0.2s ease'
+                  transition='opacity 0.2s ease, max-width 0.25s ease'
                 >
                   {label}
                 </Text>
@@ -102,8 +105,7 @@ export const Sidebar: React.FC = () => {
           variant='ghost'
           w='full'
           h='56px'
-          justifyContent='flex-start'
-          px='5'
+          p='0'
           borderRadius='2xl'
           color='whiteAlpha.800'
           _hover={{
@@ -111,15 +113,17 @@ export const Sidebar: React.FC = () => {
             color: 'white',
           }}
         >
-          <Flex align='center' gap='4'>
-            <Icon as={SignOutIcon} boxSize='5' minW='20px' />
+          <Flex align='center' w='full' h='full'>
+            <Flex w={ICON_COLUMN_WIDTH} h='56px' align='center' justify='center' flexShrink={0}>
+              <Icon as={SignOutIcon} boxSize='5' />
+            </Flex>
 
             <Text
               whiteSpace='nowrap'
               overflow='hidden'
               opacity={isExpanded ? 1 : 0}
               maxW={isExpanded ? '120px' : '0'}
-              transition='all 0.2s ease'
+              transition='opacity 0.2s ease, max-width 0.25s ease'
             >
               Logout
             </Text>
