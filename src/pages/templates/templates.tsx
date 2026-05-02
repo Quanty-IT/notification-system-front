@@ -1,62 +1,96 @@
 import { Box, Button, Flex, Grid, Heading, Skeleton, Text } from '@chakra-ui/react';
-import React, { useEffect, useState } from 'react';
-import { api } from '../../services/axios';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import React from 'react';
+import { activateTemplate, deactivateTemplate, getTemplates } from '../../services';
 import { TemplateCard } from './components/template-card';
-import type { Template } from './types';
-
-const MOCK_DATA: Template[] = [
-  {
-    id: '1',
-    title: 'Welcome!',
-    description: 'Welcome message automatically sent to new employees when they join the company.',
-    isActive: true,
-    createdAt: '2024-05-01',
-  },
-  {
-    id: '2',
-    title: 'New Equipment',
-    description: 'Notification sent to the responsible department whenever new equipment is added to inventory.',
-    isActive: false,
-    createdAt: '2024-05-02',
-  },
-];
 
 const SKELETON_KEYS = Array.from({ length: 6 }, (_, i) => `skeleton-${i}`);
 
+type ToggleTemplateVariables = {
+  id: string;
+  isActive: boolean;
+};
+
+const gridStyle = {
+  gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+};
+
 export const Templates: React.FC = () => {
-  const [data, setData] = useState<Template[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [togglingId, setTogglingId] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    setData(MOCK_DATA);
-    setLoading(false);
-  }, []);
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['templates'],
+    queryFn: getTemplates,
+  });
 
-  const handleToggle = async (id: string, isActive: boolean) => {
-    setData((prev) => prev.map((template) => (template.id === id ? { ...template, isActive } : template)));
-    setTogglingId(id);
+  const mutation = useMutation({
+    mutationFn: async ({ id, isActive }: ToggleTemplateVariables) => {
+      if (isActive) {
+        return activateTemplate({ uuid: id });
+      }
 
-    try {
-      await api.patch(`/templates/${id}`, { isActive });
-    } catch (err) {
-      console.error('Failed to update template.', err);
-      setData((prev) => prev.map((template) => (template.id === id ? { ...template, isActive: !isActive } : template)));
-    } finally {
-      setTogglingId(null);
-    }
+      return deactivateTemplate({ uuid: id });
+    },
+
+    onMutate: async ({ id, isActive }) => {
+      await queryClient.cancelQueries({ queryKey: ['templates'] });
+
+      const previousTemplates = queryClient.getQueryData<Awaited<ReturnType<typeof getTemplates>>>(['templates']);
+
+      queryClient.setQueryData<Awaited<ReturnType<typeof getTemplates>>>(['templates'], (old) => {
+        if (!old) return old;
+
+        return {
+          ...old,
+          templates: old.templates.map((template) =>
+            template.id === id
+              ? {
+                  ...template,
+                  isActive,
+                }
+              : template,
+          ),
+        };
+      });
+
+      return { previousTemplates };
+    },
+
+    onSuccess: (response) => {
+      queryClient.setQueryData<Awaited<ReturnType<typeof getTemplates>>>(['templates'], (old) => {
+        if (!old) return old;
+
+        return {
+          ...old,
+          templates: old.templates.map((template) =>
+            template.id === response.id
+              ? {
+                  ...template,
+                  isActive: response.isActive,
+                  updatedAt: response.updatedAt,
+                }
+              : template,
+          ),
+        };
+      });
+    },
+
+    onError: (_error, _variables, context) => {
+      if (context?.previousTemplates) {
+        queryClient.setQueryData(['templates'], context.previousTemplates);
+      }
+    },
+  });
+
+  const templates = data?.templates ?? [];
+
+  const handleToggle = (id: string, isActive: boolean) => {
+    mutation.mutate({ id, isActive });
   };
 
   return (
-    <Box
-      w='full'
-      overflowX='hidden'
-      py={{ base: '10', md: '12' }}
-      px={{ base: '4', md: '8', lg: '12' }}
-      maxW='7xl'
-      mx='auto'
-    >
-      <Flex wrap='wrap' justify='space-between' align='center' gap='4' mb='12'>
+    <Box w='full' minH='100vh' overflowX='hidden' py={{ base: '6', md: '8' }} px={{ base: '4', md: '8', lg: '10' }}>
+      <Flex w='full' justify='space-between' align='center' gap='4' mb='8'>
         <Heading size='xl' color='text' letterSpacing='tight'>
           Templates
         </Heading>
@@ -76,31 +110,30 @@ export const Templates: React.FC = () => {
         </Button>
       </Flex>
 
-      {loading ? (
-        <Grid
-          templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }}
-          gap={{ base: '4', md: '6' }}
-        >
+      {isLoading ? (
+        <Grid gap={{ base: '4', md: '6' }} style={gridStyle}>
           {SKELETON_KEYS.map((key) => (
-            <Skeleton key={key} height='170px' borderRadius='2xl' />
+            <Skeleton key={key} height='200px' borderRadius='2xl' w='100%' />
           ))}
         </Grid>
-      ) : data.length === 0 ? (
+      ) : isError ? (
+        <Flex justify='center' align='center' direction='column' gap='3' py='16' color='textSecondary'>
+          <Text fontSize='lg'>Error loading templates.</Text>
+          <Text fontSize='sm'>Try again later.</Text>
+        </Flex>
+      ) : templates.length === 0 ? (
         <Flex justify='center' align='center' direction='column' gap='3' py='16' color='textSecondary'>
           <Text fontSize='lg'>No templates found.</Text>
           <Text fontSize='sm'>Click "Create Template" to create the first one.</Text>
         </Flex>
       ) : (
-        <Grid
-          templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }}
-          gap={{ base: '4', md: '6' }}
-        >
-          {data.map((template) => (
+        <Grid gap={{ base: '4', md: '6' }} style={gridStyle}>
+          {templates.map((template) => (
             <TemplateCard
               key={template.id}
               template={template}
               onToggle={handleToggle}
-              isToggling={togglingId === template.id}
+              isToggling={mutation.isPending && mutation.variables?.id === template.id}
             />
           ))}
         </Grid>

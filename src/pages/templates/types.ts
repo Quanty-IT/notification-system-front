@@ -1,7 +1,8 @@
-export interface Template {
+export type Template = {
   id: string;
-  title: string;
+  name: string;
   description: string;
   isActive: boolean;
   createdAt: string;
-}
+  updatedAt: string;
+};
