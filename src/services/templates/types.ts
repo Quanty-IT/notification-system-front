@@ -7,6 +7,11 @@ export type Template = {
   updatedAt: string;
 };
 
+export type CreateTemplateRequest = {
+  name: string;
+  description: string;
+};
+
 export type GetTemplatesResponse = {
   templates: Template[];
 };

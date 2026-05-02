@@ -2,6 +2,7 @@ import { Box, Button, Flex, Grid, Heading, Text } from '@chakra-ui/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 import { activateTemplate, deactivateTemplate, deleteTemplate, getTemplates } from '../../services';
+import { CreateTemplateDrawer } from './components/create-template-drawer';
 import { TemplateCard } from './components/template-card';
 import { TemplateCardSkeleton } from './components/template-card-skeleton';
 import { UpdateTemplateDrawer } from './components/update-template-drawer';
@@ -22,6 +23,7 @@ export const Templates: React.FC = () => {
 
   const [editUuid, setEditUuid] = React.useState<string | null>(null);
   const [selectedUuid, setSelectedUuid] = React.useState<string | null>(null);
+  const [isCreateDrawerOpen, setIsCreateDrawerOpen] = React.useState(false);
   const [isUpdateDrawerOpen, setIsUpdateDrawerOpen] = React.useState(false);
 
   const { data, isLoading, isError } = useQuery({
@@ -125,6 +127,14 @@ export const Templates: React.FC = () => {
     toggleMutation.mutate({ id, isActive });
   };
 
+  const openCreateDrawer = () => {
+    setIsCreateDrawerOpen(true);
+  };
+
+  const closeCreateDrawer = () => {
+    setIsCreateDrawerOpen(false);
+  };
+
   const openUpdateDrawer = (uuid: string) => {
     setEditUuid(uuid);
     setIsUpdateDrawerOpen(true);
@@ -146,6 +156,8 @@ export const Templates: React.FC = () => {
 
   return (
     <Box w='full' minH='100vh' overflowX='hidden' py={{ base: '6', md: '8' }} px={{ base: '4', md: '8', lg: '10' }}>
+      <CreateTemplateDrawer isOpen={isCreateDrawerOpen} onClose={closeCreateDrawer} />
+
       <UpdateTemplateDrawer isOpen={isUpdateDrawerOpen} onClose={closeUpdateDrawer} uuid={editUuid ?? undefined} />
 
       <Flex w='full' justify='space-between' align='center' gap='4' mb='8'>
@@ -162,7 +174,7 @@ export const Templates: React.FC = () => {
           fontWeight='bold'
           boxShadow='lg'
           _hover={{ bg: 'secondary' }}
-          onClick={() => {}}
+          onClick={openCreateDrawer}
         >
           Create Template
         </Button>

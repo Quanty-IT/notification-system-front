@@ -1,6 +1,11 @@
 import { api } from '../axios';
 import * as T from './types';
 
+export const createTemplate = async (payload: T.CreateTemplateRequest) => {
+  const { data } = await api.post<T.Template>('/templates', payload);
+  return data;
+};
+
 export const getTemplates = async () => {
   const { data } = await api.get<T.GetTemplatesResponse>('/templates');
   return data;
