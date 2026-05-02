@@ -6,12 +6,26 @@ export const getTemplates = async () => {
   return data;
 };
 
+export const getTemplateByUuid = async ({ uuid }: T.GetTemplateByUuidRequest) => {
+  const { data } = await api.get<T.Template>(`/templates/${uuid}`);
+  return data;
+};
+
+export const updateTemplate = async ({ uuid, data: payload }: T.UpdateTemplateRequest) => {
+  const { data } = await api.patch<T.Template>(`/templates/${uuid}`, payload);
+  return data;
+};
+
+export const deleteTemplate = async ({ uuid }: T.DeleteTemplateRequest) => {
+  await api.delete(`/templates/${uuid}`);
+};
+
 export const activateTemplate = async ({ uuid }: T.ActivateTemplateRequest) => {
-  const { data } = await api.patch<T.ToggleTemplateStatusResponse>(`/templates/${uuid}/activate`);
+  const { data } = await api.patch<T.Template>(`/templates/${uuid}/activate`);
   return data;
 };
 
 export const deactivateTemplate = async ({ uuid }: T.DeactivateTemplateRequest) => {
-  const { data } = await api.patch<T.ToggleTemplateStatusResponse>(`/templates/${uuid}/deactivate`);
+  const { data } = await api.patch<T.Template>(`/templates/${uuid}/deactivate`);
   return data;
 };

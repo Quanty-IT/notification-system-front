@@ -10,7 +10,7 @@ export const colors = {
   inputBorder: { value: '#C7D1C2' },
   placeholder: { value: '#7A8578' },
 
-  active: { value: '#68d391' },
+  active: { value: '#38a169' },
   inactive: { value: '#fc8181' },
 
   error: { value: '#E63946' },

@@ -1,15 +1,17 @@
-import { Box, Button, Flex, Grid, Heading, Skeleton, Text } from '@chakra-ui/react';
+import { Box, Button, Flex, Grid, Heading, Text } from '@chakra-ui/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import React from 'react';
-import { activateTemplate, deactivateTemplate, getTemplates } from '../../services';
+import { activateTemplate, deactivateTemplate, deleteTemplate, getTemplates } from '../../services';
 import { TemplateCard } from './components/template-card';
-
-const SKELETON_KEYS = Array.from({ length: 6 }, (_, i) => `skeleton-${i}`);
+import { TemplateCardSkeleton } from './components/template-card-skeleton';
+import { UpdateTemplateDrawer } from './components/update-template-drawer';
 
 type ToggleTemplateVariables = {
   id: string;
   isActive: boolean;
 };
+
+const SKELETON_KEYS = Array.from({ length: 6 }, (_, i) => `skeleton-${i}`);
 
 const gridStyle = {
   gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
@@ -18,12 +20,16 @@ const gridStyle = {
 export const Templates: React.FC = () => {
   const queryClient = useQueryClient();
 
+  const [editUuid, setEditUuid] = React.useState<string | null>(null);
+  const [selectedUuid, setSelectedUuid] = React.useState<string | null>(null);
+  const [isUpdateDrawerOpen, setIsUpdateDrawerOpen] = React.useState(false);
+
   const { data, isLoading, isError } = useQuery({
     queryKey: ['templates'],
     queryFn: getTemplates,
   });
 
-  const mutation = useMutation({
+  const toggleMutation = useMutation({
     mutationFn: async ({ id, isActive }: ToggleTemplateVariables) => {
       if (isActive) {
         return activateTemplate({ uuid: id });
@@ -82,14 +88,66 @@ export const Templates: React.FC = () => {
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: deleteTemplate,
+
+    onMutate: async ({ uuid }) => {
+      await queryClient.cancelQueries({ queryKey: ['templates'] });
+
+      const previousTemplates = queryClient.getQueryData<Awaited<ReturnType<typeof getTemplates>>>(['templates']);
+
+      queryClient.setQueryData<Awaited<ReturnType<typeof getTemplates>>>(['templates'], (old) => {
+        if (!old) return old;
+
+        return {
+          ...old,
+          templates: old.templates.filter((template) => template.id !== uuid),
+        };
+      });
+
+      return { previousTemplates };
+    },
+
+    onSuccess: () => {
+      setSelectedUuid(null);
+    },
+
+    onError: (_error, _variables, context) => {
+      if (context?.previousTemplates) {
+        queryClient.setQueryData(['templates'], context.previousTemplates);
+      }
+    },
+  });
+
   const templates = data?.templates ?? [];
 
   const handleToggle = (id: string, isActive: boolean) => {
-    mutation.mutate({ id, isActive });
+    toggleMutation.mutate({ id, isActive });
+  };
+
+  const openUpdateDrawer = (uuid: string) => {
+    setEditUuid(uuid);
+    setIsUpdateDrawerOpen(true);
+  };
+
+  const closeUpdateDrawer = () => {
+    setIsUpdateDrawerOpen(false);
+    setEditUuid(null);
+  };
+
+  const handleDelete = (uuid: string) => {
+    const confirmed = window.confirm('Are you sure you want to delete this template?');
+
+    if (!confirmed) return;
+
+    setSelectedUuid(uuid);
+    deleteMutation.mutate({ uuid });
   };
 
   return (
     <Box w='full' minH='100vh' overflowX='hidden' py={{ base: '6', md: '8' }} px={{ base: '4', md: '8', lg: '10' }}>
+      <UpdateTemplateDrawer isOpen={isUpdateDrawerOpen} onClose={closeUpdateDrawer} uuid={editUuid ?? undefined} />
+
       <Flex w='full' justify='space-between' align='center' gap='4' mb='8'>
         <Heading size='xl' color='text' letterSpacing='tight'>
           Templates
@@ -113,7 +171,7 @@ export const Templates: React.FC = () => {
       {isLoading ? (
         <Grid gap={{ base: '4', md: '6' }} style={gridStyle}>
           {SKELETON_KEYS.map((key) => (
-            <Skeleton key={key} height='200px' borderRadius='2xl' w='100%' />
+            <TemplateCardSkeleton key={key} />
           ))}
         </Grid>
       ) : isError ? (
@@ -133,7 +191,10 @@ export const Templates: React.FC = () => {
               key={template.id}
               template={template}
               onToggle={handleToggle}
-              isToggling={mutation.isPending && mutation.variables?.id === template.id}
+              onEdit={openUpdateDrawer}
+              onDelete={handleDelete}
+              isToggling={toggleMutation.isPending && toggleMutation.variables?.id === template.id}
+              isDeleting={deleteMutation.isPending && selectedUuid === template.id}
             />
           ))}
         </Grid>

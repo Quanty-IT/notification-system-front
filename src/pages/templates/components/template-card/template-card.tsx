@@ -1,9 +1,10 @@
-import { Box, Heading, Text } from '@chakra-ui/react';
+import { Box, Heading, IconButton, Text } from '@chakra-ui/react';
+import { PencilSimpleIcon, TrashIcon } from '@phosphor-icons/react';
 import { useNavigate } from 'react-router-dom';
 import { TemplateToggle } from '../template-toggle';
 import type { TemplateCardProps } from './types';
 
-export const TemplateCard = ({ template, onToggle, isToggling }: TemplateCardProps) => {
+export const TemplateCard = ({ template, onToggle, onEdit, onDelete, isToggling, isDeleting }: TemplateCardProps) => {
   const navigate = useNavigate();
 
   return (
@@ -63,12 +64,49 @@ export const TemplateCard = ({ template, onToggle, isToggling }: TemplateCardPro
         </Text>
       </Box>
 
-      <Box mt='auto' flexShrink={0}>
+      <Box mt='auto' display='flex' alignItems='center' justifyContent='space-between' flexShrink={0}>
         <TemplateToggle
           isActive={template.isActive}
           onChange={(val) => onToggle(template.id, val)}
           isLoading={isToggling}
         />
+
+        <Box display='flex' alignItems='center' gap={1}>
+          <IconButton
+            aria-label='Edit template'
+            size='sm'
+            variant='ghost'
+            color='gray.500'
+            _hover={{
+              color: 'green.700',
+              bg: 'green.50',
+            }}
+            onClick={(event) => {
+              event.stopPropagation();
+              onEdit(template.id);
+            }}
+          >
+            <PencilSimpleIcon size={18} weight='bold' />
+          </IconButton>
+
+          <IconButton
+            aria-label='Delete template'
+            size='sm'
+            variant='ghost'
+            color='gray.500'
+            loading={isDeleting}
+            _hover={{
+              color: 'red.600',
+              bg: 'red.50',
+            }}
+            onClick={(event) => {
+              event.stopPropagation();
+              onDelete(template.id);
+            }}
+          >
+            <TrashIcon size={18} weight='bold' />
+          </IconButton>
+        </Box>
       </Box>
     </Box>
   );
