@@ -1,76 +1,16 @@
 import { Badge, Box, Button, Flex, Grid, Heading, HStack, Link, Spinner, Stack, Text } from '@chakra-ui/react';
-import { ArrowLeftIcon, CalendarBlankIcon, ClockIcon, DownloadSimpleIcon, EnvelopeIcon } from '@phosphor-icons/react';
+import {
+  ArrowLeftIcon,
+  CalendarBlankIcon,
+  ClockIcon,
+  DownloadSimpleIcon,
+  EnvelopeIcon,
+  PencilSimpleIcon,
+} from '@phosphor-icons/react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-
-type CommunicationStatus = 'draft' | 'scheduled' | 'processing' | 'sent' | 'failed' | 'canceled';
-type CommunicationChannel = 'email';
-type CommunicationSourceType = 'manual' | 'template';
-type CommunicationBodyType = 'text' | 'html' | null;
-
-type CommunicationAttachment = {
-  id: string;
-  communicationId: string;
-  originalFileName: string;
-  storageProvider: 'r2';
-  storageKey: string;
-  fileUrl: string;
-  mimeType: string;
-  fileSizeBytes: number;
-  createdAt: string;
-};
-
-type FindCommunicationByIdResponse = {
-  id: string;
-  channel: CommunicationChannel;
-  sourceType: CommunicationSourceType;
-  status: CommunicationStatus;
-  subject: string | null;
-  body: string | null;
-  bodyType: CommunicationBodyType;
-  templateVersionId: string | null;
-  templateVariablesJson: Record<string, string | number | boolean> | null;
-  scheduledAt: string | null;
-  processingAt: string | null;
-  sentAt: string | null;
-  createdByUserId: string | null;
-  createdAt: string;
-  updatedAt: string;
-  attachments: CommunicationAttachment[];
-};
-
-const MOCK_COMMUNICATION: FindCommunicationByIdResponse = {
-  id: '39d6b7f5-6e0d-44e4-a58a-ba84827b7edf',
-  channel: 'email',
-  sourceType: 'template',
-  status: 'draft',
-  subject: 'Welcome to the system',
-  body: null,
-  bodyType: null,
-  templateVersionId: '4dd02b5f-8408-42b1-b8bb-82bf729627ad',
-  templateVariablesJson: {
-    name: 'John Smith',
-  },
-  scheduledAt: null,
-  processingAt: null,
-  sentAt: null,
-  createdByUserId: '049bbe25-c92a-4a3e-9b0b-6bed97a151da',
-  createdAt: '2026-04-20T14:56:00.000Z',
-  updatedAt: '2026-04-20T14:56:00.000Z',
-  attachments: [
-    {
-      id: 'att-1',
-      communicationId: '39d6b7f5-6e0d-44e4-a58a-ba84827b7edf',
-      originalFileName: 'Employee onboarding guide.png',
-      storageProvider: 'r2',
-      storageKey: 'attachments/employee-onboarding-guide.png',
-      fileUrl: '#',
-      mimeType: 'image/png',
-      fileSizeBytes: 442500,
-      createdAt: '2026-04-20T20:57:00.000Z',
-    },
-  ],
-};
+import { getEditCommunicationPath } from '../../../routes/routes.constants';
+import { Communication, CommunicationStatus, getCommunicationById } from '../../../services';
 
 const statusLabelMap: Record<CommunicationStatus, string> = {
   draft: 'Draft',
@@ -134,16 +74,26 @@ export const CommunicationDetails: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const [communication, setCommunication] = useState<FindCommunicationByIdResponse | null>(null);
+  const [communication, setCommunication] = useState<Communication | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const loadCommunication = React.useCallback(async (commId: string) => {
+    try {
+      setLoading(true);
+      const data = await getCommunicationById(commId);
+      setCommunication(data);
+    } catch (error) {
+      console.error('Failed to load communication:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
-    setCommunication({
-      ...MOCK_COMMUNICATION,
-      id: id ?? MOCK_COMMUNICATION.id,
-    });
-    setLoading(false);
-  }, [id]);
+    if (id) {
+      loadCommunication(id);
+    }
+  }, [id, loadCommunication]);
 
   if (loading) {
     return (
@@ -199,10 +149,10 @@ export const CommunicationDetails: React.FC = () => {
               fontSize='xs'
               fontWeight='bold'
               textTransform='none'
-              bg={statusStyles[communication.status].bg}
-              color={statusStyles[communication.status].color}
+              bg={statusStyles[communication.status as CommunicationStatus]?.bg || 'gray.100'}
+              color={statusStyles[communication.status as CommunicationStatus]?.color || 'gray.700'}
             >
-              {statusLabelMap[communication.status]}
+              {statusLabelMap[communication.status as CommunicationStatus] || communication.status}
             </Badge>
 
             <Badge px='3' py='1' borderRadius='full' bg='green.50' color='green.800' textTransform='none'>
@@ -218,17 +168,36 @@ export const CommunicationDetails: React.FC = () => {
           </HStack>
         </Box>
 
-        <Stack gap='2' fontSize='sm' color='textSecondary' ml='auto' textAlign='right' align='flex-end'>
-          <HStack gap='2'>
-            <CalendarBlankIcon size={16} />
-            <Text>Created on {formatDateTime(communication.createdAt)}</Text>
-          </HStack>
+        <HStack gap='4'>
+          <Button
+            bg='primary'
+            color='white'
+            px='6'
+            py='2.5'
+            borderRadius='xl'
+            fontWeight='bold'
+            boxShadow='lg'
+            _hover={{ bg: 'secondary' }}
+            onClick={() => navigate(getEditCommunicationPath(communication.id))}
+          >
+            <HStack gap='2'>
+              <PencilSimpleIcon size={18} />
+              <Text>Edit</Text>
+            </HStack>
+          </Button>
 
-          <HStack gap='2'>
-            <ClockIcon size={16} />
-            <Text>Updated on {formatDateTime(communication.updatedAt)}</Text>
-          </HStack>
-        </Stack>
+          <Stack gap='2' fontSize='sm' color='textSecondary' textAlign='right' align='flex-end'>
+            <HStack gap='2'>
+              <CalendarBlankIcon size={16} />
+              <Text>Created on {formatDateTime(communication.createdAt)}</Text>
+            </HStack>
+
+            <HStack gap='2'>
+              <ClockIcon size={16} />
+              <Text>Updated on {formatDateTime(communication.updatedAt)}</Text>
+            </HStack>
+          </Stack>
+        </HStack>
       </Flex>
 
       <Grid templateColumns={{ base: '1fr', xl: '2fr 1fr' }} gap='6'>
