@@ -1,60 +1,27 @@
-import { Badge, Box, Button, Flex, Grid, Heading, HStack, Stack, Text } from '@chakra-ui/react';
+import { Badge, Box, Button, Flex, Grid, Heading, HStack, IconButton, Spinner, Stack, Text } from '@chakra-ui/react';
 import {
   ChatCircleTextIcon,
   ClockCounterClockwiseIcon,
   EnvelopeIcon,
   MonitorIcon,
   PaperPlaneTiltIcon,
+  PencilSimpleIcon,
 } from '@phosphor-icons/react';
+import { useQuery } from '@tanstack/react-query';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getCommunicationDetailPath } from '../../routes/routes.constants';
+import {
+  getCommunicationDetailPath,
+  getCreateCommunicationPath,
+  getEditCommunicationPath,
+} from '../../routes/routes.constants';
+import { getCommunications } from '../../services';
 
-interface Communication {
-  id: string;
-  title: string;
+type TypeIconProps = {
   type: 'Whatsapp' | 'Teams' | 'Email';
-  recipients: string;
-  status: 'Sent' | 'Scheduled' | 'Failed';
-  timeline: string;
-}
+};
 
-const MOCK_DATA: Communication[] = [
-  {
-    id: '39d6b7f5-6e0d-44e4-a58a-ba84827b7edf',
-    title: 'Welcome to the system',
-    type: 'Email',
-    recipients: 'john.smith@company.com',
-    status: 'Sent',
-    timeline: '04/20/2026 14:56',
-  },
-  {
-    id: '8f8d3b46-7f4d-4e88-9d25-7d7c7d0a1234',
-    title: 'Security Update',
-    type: 'Teams',
-    recipients: 'IT Team',
-    status: 'Sent',
-    timeline: '04/20/2026 16:30',
-  },
-  {
-    id: '2bb1ec5d-2667-463f-a4f4-f73c44d9a321',
-    title: 'New equipment added',
-    type: 'Email',
-    recipients: 'assets@company.com',
-    status: 'Scheduled',
-    timeline: '04/21/2026 09:00',
-  },
-  {
-    id: '7bc22a1e-7780-43ef-87f8-45d4f1cb9912',
-    title: 'Report delivery failed',
-    type: 'Email',
-    recipients: 'finance@company.com',
-    status: 'Failed',
-    timeline: '04/19/2026 18:00',
-  },
-];
-
-const TypeIcon = ({ type }: { type: Communication['type'] }) => {
+const TypeIcon = ({ type }: TypeIconProps) => {
   const iconProps = { size: 16 };
 
   switch (type) {
@@ -69,21 +36,17 @@ const TypeIcon = ({ type }: { type: Communication['type'] }) => {
   }
 };
 
-const StatusBadge = ({ status }: { status: Communication['status'] }) => {
-  const statusStyles = {
-    Sent: {
-      bg: 'green.100',
-      color: 'green.800',
-    },
-    Scheduled: {
-      bg: 'blue.100',
-      color: 'blue.800',
-    },
-    Failed: {
-      bg: 'red.100',
-      color: 'red.800',
-    },
-  };
+const statusStyles: Record<string, { bg: string; color: string; label: string }> = {
+  draft: { bg: 'gray.100', color: 'gray.700', label: 'Draft' },
+  scheduled: { bg: 'blue.100', color: 'blue.800', label: 'Scheduled' },
+  processing: { bg: 'purple.100', color: 'purple.800', label: 'Processing' },
+  sent: { bg: 'green.100', color: 'green.800', label: 'Sent' },
+  failed: { bg: 'red.100', color: 'red.800', label: 'Failed' },
+  canceled: { bg: 'orange.100', color: 'orange.800', label: 'Canceled' },
+};
+
+const StatusBadge = ({ status }: { status: string }) => {
+  const style = statusStyles[status] || { bg: 'gray.100', color: 'gray.700', label: status };
 
   return (
     <Badge
@@ -93,21 +56,40 @@ const StatusBadge = ({ status }: { status: Communication['status'] }) => {
       fontSize='xs'
       fontWeight='bold'
       textTransform='none'
-      bg={statusStyles[status].bg}
-      color={statusStyles[status].color}
+      bg={style.bg}
+      color={style.color}
     >
-      {status}
+      {style.label}
     </Badge>
   );
+};
+
+const formatDateTime = (value: string | null) => {
+  if (!value) return 'Not informed';
+
+  return new Intl.DateTimeFormat('en-US', {
+    month: '2-digit',
+    day: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date(value));
 };
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
 
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['communications'],
+    queryFn: getCommunications,
+  });
+
+  const communications = data?.communications || [];
+
   const stats = [
-    { label: 'Today', value: '128' },
-    { label: 'Scheduled', value: '24' },
-    { label: 'Templates', value: '12' },
+    { label: 'Total', value: communications.length.toString() },
+    { label: 'Scheduled', value: communications.filter((c) => c.status === 'scheduled').length.toString() },
+    { label: 'Drafts', value: communications.filter((c) => c.status === 'draft').length.toString() },
   ];
 
   return (
@@ -134,6 +116,7 @@ export const Dashboard: React.FC = () => {
             fontWeight='bold'
             boxShadow='lg'
             _hover={{ bg: 'secondary' }}
+            onClick={() => navigate(getCreateCommunicationPath())}
           >
             <HStack gap='2'>
               <PaperPlaneTiltIcon size={18} />
@@ -199,86 +182,147 @@ export const Dashboard: React.FC = () => {
           Recent Timeline
         </Heading>
 
-        <Box w='full' overflowX='auto' maxW='full' pb='4'>
-          <Grid templateColumns='repeat(5, 1fr)' gap='4' minW='800px' px='6' py='3' mb='4'>
-            <Text fontSize='xs' fontWeight='bold' color='textSecondary' textTransform='uppercase' letterSpacing='wider'>
-              Title
+        {isLoading ? (
+          <Flex py='20' justify='center' align='center' direction='column' gap='4'>
+            <Spinner color='primary' size='xl' />
+            <Text color='textSecondary'>Loading communications...</Text>
+          </Flex>
+        ) : isError ? (
+          <Flex py='20' justify='center' align='center' direction='column' gap='4' bg='red.50' borderRadius='2xl'>
+            <Text color='red.600' fontWeight='bold'>
+              Error loading communications
             </Text>
-            <Text fontSize='xs' fontWeight='bold' color='textSecondary' textTransform='uppercase' letterSpacing='wider'>
-              Channel
+            <Button size='sm' onClick={() => window.location.reload()}>
+              Try again
+            </Button>
+          </Flex>
+        ) : communications.length === 0 ? (
+          <Flex py='20' justify='center' align='center' direction='column' gap='4' bg='gray.50' borderRadius='2xl'>
+            <Text color='textSecondary'>No communications found</Text>
+            <Text fontSize='sm' color='textSecondary'>
+              Click "Send New" to create one
             </Text>
-            <Text fontSize='xs' fontWeight='bold' color='textSecondary' textTransform='uppercase' letterSpacing='wider'>
-              Recipients
-            </Text>
-            <Text fontSize='xs' fontWeight='bold' color='textSecondary' textTransform='uppercase' letterSpacing='wider'>
-              Status
-            </Text>
-            <Text
-              fontSize='xs'
-              fontWeight='bold'
-              color='textSecondary'
-              textTransform='uppercase'
-              letterSpacing='wider'
-              textAlign='right'
-            >
-              Date
-            </Text>
-          </Grid>
-
-          <Stack gap='4' minW='800px'>
-            {MOCK_DATA.map((comm) => (
-              <Grid
-                key={comm.id}
-                templateColumns='repeat(5, 1fr)'
-                gap='4'
-                alignItems='center'
-                bg='surface'
-                p='5'
-                borderRadius='2xl'
-                boxShadow='sm'
-                borderWidth='1px'
-                borderColor='gray.100'
-                fontSize='sm'
-                cursor='pointer'
-                role='button'
-                tabIndex={0}
-                transition='all 0.2s ease'
-                _hover={{
-                  borderColor: 'primary',
-                  transform: 'translateY(-1px)',
-                }}
-                onClick={() => navigate(getCommunicationDetailPath(comm.id))}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter' || event.key === ' ') {
-                    event.preventDefault();
-                    navigate(getCommunicationDetailPath(comm.id));
-                  }
-                }}
+          </Flex>
+        ) : (
+          <Box w='full' overflowX='auto' maxW='full' pb='4'>
+            <Grid templateColumns='repeat(5, 1fr)' gap='4' minW='800px' px='6' py='3' mb='4'>
+              <Text
+                fontSize='xs'
+                fontWeight='bold'
+                color='textSecondary'
+                textTransform='uppercase'
+                letterSpacing='wider'
               >
-                <Text truncate fontWeight='medium' color='text'>
-                  {comm.title}
-                </Text>
+                Subject
+              </Text>
+              <Text
+                fontSize='xs'
+                fontWeight='bold'
+                color='textSecondary'
+                textTransform='uppercase'
+                letterSpacing='wider'
+              >
+                Channel
+              </Text>
+              <Text
+                fontSize='xs'
+                fontWeight='bold'
+                color='textSecondary'
+                textTransform='uppercase'
+                letterSpacing='wider'
+              >
+                Source
+              </Text>
+              <Text
+                fontSize='xs'
+                fontWeight='bold'
+                color='textSecondary'
+                textTransform='uppercase'
+                letterSpacing='wider'
+              >
+                Status
+              </Text>
+              <Text
+                fontSize='xs'
+                fontWeight='bold'
+                color='textSecondary'
+                textTransform='uppercase'
+                letterSpacing='wider'
+                textAlign='right'
+              >
+                Actions
+              </Text>
+            </Grid>
 
-                <HStack gap='2' color='textSecondary'>
-                  <TypeIcon type={comm.type} />
-                  <Text>{comm.type}</Text>
-                </HStack>
+            <Stack gap='4' minW='800px'>
+              {communications.map((comm) => (
+                <Grid
+                  key={comm.id}
+                  templateColumns='repeat(5, 1fr)'
+                  gap='4'
+                  alignItems='center'
+                  bg='surface'
+                  p='5'
+                  borderRadius='2xl'
+                  boxShadow='sm'
+                  borderWidth='1px'
+                  borderColor='gray.100'
+                  fontSize='sm'
+                  cursor='pointer'
+                  role='button'
+                  tabIndex={0}
+                  transition='all 0.2s ease'
+                  _hover={{
+                    borderColor: 'primary',
+                    transform: 'translateY(-1px)',
+                  }}
+                  onClick={() => navigate(getCommunicationDetailPath(comm.id))}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      navigate(getCommunicationDetailPath(comm.id));
+                    }
+                  }}
+                >
+                  <Text truncate fontWeight='medium' color='text'>
+                    {comm.subject || 'No subject'}
+                  </Text>
 
-                <Text truncate color='textSecondary'>
-                  {comm.recipients}
-                </Text>
+                  <HStack gap='2' color='textSecondary'>
+                    <TypeIcon type='Email' />
+                    <Text>Email</Text>
+                  </HStack>
 
-                <Box>
-                  <StatusBadge status={comm.status} />
-                </Box>
+                  <Text truncate color='textSecondary'>
+                    {comm.sourceType}
+                  </Text>
 
-                <Text textAlign='right' color='textSecondary'>
-                  {comm.timeline}
-                </Text>
-              </Grid>
-            ))}
-          </Stack>
-        </Box>
+                  <Box>
+                    <StatusBadge status={comm.status} />
+                  </Box>
+
+                  <HStack justify='flex-end' gap='2'>
+                    <Text color='textSecondary' fontSize='xs'>
+                      {formatDateTime(comm.createdAt)}
+                    </Text>
+                    <IconButton
+                      aria-label='Edit communication'
+                      variant='ghost'
+                      colorScheme='blue'
+                      size='sm'
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(getEditCommunicationPath(comm.id));
+                      }}
+                    >
+                      <PencilSimpleIcon size={18} />
+                    </IconButton>
+                  </HStack>
+                </Grid>
+              ))}
+            </Stack>
+          </Box>
+        )}
       </Stack>
     </Box>
   );

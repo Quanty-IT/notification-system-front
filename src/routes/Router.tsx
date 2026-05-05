@@ -1,6 +1,14 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Layout } from '../components';
-import { CommunicationDetails, Dashboard, ForgotPassword, SignIn, Templates } from '../pages';
+import {
+  CommunicationDetails,
+  CreateCommunication,
+  Dashboard,
+  EditCommunication,
+  ForgotPassword,
+  SignIn,
+  Templates,
+} from '../pages';
 import { ProtectedRoute } from './ProtectedRoute.tsx';
 import { ROUTES } from './routes.constants.ts';
 
@@ -33,6 +41,8 @@ export function Router() {
       >
         <Route path={ROUTES.DASHBOARD.BASE} element={<Dashboard />} />
         <Route path={ROUTES.COMMUNICATIONS.DETAILS} element={<CommunicationDetails />} />
+        <Route path={ROUTES.COMMUNICATIONS.EDIT} element={<EditCommunication />} />
+        <Route path={ROUTES.COMMUNICATIONS.CREATE} element={<CreateCommunication />} />
         <Route path={ROUTES.TEMPLATES.BASE} element={<Templates />} />
       </Route>
 

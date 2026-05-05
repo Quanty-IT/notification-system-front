@@ -9,6 +9,8 @@ export const ROUTES = {
   COMMUNICATIONS: {
     BASE: '/communications',
     DETAILS: '/communications/:id',
+    EDIT: '/communications/:id/edit',
+    CREATE: '/communications/create',
   },
   TEMPLATES: {
     BASE: '/templates',
@@ -18,3 +20,5 @@ export const ROUTES = {
 } as const;
 
 export const getCommunicationDetailPath = (id: string) => `/communications/${id}`;
+export const getEditCommunicationPath = (id: string) => `/communications/${id}/edit`;
+export const getCreateCommunicationPath = () => '/communications/create';
