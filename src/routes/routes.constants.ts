@@ -17,6 +17,9 @@ export const ROUTES = {
     NEW: '/templates/new',
     DETAIL: '/templates/:id',
   },
+  TEMPLATE_VERSIONS: {
+    BASE: '/templates/:id/versions',
+  },
 } as const;
 
 export const getCommunicationDetailPath = (id: string) => `/communications/${id}`;

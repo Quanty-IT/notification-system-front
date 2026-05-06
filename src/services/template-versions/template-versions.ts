@@ -1,28 +1,36 @@
 import { api } from '../axios';
+import * as T from './types';
 
-export type TemplateVersion = {
-  id: string;
-  templateId: string;
-  version: number;
-  subject: string;
-  body: string;
-  bodyType: 'text' | 'html';
-  variablesSchemaJson: Record<string, unknown> | null;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-};
-
-export type GetTemplateVersionsResponse = {
-  templateVersions: TemplateVersion[];
-};
-
-export const getTemplateVersionsByTemplateId = async (templateId: string): Promise<GetTemplateVersionsResponse> => {
-  const { data } = await api.get<GetTemplateVersionsResponse>(`/template-versions/template/${templateId}`);
+export const createTemplateVersion = async (payload: T.CreateTemplateVersionRequest) => {
+  const { data } = await api.post<T.TemplateVersion>('/template-versions', payload);
   return data;
 };
 
-export const getTemplateVersionById = async (id: string): Promise<TemplateVersion> => {
-  const { data } = await api.get<TemplateVersion>(`/template-versions/${id}`);
+export const getTemplateVersions = async ({ templateId }: T.GetTemplateVersionsRequest) => {
+  const { data } = await api.get<T.GetTemplateVersionsResponse>(`/template-versions/template/${templateId}`);
+  return data;
+};
+
+export const getTemplateVersionByUuid = async ({ uuid }: T.GetTemplateVersionByUuidRequest) => {
+  const { data } = await api.get<T.TemplateVersion>(`/template-versions/${uuid}`);
+  return data;
+};
+
+export const updateTemplateVersion = async ({ uuid, data: payload }: T.UpdateTemplateVersionRequest) => {
+  const { data } = await api.patch<T.TemplateVersion>(`/template-versions/${uuid}`, payload);
+  return data;
+};
+
+export const deleteTemplateVersion = async ({ uuid }: T.DeleteTemplateVersionRequest) => {
+  await api.delete(`/template-versions/${uuid}`);
+};
+
+export const activateTemplateVersion = async ({ uuid }: T.ActivateTemplateVersionRequest) => {
+  const { data } = await api.patch<T.TemplateVersion>(`/template-versions/${uuid}/activate`);
+  return data;
+};
+
+export const deactivateTemplateVersion = async ({ uuid }: T.DeactivateTemplateVersionRequest) => {
+  const { data } = await api.patch<T.TemplateVersion>(`/template-versions/${uuid}/deactivate`);
   return data;
 };

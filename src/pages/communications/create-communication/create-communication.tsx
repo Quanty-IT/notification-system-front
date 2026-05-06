@@ -25,12 +25,7 @@ import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { getCommunicationDetailPath } from '../../../routes/routes.constants';
-import {
-  CreateCommunicationInput,
-  createCommunication,
-  getTemplates,
-  getTemplateVersionsByTemplateId,
-} from '../../../services';
+import { CreateCommunicationInput, createCommunication, getTemplates, getTemplateVersions } from '../../../services';
 
 const createSchema = z
   .object({
@@ -115,19 +110,17 @@ export const CreateCommunication: React.FC = () => {
 
   const { data: versionsData, isLoading: isLoadingVersions } = useQuery({
     queryKey: ['template-versions', selectedTemplateId],
-    queryFn: () => {
-      if (!selectedTemplateId) return Promise.reject(new Error('No selection'));
-      return getTemplateVersionsByTemplateId(selectedTemplateId);
-    },
+    queryFn: () => getTemplateVersions({ templateId: selectedTemplateId ?? '' }),
     enabled: !!selectedTemplateId && sourceType === 'template',
   });
 
-  const selectedVersion = versionsData?.templateVersions.find((v) => v.id === selectedVersionId);
+  const selectedVersion = versionsData?.templateVersions.find((version) => version.id === selectedVersionId);
 
   // Effects
   useEffect(() => {
     if (versionsData?.templateVersions && versionsData.templateVersions.length > 0) {
-      const activeVersion = versionsData.templateVersions.find((v) => v.isActive) || versionsData.templateVersions[0];
+      const activeVersion =
+        versionsData.templateVersions.find((version) => version.isActive) || versionsData.templateVersions[0];
       setValue('templateVersionId', activeVersion.id);
 
       if (activeVersion.variablesSchemaJson) {
@@ -145,15 +138,23 @@ export const CreateCommunication: React.FC = () => {
 
   const getErrorMessage = (error: unknown): string => {
     if (error instanceof AxiosError) {
-      const data = error.response?.data as { message?: string | string[]; errors?: unknown };
-      if (data?.message && Array.isArray(data.message)) {
+      const data = error.response?.data as { message?: string | string[]; errors?: unknown } | undefined;
+
+      if (Array.isArray(data?.message)) {
         return data.message.join(', ');
       }
+
+      if (typeof data?.message === 'string') {
+        return data.message;
+      }
+
       if (data?.errors) {
         return typeof data.errors === 'string' ? data.errors : JSON.stringify(data.errors);
       }
-      return data?.message || error.message;
+
+      return error.message;
     }
+
     return 'An unexpected error occurred';
   };
 

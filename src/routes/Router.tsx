@@ -8,6 +8,7 @@ import {
   ForgotPassword,
   SignIn,
   Templates,
+  TemplateVersions,
 } from '../pages';
 import { ProtectedRoute } from './ProtectedRoute.tsx';
 import { ROUTES } from './routes.constants.ts';
@@ -23,6 +24,7 @@ export function Router() {
           </ProtectedRoute>
         }
       />
+
       <Route
         path={ROUTES.AUTH.FORGOT_PASSWORD}
         element={
@@ -44,9 +46,9 @@ export function Router() {
         <Route path={ROUTES.COMMUNICATIONS.EDIT} element={<EditCommunication />} />
         <Route path={ROUTES.COMMUNICATIONS.CREATE} element={<CreateCommunication />} />
         <Route path={ROUTES.TEMPLATES.BASE} element={<Templates />} />
+        <Route path={ROUTES.TEMPLATE_VERSIONS.BASE} element={<TemplateVersions />} />
       </Route>
 
-      <Route path='/' element={<Navigate to={ROUTES.DASHBOARD.BASE} replace />} />
       <Route path='*' element={<Navigate to={ROUTES.DASHBOARD.BASE} replace />} />
     </Routes>
   );

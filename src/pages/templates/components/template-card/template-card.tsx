@@ -1,12 +1,17 @@
 import { Box, Heading, IconButton, Text } from '@chakra-ui/react';
 import { PencilSimpleIcon, TrashIcon } from '@phosphor-icons/react';
-import { useNavigate } from 'react-router-dom';
 import { TemplateToggle } from '../template-toggle';
 import type { TemplateCardProps } from './types';
 
-export const TemplateCard = ({ template, onToggle, onEdit, onDelete, isToggling, isDeleting }: TemplateCardProps) => {
-  const navigate = useNavigate();
-
+export const TemplateCard = ({
+  template,
+  onClick,
+  onToggle,
+  onEdit,
+  onDelete,
+  isToggling,
+  isDeleting,
+}: TemplateCardProps) => {
   return (
     <Box
       w='100%'
@@ -21,7 +26,17 @@ export const TemplateCard = ({ template, onToggle, onEdit, onDelete, isToggling,
       gap={3}
       h='200px'
       overflow='hidden'
+      cursor='pointer'
       transition='all 0.2s ease'
+      role='button'
+      tabIndex={0}
+      onClick={onClick}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          onClick?.();
+        }
+      }}
       _hover={{
         boxShadow: 'md',
         borderColor: 'gray.300',
@@ -32,7 +47,6 @@ export const TemplateCard = ({ template, onToggle, onEdit, onDelete, isToggling,
         as='h3'
         size='md'
         color='gray.800'
-        cursor='pointer'
         lineHeight='1.3'
         overflow='hidden'
         textOverflow='ellipsis'
@@ -42,7 +56,6 @@ export const TemplateCard = ({ template, onToggle, onEdit, onDelete, isToggling,
           textDecoration: 'underline',
           color: 'green.700',
         }}
-        onClick={() => navigate(`/templates/${template.id}`)}
       >
         {template.name}
       </Heading>
@@ -65,11 +78,17 @@ export const TemplateCard = ({ template, onToggle, onEdit, onDelete, isToggling,
       </Box>
 
       <Box mt='auto' display='flex' alignItems='center' justifyContent='space-between' flexShrink={0}>
-        <TemplateToggle
-          isActive={template.isActive}
-          onChange={(val) => onToggle(template.id, val)}
-          isLoading={isToggling}
-        />
+        <Box
+          onClick={(event) => {
+            event.stopPropagation();
+          }}
+        >
+          <TemplateToggle
+            isActive={template.isActive}
+            onChange={(val) => onToggle(template.id, val)}
+            isLoading={isToggling}
+          />
+        </Box>
 
         <Box display='flex' alignItems='center' gap={1}>
           <IconButton

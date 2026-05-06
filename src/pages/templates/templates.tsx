@@ -1,6 +1,7 @@
 import { Box, Button, Flex, Grid, Heading, Text } from '@chakra-ui/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { activateTemplate, deactivateTemplate, deleteTemplate, getTemplates } from '../../services';
 import { CreateTemplateDrawer } from './components/create-template-drawer';
 import { TemplateCard } from './components/template-card';
@@ -19,6 +20,12 @@ const gridStyle = {
 };
 
 export const Templates: React.FC = () => {
+  const navigate = useNavigate();
+
+  const openVersions = (uuid: string) => {
+    navigate(`/templates/${uuid}/versions`);
+  };
+
   const queryClient = useQueryClient();
 
   const [editUuid, setEditUuid] = React.useState<string | null>(null);
@@ -202,6 +209,7 @@ export const Templates: React.FC = () => {
             <TemplateCard
               key={template.id}
               template={template}
+              onClick={() => openVersions(template.id)}
               onToggle={handleToggle}
               onEdit={openUpdateDrawer}
               onDelete={handleDelete}
