@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { getTemplateByUuid, getTemplateVersions } from '../../services';
+import { CreateTemplateVersionDrawer } from './components/create-template-version-drawer';
 
 const gridStyle = {
   gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
@@ -10,6 +11,8 @@ const gridStyle = {
 
 export const TemplateVersions: React.FC = () => {
   const { id } = useParams();
+
+  const [isCreateDrawerOpen, setIsCreateDrawerOpen] = React.useState(false);
 
   const templateQuery = useQuery({
     queryKey: ['templates', 'detail', id],
@@ -48,6 +51,12 @@ export const TemplateVersions: React.FC = () => {
 
   return (
     <Box w='full' minH='100vh' overflowX='hidden' py={{ base: '6', md: '8' }} px={{ base: '4', md: '8', lg: '10' }}>
+      <CreateTemplateVersionDrawer
+        isOpen={isCreateDrawerOpen}
+        onClose={() => setIsCreateDrawerOpen(false)}
+        templateId={id ?? ''}
+      />
+
       <Flex w='full' justify='space-between' align='flex-start' gap='6' mb='8'>
         <Box minW={0}>
           <Heading size='xl' color='text' letterSpacing='tight' mb='2'>
@@ -69,6 +78,7 @@ export const TemplateVersions: React.FC = () => {
           boxShadow='lg'
           flexShrink={0}
           _hover={{ bg: 'secondary' }}
+          onClick={() => setIsCreateDrawerOpen(true)}
         >
           Create Version
         </Button>
