@@ -24,8 +24,8 @@ import React, { useEffect, useState } from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
-import { getCommunicationDetailPath } from '../../../routes/routes.constants';
-import { CreateCommunicationInput, createCommunication, getTemplates, getTemplateVersions } from '../../../services';
+import { getCommunicationDetailPath } from '@/routes';
+import { CreateCommunicationInput, createCommunication, getTemplates, getTemplateVersions } from '@/services';
 
 const createSchema = z
   .object({

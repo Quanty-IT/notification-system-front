@@ -2,9 +2,9 @@ import { Box, Button, Flex, Icon, Image, Text, VStack } from '@chakra-ui/react';
 import { HouseIcon, PlusSquareIcon, SignOutIcon, SquaresFourIcon } from '@phosphor-icons/react';
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import logo from '../assets/logo.png';
-import { useAuth } from '../contexts/auth-context/auth-context';
-import { ROUTES } from '../routes/routes.constants';
+import { useAuth } from '@/contexts';
+import { ROUTES } from '@/routes';
+import logo from '../../../assets/logo.png';
 
 const NAV_ITEMS = [
   { to: ROUTES.DASHBOARD.BASE, label: 'Dashboard', icon: HouseIcon },

@@ -2,11 +2,8 @@ import { Box, Button, Flex, Grid, Heading, Text } from '@chakra-ui/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { activateTemplate, deactivateTemplate, deleteTemplate, getTemplates } from '../../services';
-import { CreateTemplateDrawer } from './components/create-template-drawer';
-import { TemplateCard } from './components/template-card';
-import { TemplateCardSkeleton } from './components/template-card-skeleton';
-import { UpdateTemplateDrawer } from './components/update-template-drawer';
+import { activateTemplate, deactivateTemplate, deleteTemplate, getTemplates } from '@/services';
+import { CreateTemplateDrawer, TemplateCard, TemplateCardSkeleton, UpdateTemplateDrawer } from './components';
 
 type ToggleTemplateVariables = {
   id: string;

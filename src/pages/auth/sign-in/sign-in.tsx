@@ -4,14 +4,13 @@ import { useMutation } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { useForm } from 'react-hook-form';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts';
+import { ROUTES } from '@/routes';
+import { signIn } from '@/services';
+import { storage } from '@/shared';
+import { FormErrorInline } from '@/shared/components';
 import Logo from '../../../assets/logo.png';
-import { FormErrorInline } from '../../../components';
-import { useAuth } from '../../../contexts';
-import { ROUTES } from '../../../routes/routes.constants';
-import { signIn } from '../../../services';
-import { storage } from '../../../shared';
-import { Button } from '../components/button';
-import { Input } from '../components/input';
+import { Button, Input } from '../components';
 import { SignInFormData, signInSchema } from './schema';
 
 export const SignIn = () => {

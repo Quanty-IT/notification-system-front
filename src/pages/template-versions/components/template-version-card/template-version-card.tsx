@@ -1,6 +1,6 @@
 import { Box, Heading, IconButton, Text } from '@chakra-ui/react';
 import { PencilSimpleIcon, TrashIcon } from '@phosphor-icons/react';
-import { TemplateToggle } from '../../../templates/components/template-toggle';
+import { Toggle } from '@/shared';
 import type { TemplateVersionCardProps } from './types';
 
 export const TemplateVersionCard = ({
@@ -86,7 +86,7 @@ export const TemplateVersionCard = ({
             event.stopPropagation();
           }}
         >
-          <TemplateToggle
+          <Toggle
             isActive={version.isActive}
             onChange={(value) => onToggle(version.id, value)}
             isLoading={isToggling}

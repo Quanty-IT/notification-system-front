@@ -1,6 +1,6 @@
 import { Box, Heading, IconButton, Text } from '@chakra-ui/react';
 import { PencilSimpleIcon, TrashIcon } from '@phosphor-icons/react';
-import { TemplateToggle } from '../template-toggle';
+import { Toggle } from '@/shared';
 import type { TemplateCardProps } from './types';
 
 export const TemplateCard = ({
@@ -83,11 +83,7 @@ export const TemplateCard = ({
             event.stopPropagation();
           }}
         >
-          <TemplateToggle
-            isActive={template.isActive}
-            onChange={(val) => onToggle(template.id, val)}
-            isLoading={isToggling}
-          />
+          <Toggle isActive={template.isActive} onChange={(val) => onToggle(template.id, val)} isLoading={isToggling} />
         </Box>
 
         <Box display='flex' alignItems='center' gap={1}>

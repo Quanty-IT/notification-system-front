@@ -1,7 +1,7 @@
 import { Box } from '@chakra-ui/react';
-import { TemplateToggleProps } from './types';
+import type { ToggleProps } from './types';
 
-export const TemplateToggle = ({ isActive, onChange, isLoading }: TemplateToggleProps) => {
+export const Toggle = ({ isActive, onChange, isLoading = false }: ToggleProps) => {
   return (
     <Box
       display='flex'

@@ -10,12 +10,8 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  getCommunicationDetailPath,
-  getCreateCommunicationPath,
-  getEditCommunicationPath,
-} from '../../routes/routes.constants';
-import { getCommunications } from '../../services';
+import { getCommunicationDetailPath, getCreateCommunicationPath, getEditCommunicationPath } from '@/routes';
+import { getCommunications } from '@/services';
 
 type TypeIconProps = {
   type: 'Whatsapp' | 'Teams' | 'Email';

@@ -1,5 +1,4 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
-import { Layout } from '../components';
 import {
   CommunicationDetails,
   CreateCommunication,
@@ -9,9 +8,9 @@ import {
   SignIn,
   Templates,
   TemplateVersions,
-} from '../pages';
-import { ProtectedRoute } from './ProtectedRoute.tsx';
-import { ROUTES } from './routes.constants.ts';
+} from '@/pages';
+import { ProtectedRoute, ROUTES } from '@/routes';
+import { Layout } from '@/shared/components';
 
 export function Router() {
   return (

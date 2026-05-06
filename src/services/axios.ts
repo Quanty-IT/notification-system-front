@@ -1,6 +1,6 @@
 import axios, { InternalAxiosRequestConfig } from 'axios';
-import { ROUTES } from '../routes/routes.constants';
-import { storage } from '../shared';
+import { ROUTES } from '@/routes';
+import { storage } from '@/shared';
 import { refreshToken } from './auth';
 
 export const api = axios.create({

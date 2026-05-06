@@ -1,4 +1,4 @@
-import type { Template } from '../../../../services/templates/types';
+import { Template } from '../../types';
 
 export type TemplateCardProps = {
   template: Template;

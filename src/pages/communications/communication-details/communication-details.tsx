@@ -9,8 +9,8 @@ import {
 } from '@phosphor-icons/react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getEditCommunicationPath } from '../../../routes/routes.constants';
-import { Communication, CommunicationStatus, getCommunicationById } from '../../../services';
+import { getEditCommunicationPath } from '@/routes';
+import { Communication, CommunicationStatus, getCommunicationById } from '@/services';
 
 const statusLabelMap: Record<CommunicationStatus, string> = {
   draft: 'Draft',

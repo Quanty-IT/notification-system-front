@@ -15,9 +15,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 import { Controller, useForm } from 'react-hook-form';
-
-import { FormErrorInline } from '../../../../components';
-import { createTemplateVersion } from '../../../../services';
+import { createTemplateVersion } from '@/services';
+import { FormErrorInline } from '@/shared/components';
 import {
   CreateTemplateVersionFormData,
   createTemplateVersionSchema,
@@ -268,7 +267,7 @@ export const CreateTemplateVersionDrawer = ({ isOpen, onClose, templateId }: Pro
 
                   {variableNames.length === 0 ? (
                     <Text fontSize='sm' color='textSecondary'>
-                      Use variáveis no formato {'{{name}}'}, {'{{company}}'} ou {'{{link}}'} no corpo do template.
+                      This template version has no variables.
                     </Text>
                   ) : (
                     <VStack align='stretch' gap={4} w='full'>

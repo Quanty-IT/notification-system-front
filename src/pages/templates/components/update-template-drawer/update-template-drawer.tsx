@@ -4,8 +4,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { FormErrorInline } from '../../../../components';
-import { getTemplateByUuid, updateTemplate } from '../../../../services';
+import { getTemplateByUuid, updateTemplate } from '@/services';
+import { FormErrorInline } from '@/shared/components';
 import { UpdateTemplateFormData, updateTemplateSchema } from './schema';
 
 type UpdateTemplateDrawerProps = {

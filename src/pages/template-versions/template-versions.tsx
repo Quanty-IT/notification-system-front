@@ -8,10 +8,8 @@ import {
   deleteTemplateVersion,
   getTemplateByUuid,
   getTemplateVersions,
-} from '../../services';
-import { CreateTemplateVersionDrawer } from './components/create-template-version-drawer';
-import { TemplateVersionCard } from './components/template-version-card';
-import { UpdateTemplateVersionDrawer } from './components/update-template-version-drawer';
+} from '@/services';
+import { CreateTemplateVersionDrawer, TemplateVersionCard, UpdateTemplateVersionDrawer } from './components';
 
 type ToggleTemplateVersionVariables = {
   uuid: string;

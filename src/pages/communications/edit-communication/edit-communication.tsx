@@ -18,14 +18,13 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
-
 import { ArrowLeftIcon, FloppyDiskIcon, PaperclipIcon, PlusIcon, TrashIcon } from '@phosphor-icons/react';
 import { AxiosError } from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import { z } from 'zod';
-import { getCommunicationDetailPath } from '../../../routes/routes.constants';
+import { getCommunicationDetailPath } from '@/routes';
 import {
   addAttachment,
   addRecipient,
@@ -34,7 +33,7 @@ import {
   removeAttachment,
   removeRecipient,
   updateCommunication,
-} from '../../../services';
+} from '@/services';
 
 const updateSchema = z.object({
   subject: z.string().max(255).nullable().optional(),
@@ -115,7 +114,7 @@ export const EditCommunication: React.FC = () => {
 
   const getErrorMessage = (error: unknown): string => {
     if (error instanceof AxiosError) {
-      const data = error.response?.data as { message?: string | string[]; errors?: unknown };
+      const data = error.response?.data as { message?: string; errors?: unknown };
       if (data?.message && Array.isArray(data.message)) {
         return data.message.join(', ');
       }

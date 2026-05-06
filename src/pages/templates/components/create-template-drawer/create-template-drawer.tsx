@@ -3,8 +3,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { useForm } from 'react-hook-form';
-import { FormErrorInline } from '../../../../components';
-import { createTemplate } from '../../../../services';
+import { createTemplate } from '@/services';
+import { FormErrorInline } from '@/shared/components';
 import { CreateTemplateFormData, createTemplateSchema } from './schema';
 
 type CreateTemplateDrawerProps = {
