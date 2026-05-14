@@ -1,5 +1,5 @@
-import DOMPurify from 'dompurify';
 import { Box, Text } from '@chakra-ui/react';
+import DOMPurify from 'dompurify';
 
 type TemplateBodyPreviewProps = {
   value: string;
@@ -14,16 +14,16 @@ export const TemplateBodyPreview = ({ value, isHtml }: TemplateBodyPreviewProps)
 
   if (!isHtml) {
     return (
-      <Box border="1px solid" borderColor="inputBorder" borderRadius="md" p="4">
-        <Text whiteSpace="pre-wrap">{value || 'Pré-visualização do texto...'}</Text>
+      <Box border='1px solid' borderColor='inputBorder' borderRadius='md' p='4'>
+        <Text whiteSpace='pre-wrap'>{value || 'Pré-visualização do texto...'}</Text>
       </Box>
     );
   }
 
   return (
-    <Box border="1px solid" borderColor="inputBorder" borderRadius="md" overflow="hidden">
+    <Box border='1px solid' borderColor='inputBorder' borderRadius='md' overflow='hidden'>
       <iframe
-        title="HTML preview"
+        title='HTML preview'
         srcDoc={sanitizedHtml}
         style={{
           width: '100%',
@@ -31,7 +31,7 @@ export const TemplateBodyPreview = ({ value, isHtml }: TemplateBodyPreviewProps)
           border: 'none',
           background: 'white',
         }}
-        sandbox=""
+        sandbox=''
       />
     </Box>
   );

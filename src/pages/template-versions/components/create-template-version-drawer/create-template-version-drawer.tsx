@@ -1,29 +1,18 @@
-import {
-  Badge,
-  Box,
-  Button,
-  Drawer,
-  Field,
-  HStack,
-  Input,
-  NativeSelect,
-  Text,
-  VStack,
-} from '@chakra-ui/react';
-import { TemplateBodyEditor } from '../template-body-editor';
+import { Badge, Box, Button, Drawer, Field, HStack, Input, NativeSelect, Text, VStack } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { createTemplateVersion } from '@/services';
 import { FormErrorInline } from '@/shared/components';
+import { TemplateBodyEditor } from '../template-body-editor';
+import { TemplateBodyPreview } from '../template-body-preview';
 import {
   CreateTemplateVersionFormData,
   createTemplateVersionSchema,
   TemplateVariableType,
   templateVariableTypes,
 } from './schema';
-import { TemplateBodyPreview } from '../template-body-preview';
 
 type Props = {
   isOpen: boolean;
@@ -247,14 +236,10 @@ export const CreateTemplateVersionDrawer = ({ isOpen, onClose, templateId }: Pro
                   </HStack>
 
                   <Controller
-                    name="body"
+                    name='body'
                     control={control}
                     render={({ field }) => (
-                      <TemplateBodyEditor
-                        value={field.value}
-                        onChange={field.onChange}
-                        hasError={!!errors.body}
-                      />
+                      <TemplateBodyEditor value={field.value} onChange={field.onChange} hasError={!!errors.body} />
                     )}
                   />
 
@@ -267,10 +252,7 @@ export const CreateTemplateVersionDrawer = ({ isOpen, onClose, templateId }: Pro
                   <Field.Label color='primary' fontWeight='bold' fontSize='sm' mb='0'>
                     Preview
                   </Field.Label>
-                  <TemplateBodyPreview
-                    value={body ?? ''}
-                    isHtml={bodyType === 'html'}
-                  />
+                  <TemplateBodyPreview value={body ?? ''} isHtml={bodyType === 'html'} />
                 </VStack>
               </Field.Root>
 

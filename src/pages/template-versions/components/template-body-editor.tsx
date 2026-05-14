@@ -1,7 +1,6 @@
-import CodeMirror from '@uiw/react-codemirror';
-import { html } from '@codemirror/lang-html';
-
 import { Box } from '@chakra-ui/react';
+import { html } from '@codemirror/lang-html';
+import CodeMirror from '@uiw/react-codemirror';
 
 type TemplateBodyEditorProps = {
   value: string;
@@ -9,27 +8,21 @@ type TemplateBodyEditorProps = {
   hasError?: boolean;
 };
 
-export const TemplateBodyEditor = ({
-  value,
-  onChange,
-  hasError,
-}: TemplateBodyEditorProps) => {
+export const TemplateBodyEditor = ({ value, onChange, hasError }: TemplateBodyEditorProps) => {
   return (
     <Box
-      w="full"
-      minH="20rem"
-      border="1px solid"
+      w='full'
+      minH='20rem'
+      border='1px solid'
       borderColor={hasError ? 'error' : 'inputBorder'}
-      borderRadius="md"
-      overflow="hidden"
-      bg="white"
+      borderRadius='md'
+      overflow='hidden'
+      bg='white'
     >
       <CodeMirror
         value={value}
-        height="20rem"
-        extensions={[
-          html()
-        ]}
+        height='20rem'
+        extensions={[html()]}
         basicSetup={{
           lineNumbers: true,
           foldGutter: true,
@@ -40,7 +33,7 @@ export const TemplateBodyEditor = ({
         onChange={(nextValue) => {
           onChange(nextValue);
         }}
-        placeholder="Digite um texto simples ou cole um HTML completo"
+        placeholder='Digite um texto simples ou cole um HTML completo'
         style={{
           fontSize: '14px',
         }}
