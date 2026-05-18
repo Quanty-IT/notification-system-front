@@ -11,7 +11,6 @@ import {
   IconButton,
   Input,
   Stack,
-  Table,
   Text,
   Textarea,
   useDisclosure,
@@ -222,7 +221,7 @@ export const CreateCommunication: React.FC = () => {
         </HStack>
       </Button>
 
-      <Flex justify='space-between' align='center' mb='10'>
+      <Flex justify='space-between' align={{ base: 'flex-start', md: 'center' }} gap='4' wrap='wrap' mb='10'>
         <Heading size='xl' color='text' letterSpacing='tight'>
           New Communication
         </Heading>
@@ -494,24 +493,34 @@ export const CreateCommunication: React.FC = () => {
               </Button>
             </Flex>
 
-            <Table.Root variant='line' size='sm'>
-              <Table.Header>
-                <Table.Row>
-                  <Table.ColumnHeader>Email</Table.ColumnHeader>
-                  <Table.ColumnHeader>Type</Table.ColumnHeader>
-                  <Table.ColumnHeader w='50px'></Table.ColumnHeader>
-                </Table.Row>
-              </Table.Header>
-              <Table.Body>
+            {recipients.length === 0 ? (
+              <Flex py='8' justify='center' align='center' bg='gray.50' borderRadius='xl'>
+                <Text color='textSecondary' fontSize='sm'>
+                  No recipients added yet.
+                </Text>
+              </Flex>
+            ) : (
+              <Stack gap='3'>
                 {recipients.map((recipient) => (
-                  <Table.Row key={`${recipient.email}-${recipient.recipientType}`}>
-                    <Table.Cell>{recipient.email}</Table.Cell>
-                    <Table.Cell>
+                  <Flex
+                    key={`${recipient.email}-${recipient.recipientType}`}
+                    align='center'
+                    justify='space-between'
+                    p='3'
+                    borderWidth='1px'
+                    borderColor='gray.100'
+                    borderRadius='xl'
+                    bg='white'
+                  >
+                    <Box minW='0' flex='1' mr='3'>
+                      <Text fontWeight='medium' color='text' truncate>
+                        {recipient.email}
+                      </Text>
+                    </Box>
+                    <HStack gap='3'>
                       <Badge variant='subtle' colorScheme='blue'>
                         {recipient.recipientType}
                       </Badge>
-                    </Table.Cell>
-                    <Table.Cell>
                       <IconButton
                         aria-label='Remove recipient'
                         variant='ghost'
@@ -521,20 +530,11 @@ export const CreateCommunication: React.FC = () => {
                       >
                         <TrashIcon size={16} />
                       </IconButton>
-                    </Table.Cell>
-                  </Table.Row>
+                    </HStack>
+                  </Flex>
                 ))}
-                {recipients.length === 0 && (
-                  <Table.Row>
-                    <Table.Cell colSpan={3} textAlign='center' py='4'>
-                      <Text color='textSecondary' fontSize='sm'>
-                        No recipients added yet.
-                      </Text>
-                    </Table.Cell>
-                  </Table.Row>
-                )}
-              </Table.Body>
-            </Table.Root>
+              </Stack>
+            )}
           </Box>
         </Stack>
 

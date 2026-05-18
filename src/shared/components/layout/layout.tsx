@@ -6,7 +6,14 @@ export const Layout = () => {
   return (
     <Flex minH='100vh' bg='background'>
       <Sidebar />
-      <Box as='main' flex='1' minH='100vh' overflowX='hidden' ml='88px'>
+      <Box
+        as='main'
+        flex='1'
+        minH='100vh'
+        overflowX='hidden'
+        ml={{ base: '0', md: '88px' }}
+        pb={{ base: '70px', md: '0' }}
+      >
         <Outlet />
       </Box>
     </Flex>

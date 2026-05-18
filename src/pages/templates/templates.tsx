@@ -13,7 +13,7 @@ type ToggleTemplateVariables = {
 const SKELETON_KEYS = Array.from({ length: 6 }, (_, i) => `skeleton-${i}`);
 
 const gridStyle = {
-  gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+  gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
 };
 
 export const Templates: React.FC = () => {

@@ -168,7 +168,12 @@ export const CommunicationDetails: React.FC = () => {
           </HStack>
         </Box>
 
-        <HStack gap='4'>
+        <Flex
+          direction={{ base: 'column', sm: 'row' }}
+          align={{ base: 'stretch', sm: 'center' }}
+          gap='4'
+          w={{ base: 'full', md: 'auto' }}
+        >
           <Button
             bg='primary'
             color='white'
@@ -177,6 +182,7 @@ export const CommunicationDetails: React.FC = () => {
             borderRadius='xl'
             fontWeight='bold'
             boxShadow='lg'
+            w={{ base: 'full', sm: 'auto' }}
             _hover={{ bg: 'secondary' }}
             onClick={() => navigate(getEditCommunicationPath(communication.id))}
           >
@@ -186,18 +192,17 @@ export const CommunicationDetails: React.FC = () => {
             </HStack>
           </Button>
 
-          <Stack gap='2' fontSize='sm' color='textSecondary' textAlign='right' align='flex-end'>
+          <Stack gap='1' fontSize='xs' color='textSecondary' align={{ base: 'flex-start', sm: 'flex-end' }}>
             <HStack gap='2'>
-              <CalendarBlankIcon size={16} />
+              <CalendarBlankIcon size={14} />
               <Text>Created on {formatDateTime(communication.createdAt)}</Text>
             </HStack>
-
             <HStack gap='2'>
-              <ClockIcon size={16} />
+              <ClockIcon size={14} />
               <Text>Updated on {formatDateTime(communication.updatedAt)}</Text>
             </HStack>
           </Stack>
-        </HStack>
+        </Flex>
       </Flex>
 
       <Grid templateColumns={{ base: '1fr', xl: '2fr 1fr' }} gap='6'>
