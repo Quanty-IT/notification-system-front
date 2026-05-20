@@ -210,7 +210,6 @@ export const CommunicationDetails: React.FC = () => {
           <InfoCard title='Content'>
             <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap='6'>
               <Field label='Body' value={communication.body ?? 'Not informed'} />
-              <Field label='Body type' value={communication.bodyType ?? 'Not informed'} />
             </Grid>
           </InfoCard>
 

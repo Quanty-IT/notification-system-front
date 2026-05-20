@@ -12,7 +12,6 @@ export const useTemplateVersionForm = () => {
     defaultValues: {
       subject: '',
       body: '',
-      bodyType: 'html',
       variablesSchemaJson: {},
     },
   });

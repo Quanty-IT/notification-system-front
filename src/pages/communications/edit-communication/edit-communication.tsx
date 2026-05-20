@@ -37,7 +37,6 @@ import {
 const updateSchema = z.object({
   subject: z.string().max(255).nullable().optional(),
   body: z.string().nullable().optional(),
-  bodyType: z.enum(['text', 'html']).nullable().optional(),
   scheduledAt: z.string().nullable().optional(),
 });
 
@@ -92,7 +91,6 @@ export const EditCommunication: React.FC = () => {
         reset({
           subject: data.subject,
           body: data.body,
-          bodyType: data.bodyType ?? 'text',
           scheduledAt: data.scheduledAt ? new Date(data.scheduledAt).toISOString().slice(0, 16) : null,
         });
       } catch (error) {
@@ -137,7 +135,6 @@ export const EditCommunication: React.FC = () => {
       if (communication.sourceType === 'manual') {
         payload.subject = data.subject;
         payload.body = data.body;
-        payload.bodyType = data.bodyType;
       }
 
       await updateCommunication(id, payload);
@@ -309,58 +306,30 @@ export const EditCommunication: React.FC = () => {
               </Field.Root>
 
               {communication.sourceType === 'manual' && (
-                <>
-                  <Field.Root invalid={!!errors.body}>
-                    <Field.Label fontWeight='bold' color='textSecondary'>
-                      Body
-                    </Field.Label>
-                    <Controller
-                      name='body'
-                      control={control}
-                      render={({ field }) => (
-                        <Textarea
-                          {...field}
-                          value={field.value ?? ''}
-                          placeholder='Enter communication content'
-                          borderRadius='xl'
-                          borderColor='gray.200'
-                          minH='200px'
-                        />
-                      )}
-                    />
-                    {errors.body && (
-                      <Field.ErrorText color='red.500' fontSize='xs' mt='1'>
-                        {errors.body.message}
-                      </Field.ErrorText>
+                <Field.Root invalid={!!errors.body}>
+                  <Field.Label fontWeight='bold' color='textSecondary'>
+                    Body
+                  </Field.Label>
+                  <Controller
+                    name='body'
+                    control={control}
+                    render={({ field }) => (
+                      <Textarea
+                        {...field}
+                        value={field.value ?? ''}
+                        placeholder='Enter communication content'
+                        borderRadius='xl'
+                        borderColor='gray.200'
+                        minH='200px'
+                      />
                     )}
-                  </Field.Root>
-
-                  <Field.Root invalid={!!errors.bodyType}>
-                    <Field.Label fontWeight='bold' color='textSecondary'>
-                      Body Type
-                    </Field.Label>
-                    <Controller
-                      name='bodyType'
-                      control={control}
-                      render={({ field }) => (
-                        <select
-                          {...field}
-                          value={field.value ?? 'text'}
-                          style={{
-                            width: '100%',
-                            height: '40px',
-                            borderRadius: '12px',
-                            border: '1px solid #E2E8F0',
-                            padding: '0 12px',
-                          }}
-                        >
-                          <option value='text'>Plain Text</option>
-                          <option value='html'>HTML</option>
-                        </select>
-                      )}
-                    />
-                  </Field.Root>
-                </>
+                  />
+                  {errors.body && (
+                    <Field.ErrorText color='red.500' fontSize='xs' mt='1'>
+                      {errors.body.message}
+                    </Field.ErrorText>
+                  )}
+                </Field.Root>
               )}
 
               {communication.sourceType === 'template' && (

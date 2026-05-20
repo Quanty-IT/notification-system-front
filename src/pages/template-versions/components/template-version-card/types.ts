@@ -2,7 +2,6 @@ export type TemplateVersionCardData = {
   id: string;
   version: number;
   subject: string;
-  bodyType: string;
   isActive: boolean;
   variablesSchemaJson?: Record<string, string>;
 };

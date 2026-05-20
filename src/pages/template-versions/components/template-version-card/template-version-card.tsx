@@ -61,10 +61,6 @@ export const TemplateVersionCard = ({
       </Box>
 
       <Box display='flex' flexDirection='column' gap={1} minW={0} overflow='hidden'>
-        <Text fontSize='sm' color='gray.600'>
-          Type: {version.bodyType.toUpperCase()}
-        </Text>
-
         <Text
           fontSize='sm'
           color='gray.600'

@@ -1,12 +1,10 @@
-import { Badge, Box, Button, Drawer, Field, HStack, Input, NativeSelect, Text, VStack } from '@chakra-ui/react';
+import { Box, Button, Drawer, Field, HStack, Input, NativeSelect, Text, Textarea, VStack } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { createTemplateVersion } from '@/services';
-import { FormErrorInline } from '@/shared/components';
-import { TemplateBodyEditor } from '../template-body-editor';
-import { TemplateBodyPreview } from '../template-body-preview';
+import { FormErrorInline } from '@/shared';
 import {
   CreateTemplateVersionFormData,
   createTemplateVersionSchema,
@@ -18,20 +16,6 @@ type Props = {
   isOpen: boolean;
   onClose: () => void;
   templateId: string;
-};
-
-type TemplateBodyType = CreateTemplateVersionFormData['bodyType'];
-
-const hasHtmlOpeningTag = (body: string) => {
-  return /<[a-zA-Z][a-zA-Z0-9-]*\s[^>]*>/i.test(body);
-};
-
-const inferBodyType = (body: string): TemplateBodyType => {
-  if (!body.trim()) {
-    return 'text';
-  }
-
-  return hasHtmlOpeningTag(body) ? 'html' : 'text';
 };
 
 const extractVariables = (body: string): string[] => {
@@ -90,32 +74,22 @@ export const CreateTemplateVersionDrawer = ({ isOpen, onClose, templateId }: Pro
     defaultValues: {
       subject: '',
       body: '',
-      bodyType: 'text',
       variablesSchemaJson: {},
     },
   });
 
   const body = watch('body');
   const variables = watch('variablesSchemaJson');
-  const bodyType = watch('bodyType');
 
   React.useEffect(() => {
     const timeout = window.setTimeout(() => {
       const detectedVariables = extractVariables(body || '');
       const currentVariables = getValues('variablesSchemaJson') ?? {};
-      const inferredBodyType = inferBodyType(body || '');
 
       const nextVariables = detectedVariables.reduce<Record<string, TemplateVariableType>>((acc, name) => {
         acc[name] = currentVariables[name] ?? 'string';
         return acc;
       }, {});
-
-      if (getValues('bodyType') !== inferredBodyType) {
-        setValue('bodyType', inferredBodyType, {
-          shouldValidate: true,
-          shouldDirty: true,
-        });
-      }
 
       if (!areVariablesEqual(currentVariables, nextVariables)) {
         setValue('variablesSchemaJson', nextVariables, {
@@ -153,13 +127,11 @@ export const CreateTemplateVersionDrawer = ({ isOpen, onClose, templateId }: Pro
       templateId,
       subject: data.subject,
       body: data.body,
-      bodyType: inferBodyType(data.body),
       variablesSchemaJson: data.variablesSchemaJson,
     });
   };
 
   const variableNames = Object.keys(variables ?? {});
-  const detectedBodyTypeLabel = bodyType === 'html' ? 'HTML' : 'TEXT';
 
   return (
     <Drawer.Root open={isOpen} onOpenChange={(d) => !d.open && handleClose()} placement='end' size='xl'>
@@ -212,47 +184,21 @@ export const CreateTemplateVersionDrawer = ({ isOpen, onClose, templateId }: Pro
 
               <Field.Root invalid={!!errors.body} w='full'>
                 <VStack align='stretch' gap='2' w='full'>
-                  <HStack justify='space-between' align='center' w='full'>
-                    <Field.Label color='primary' fontWeight='bold' fontSize='sm' mb='0'>
-                      Body *
-                    </Field.Label>
+                  <Field.Label color='primary' fontWeight='bold' fontSize='sm'>
+                    Body *
+                  </Field.Label>
 
-                    <HStack gap='2'>
-                      <Text fontSize='xs' color='textSecondary'>
-                        Detected as
-                      </Text>
-
-                      <Badge
-                        bg={bodyType === 'html' ? 'primary' : 'inactive'}
-                        color='white'
-                        borderRadius='full'
-                        px='3'
-                        py='1'
-                        fontSize='xs'
-                      >
-                        {detectedBodyTypeLabel}
-                      </Badge>
-                    </HStack>
-                  </HStack>
-
-                  <Controller
-                    name='body'
-                    control={control}
-                    render={({ field }) => (
-                      <TemplateBodyEditor value={field.value} onChange={field.onChange} hasError={!!errors.body} />
-                    )}
+                  <Textarea
+                    w='full'
+                    minH='20rem'
+                    p='4'
+                    fontFamily='mono'
+                    placeholder='Digite um texto simples ou cole um HTML completo'
+                    borderColor={errors.body ? 'error' : 'inputBorder'}
+                    {...register('body')}
                   />
 
                   <FormErrorInline message={errors.body?.message} />
-                </VStack>
-              </Field.Root>
-
-              <Field.Root>
-                <VStack align='stretch' gap='2' w='full'>
-                  <Field.Label color='primary' fontWeight='bold' fontSize='sm' mb='0'>
-                    Preview
-                  </Field.Label>
-                  <TemplateBodyPreview value={body ?? ''} isHtml={bodyType === 'html'} />
                 </VStack>
               </Field.Root>
 
@@ -264,7 +210,7 @@ export const CreateTemplateVersionDrawer = ({ isOpen, onClose, templateId }: Pro
 
                   {variableNames.length === 0 ? (
                     <Text fontSize='sm' color='textSecondary'>
-                      This template version has no variables.
+                      Use variáveis no formato {'{{name}}'}, {'{{company}}'} ou {'{{link}}'} no corpo do template.
                     </Text>
                   ) : (
                     <VStack align='stretch' gap={4} w='full'>

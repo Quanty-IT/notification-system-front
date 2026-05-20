@@ -32,7 +32,6 @@ const createSchema = z
     sourceType: z.enum(['manual', 'template']),
     subject: z.string().max(255).optional(),
     body: z.string().optional().nullable(),
-    bodyType: z.enum(['text', 'html']).optional(),
     templateId: z.string().optional().nullable(),
     templateVersionId: z.string().optional().nullable(),
     templateVariablesJson: z.record(z.string(), z.any()).optional().nullable(),
@@ -77,7 +76,6 @@ export const CreateCommunication: React.FC = () => {
     defaultValues: {
       channel: 'email',
       sourceType: 'manual',
-      bodyType: 'text',
       subject: '',
       body: '',
       templateVariablesJson: {},
@@ -172,7 +170,6 @@ export const CreateCommunication: React.FC = () => {
 
       if (data.sourceType === 'manual') {
         input.body = data.body;
-        input.bodyType = data.bodyType;
       } else {
         input.templateVersionId = data.templateVersionId;
         input.templateVariablesJson = data.templateVariablesJson;
@@ -340,14 +337,15 @@ export const CreateCommunication: React.FC = () => {
                             value={field.value ?? ''}
                             onChange={(e) => {
                               field.onChange(e);
-                              const v = versionsData?.templateVersions.find((tv) => tv.id === e.target.value);
-                              if (v) {
-                                setValue('subject', v.subject || '');
-                                setValue('body', v.body || '');
-                                setValue('bodyType', (v.bodyType as 'text' | 'html') || 'text');
+                              const version = versionsData?.templateVersions.find(
+                                (templateVersion) => templateVersion.id === e.target.value,
+                              );
+                              if (version) {
+                                setValue('subject', version.subject || '');
+                                setValue('body', version.body || '');
 
-                                if (v.variablesSchemaJson) {
-                                  const initialVars = Object.keys(v.variablesSchemaJson).reduce(
+                                if (version.variablesSchemaJson) {
+                                  const initialVars = Object.keys(version.variablesSchemaJson).reduce(
                                     (acc, key) => {
                                       acc[key] = '';
                                       return acc;
@@ -430,51 +428,24 @@ export const CreateCommunication: React.FC = () => {
               )}
 
               {sourceType === 'manual' && (
-                <>
-                  <Field.Root invalid={!!errors.body}>
-                    <Field.Label fontWeight='bold' color='textSecondary'>
-                      Body
-                    </Field.Label>
-                    <Controller
-                      name='body'
-                      control={control}
-                      render={({ field }) => (
-                        <Textarea
-                          {...field}
-                          value={field.value ?? ''}
-                          placeholder='Enter communication content'
-                          borderRadius='xl'
-                          minH='200px'
-                        />
-                      )}
-                    />
-                  </Field.Root>
-
-                  <Field.Root>
-                    <Field.Label fontWeight='bold' color='textSecondary'>
-                      Body Type
-                    </Field.Label>
-                    <Controller
-                      name='bodyType'
-                      control={control}
-                      render={({ field }) => (
-                        <select
-                          {...field}
-                          style={{
-                            width: '100%',
-                            height: '40px',
-                            borderRadius: '12px',
-                            border: '1px solid #E2E8F0',
-                            padding: '0 12px',
-                          }}
-                        >
-                          <option value='text'>Plain Text</option>
-                          <option value='html'>HTML</option>
-                        </select>
-                      )}
-                    />
-                  </Field.Root>
-                </>
+                <Field.Root invalid={!!errors.body}>
+                  <Field.Label fontWeight='bold' color='textSecondary'>
+                    Body
+                  </Field.Label>
+                  <Controller
+                    name='body'
+                    control={control}
+                    render={({ field }) => (
+                      <Textarea
+                        {...field}
+                        value={field.value ?? ''}
+                        placeholder='Enter communication content'
+                        borderRadius='xl'
+                        minH='200px'
+                      />
+                    )}
+                  />
+                </Field.Root>
               )}
             </Stack>
           </Box>

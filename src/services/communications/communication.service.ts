@@ -3,7 +3,6 @@ import { api } from '../axios';
 export type CommunicationStatus = 'draft' | 'scheduled' | 'processing' | 'sent' | 'failed' | 'canceled';
 export type CommunicationChannel = 'email';
 export type CommunicationSourceType = 'manual' | 'template';
-export type CommunicationBodyType = 'text' | 'html' | null;
 
 export type CommunicationAttachment = {
   id: string;
@@ -35,7 +34,6 @@ export type Communication = {
   status: CommunicationStatus;
   subject: string | null;
   body: string | null;
-  bodyType: CommunicationBodyType;
   templateVersionId: string | null;
   templateVariablesJson: Record<string, string | number | boolean> | null;
   scheduledAt: string | null;
@@ -51,7 +49,6 @@ export type Communication = {
 export type UpdateCommunicationInput = {
   subject?: string | null;
   body?: string | null;
-  bodyType?: CommunicationBodyType;
   templateVersionId?: string | null;
   templateVariablesJson?: Record<string, string | number | boolean> | null;
   scheduledAt?: string | null;
@@ -68,7 +65,6 @@ export type CreateCommunicationInput = {
   status?: 'draft' | 'scheduled';
   subject?: string | null;
   body?: string | null;
-  bodyType?: CommunicationBodyType;
   templateVersionId?: string | null;
   templateVariablesJson?: Record<string, unknown> | null;
   scheduledAt?: string | null;
