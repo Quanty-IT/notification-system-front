@@ -1,22 +1,12 @@
-import {
-  Badge,
-  Box,
-  Button,
-  Drawer,
-  Field,
-  HStack,
-  Input,
-  NativeSelect,
-  Text,
-  Textarea,
-  VStack,
-} from '@chakra-ui/react';
+import { Badge, Box, Button, Drawer, Field, HStack, Input, NativeSelect, Text, VStack } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { updateTemplateVersion } from '@/services';
 import { FormErrorInline } from '@/shared/components';
+import { TemplateBodyEditor } from '../create-template-version-drawer';
+import { TemplateBodyPreview } from '../template-body-preview';
 import {
   TemplateVariableType,
   templateVariableTypes,
@@ -270,17 +260,24 @@ export const UpdateTemplateVersionDrawer = ({ isOpen, onClose, templateId, versi
                     </HStack>
                   </HStack>
 
-                  <Textarea
-                    w='full'
-                    minH='20rem'
-                    p='4'
-                    fontFamily='mono'
-                    placeholder='Digite um texto simples ou cole um HTML completo'
-                    borderColor={errors.body ? 'error' : 'inputBorder'}
-                    {...register('body')}
+                  <Controller
+                    name='body'
+                    control={control}
+                    render={({ field }) => (
+                      <TemplateBodyEditor value={field.value} onChange={field.onChange} hasError={!!errors.body} />
+                    )}
                   />
 
                   <FormErrorInline message={errors.body?.message} />
+                </VStack>
+              </Field.Root>
+
+              <Field.Root>
+                <VStack align='stretch' gap='2' w='full'>
+                  <Field.Label color='primary' fontWeight='bold' fontSize='sm' mb='0'>
+                    Preview
+                  </Field.Label>
+                  <TemplateBodyPreview value={body ?? ''} isHtml={bodyType === 'html'} />
                 </VStack>
               </Field.Root>
 
