@@ -26,6 +26,7 @@
       "suspicious": {
         "noExplicitAny": "error",
         "noUnknownAtRules": "off",
+        "noTemplateCurlyInString": "off",
         "noConsole": {
           "level": "warn",
           "options": {

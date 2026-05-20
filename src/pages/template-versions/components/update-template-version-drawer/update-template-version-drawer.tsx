@@ -1,10 +1,12 @@
-import { Box, Button, Drawer, Field, HStack, Input, NativeSelect, Text, Textarea, VStack } from '@chakra-ui/react';
+import { Box, Button, Drawer, Field, HStack, Input, NativeSelect, Text, VStack } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { FormErrorInline } from '@/shared';
-import { updateTemplateVersion } from '../../../../services';
+import { updateTemplateVersion } from '@/services';
+import { FormErrorInline } from '@/shared/components';
+import { TemplateBodyEditor } from '../template-body-editor';
+import { TemplateBodyPreview } from '../template-body-preview';
 import {
   TemplateVariableType,
   templateVariableTypes,
@@ -157,7 +159,7 @@ export const UpdateTemplateVersionDrawer = ({ isOpen, onClose, templateId, versi
   const variableNames = Object.keys(variables ?? {});
 
   return (
-    <Drawer.Root open={isOpen} onOpenChange={(d) => !d.open && handleClose()} placement='end' size='xl'>
+    <Drawer.Root open={isOpen} onOpenChange={(details) => !details.open && handleClose()} placement='end' size='xl'>
       <Drawer.Backdrop bg='blackAlpha.400' />
 
       <Drawer.Positioner>
@@ -206,22 +208,32 @@ export const UpdateTemplateVersionDrawer = ({ isOpen, onClose, templateId, versi
               </Field.Root>
 
               <Field.Root invalid={!!errors.body} w='full'>
-                <VStack align='stretch' gap='2' w='full'>
+                <VStack align='stretch' gap='3' w='full'>
                   <Field.Label color='primary' fontWeight='bold' fontSize='sm'>
                     Body *
                   </Field.Label>
 
-                  <Textarea
-                    w='full'
-                    minH='20rem'
-                    p='4'
-                    fontFamily='mono'
-                    placeholder='Digite um texto simples ou cole um HTML completo'
-                    borderColor={errors.body ? 'error' : 'inputBorder'}
-                    {...register('body')}
+                  <Controller
+                    name='body'
+                    control={control}
+                    render={({ field }) => (
+                      <TemplateBodyEditor
+                        value={field.value ?? ''}
+                        onChange={field.onChange}
+                        hasError={!!errors.body}
+                      />
+                    )}
                   />
 
                   <FormErrorInline message={errors.body?.message} />
+
+                  <Box pt='2'>
+                    <Text fontWeight='bold' color='primary' fontSize='sm' mb='2'>
+                      Preview
+                    </Text>
+
+                    <TemplateBodyPreview value={body ?? ''} />
+                  </Box>
                 </VStack>
               </Field.Root>
 
