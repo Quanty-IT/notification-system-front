@@ -23,6 +23,7 @@ export type CreateTemplateVersionRequest = {
 
 export type GetTemplateVersionsRequest = {
   templateId: string;
+  isActive?: boolean;
 };
 
 export type GetTemplateVersionsResponse = {

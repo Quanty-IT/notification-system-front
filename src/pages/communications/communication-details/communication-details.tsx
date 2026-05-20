@@ -1,16 +1,17 @@
 import { Badge, Box, Button, Flex, Grid, Heading, HStack, Link, Spinner, Stack, Text } from '@chakra-ui/react';
 import {
   ArrowLeftIcon,
-  CalendarBlankIcon,
-  ClockIcon,
   DownloadSimpleIcon,
   EnvelopeIcon,
+  PaperPlaneTiltIcon,
   PencilSimpleIcon,
 } from '@phosphor-icons/react';
+import { AxiosError } from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getEditCommunicationPath } from '@/routes';
-import { Communication, CommunicationStatus, getCommunicationById } from '@/services';
+import { getCommunicationById, sendCommunicationNow } from '@/services';
+import { CommunicationDetail, CommunicationStatus } from '@/services/communications/types';
 
 const statusLabelMap: Record<CommunicationStatus, string> = {
   draft: 'Draft',
@@ -30,7 +31,9 @@ const statusStyles: Record<CommunicationStatus, { bg: string; color: string }> =
   canceled: { bg: 'orange.100', color: 'orange.800' },
 };
 
-const formatDateTime = (value: string | null) => {
+const editableStatuses: CommunicationStatus[] = ['draft', 'scheduled'];
+
+const formatDateTime = (value: string | null | undefined) => {
   if (!value) return 'Not informed';
 
   return new Intl.DateTimeFormat('en-US', {
@@ -46,6 +49,22 @@ const formatFileSize = (bytes: number) => {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+};
+
+const getErrorMessage = (error: unknown): string => {
+  if (error instanceof AxiosError) {
+    const data = error.response?.data as { message?: string | string[]; errors?: unknown } | undefined;
+
+    if (Array.isArray(data?.message)) return data.message.join(', ');
+    if (typeof data?.message === 'string') return data.message;
+    if (data?.errors) return typeof data.errors === 'string' ? data.errors : JSON.stringify(data.errors);
+
+    return error.message;
+  }
+
+  if (error instanceof Error) return error.message;
+
+  return 'An unexpected error occurred';
 };
 
 const InfoCard = ({ title, children }: { title: string; children: React.ReactNode }) => (
@@ -64,7 +83,7 @@ const Field = ({ label, value }: { label: string; value: React.ReactNode }) => (
       {label}
     </Text>
 
-    <Text color='text' wordBreak='break-word'>
+    <Text color='text' wordBreak='break-word' whiteSpace='pre-wrap'>
       {value}
     </Text>
   </Box>
@@ -72,28 +91,52 @@ const Field = ({ label, value }: { label: string; value: React.ReactNode }) => (
 
 export const CommunicationDetails: React.FC = () => {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
 
-  const [communication, setCommunication] = useState<Communication | null>(null);
+  const [communication, setCommunication] = useState<CommunicationDetail | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isSending, setIsSending] = useState(false);
 
-  const loadCommunication = React.useCallback(async (commId: string) => {
+  const canEdit = communication ? editableStatuses.includes(communication.status) : false;
+  const canSendNow = communication?.status === 'draft' || communication?.status === 'scheduled';
+
+  const loadCommunication = React.useCallback(async () => {
+    if (!id) {
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
-      const data = await getCommunicationById(commId);
+
+      const data = await getCommunicationById({ id });
+
       setCommunication(data);
     } catch (error) {
-      console.error('Failed to load communication:', error);
+      alert(`Failed to load communication: ${getErrorMessage(error)}`);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [id]);
 
   useEffect(() => {
-    if (id) {
-      loadCommunication(id);
+    loadCommunication();
+  }, [loadCommunication]);
+
+  const handleSendNow = async () => {
+    if (!id) return;
+
+    try {
+      setIsSending(true);
+
+      await sendCommunicationNow({ id });
+      await loadCommunication();
+    } catch (error) {
+      alert(`Failed to send communication: ${getErrorMessage(error)}`);
+    } finally {
+      setIsSending(false);
     }
-  }, [id, loadCommunication]);
+  };
 
   if (loading) {
     return (
@@ -113,14 +156,7 @@ export const CommunicationDetails: React.FC = () => {
   }
 
   return (
-    <Box
-      w='full'
-      overflowX='hidden'
-      py={{ base: '10', md: '12' }}
-      px={{ base: '4', md: '8', lg: '12' }}
-      maxW='7xl'
-      mx='auto'
-    >
+    <Box w='full' minH='100vh' overflowX='hidden' py={{ base: '6', md: '8' }} px={{ base: '4', md: '8', lg: '10' }}>
       <Button
         variant='ghost'
         mb='8'
@@ -135,7 +171,7 @@ export const CommunicationDetails: React.FC = () => {
         </HStack>
       </Button>
 
-      <Flex justify='space-between' align={{ base: 'flex-start', md: 'center' }} gap='6' mb='10' wrap='wrap'>
+      <Flex justify='space-between' align={{ base: 'flex-start', md: 'center' }} gap='6' mb='8' wrap='wrap'>
         <Box>
           <Heading size='xl' color='text' letterSpacing='tight' mb='4'>
             {communication.subject ?? 'No subject'}
@@ -149,10 +185,10 @@ export const CommunicationDetails: React.FC = () => {
               fontSize='xs'
               fontWeight='bold'
               textTransform='none'
-              bg={statusStyles[communication.status as CommunicationStatus]?.bg || 'gray.100'}
-              color={statusStyles[communication.status as CommunicationStatus]?.color || 'gray.700'}
+              bg={statusStyles[communication.status].bg}
+              color={statusStyles[communication.status].color}
             >
-              {statusLabelMap[communication.status as CommunicationStatus] || communication.status}
+              {statusLabelMap[communication.status]}
             </Badge>
 
             <Badge px='3' py='1' borderRadius='full' bg='green.50' color='green.800' textTransform='none'>
@@ -168,53 +204,86 @@ export const CommunicationDetails: React.FC = () => {
           </HStack>
         </Box>
 
-        <Flex
-          direction={{ base: 'column', sm: 'row' }}
-          align={{ base: 'stretch', sm: 'center' }}
-          gap='4'
-          w={{ base: 'full', md: 'auto' }}
-        >
-          <Button
-            bg='primary'
-            color='white'
-            px='6'
-            py='2.5'
-            borderRadius='xl'
-            fontWeight='bold'
-            boxShadow='lg'
-            w={{ base: 'full', sm: 'auto' }}
-            _hover={{ bg: 'secondary' }}
-            onClick={() => navigate(getEditCommunicationPath(communication.id))}
-          >
-            <HStack gap='2'>
-              <PencilSimpleIcon size={18} />
-              <Text>Edit</Text>
-            </HStack>
-          </Button>
+        <Flex direction={{ base: 'column', sm: 'row' }} align={{ base: 'stretch', sm: 'center' }} gap='3'>
+          {canSendNow && (
+            <Button
+              bg='primary'
+              color='white'
+              borderRadius='xl'
+              fontWeight='bold'
+              px='6'
+              loading={isSending}
+              loadingText='Sending...'
+              _hover={{ bg: 'secondary' }}
+              onClick={handleSendNow}
+            >
+              <HStack gap='2'>
+                <PaperPlaneTiltIcon size={18} />
+                <Text>Send Now</Text>
+              </HStack>
+            </Button>
+          )}
 
-          <Stack gap='1' fontSize='xs' color='textSecondary' align={{ base: 'flex-start', sm: 'flex-end' }}>
-            <HStack gap='2'>
-              <CalendarBlankIcon size={14} />
-              <Text>Created on {formatDateTime(communication.createdAt)}</Text>
-            </HStack>
-            <HStack gap='2'>
-              <ClockIcon size={14} />
-              <Text>Updated on {formatDateTime(communication.updatedAt)}</Text>
-            </HStack>
-          </Stack>
+          {canEdit && (
+            <Button
+              variant='outline'
+              borderColor='inputBorder'
+              color='primary'
+              borderRadius='xl'
+              fontWeight='bold'
+              px='6'
+              _hover={{ bg: 'gray.50', borderColor: 'primary' }}
+              onClick={() => navigate(getEditCommunicationPath(communication.id))}
+            >
+              <HStack gap='2'>
+                <PencilSimpleIcon size={18} />
+                <Text>Edit</Text>
+              </HStack>
+            </Button>
+          )}
         </Flex>
       </Flex>
 
       <Grid templateColumns={{ base: '1fr', xl: '2fr 1fr' }} gap='6'>
         <Stack gap='6'>
           <InfoCard title='Content'>
-            <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap='6'>
+            <Stack gap='6'>
+              <Field label='Subject' value={communication.subject ?? 'Not informed'} />
               <Field label='Body' value={communication.body ?? 'Not informed'} />
-            </Grid>
+            </Stack>
+          </InfoCard>
+
+          <InfoCard title='Recipients'>
+            {communication.recipients.length > 0 ? (
+              <Stack gap='3'>
+                {communication.recipients.map((recipient) => (
+                  <Flex
+                    key={recipient.id}
+                    align='center'
+                    justify='space-between'
+                    p='3'
+                    borderWidth='1px'
+                    borderColor='gray.100'
+                    borderRadius='xl'
+                    bg='white'
+                  >
+                    <Text fontWeight='medium' color='text' truncate>
+                      {recipient.email}
+                    </Text>
+
+                    <Badge variant='subtle' colorScheme='blue'>
+                      {recipient.recipientType}
+                    </Badge>
+                  </Flex>
+                ))}
+              </Stack>
+            ) : (
+              <Text color='textSecondary'>No recipients.</Text>
+            )}
           </InfoCard>
 
           <InfoCard title='Template Variables'>
-            {communication.templateVariablesJson ? (
+            {communication.templateVariablesJson && Object.keys(communication.templateVariablesJson).length > 0 ? (
               <Stack gap='3'>
                 {Object.entries(communication.templateVariablesJson).map(([key, value]) => (
                   <Flex
@@ -238,7 +307,7 @@ export const CommunicationDetails: React.FC = () => {
             )}
           </InfoCard>
 
-          <InfoCard title='Anexos'>
+          <InfoCard title='Attachments'>
             {communication.attachments.length > 0 ? (
               <Stack gap='0' borderWidth='1px' borderColor='gray.100' borderRadius='2xl' overflow='hidden'>
                 {communication.attachments.map((attachment) => (
@@ -260,59 +329,71 @@ export const CommunicationDetails: React.FC = () => {
                         {attachment.originalFileName}
                       </Text>
 
-                      <HStack gap='2' fontSize='sm' color='textSecondary' wrap='wrap'>
-                        <Text>{attachment.mimeType}</Text>
-                        <Text>•</Text>
-                        <Text>{formatFileSize(attachment.fileSizeBytes)}</Text>
-                        <Text>•</Text>
-                        <Text>{formatDateTime(attachment.createdAt)}</Text>
-                      </HStack>
+                      <Text fontSize='xs' color='textSecondary'>
+                        {attachment.mimeType} • {formatFileSize(attachment.fileSizeBytes)}
+                      </Text>
                     </Box>
 
-                    <Link
-                      href={attachment.fileUrl}
-                      target='_blank'
-                      rel='noopener noreferrer'
-                      display='flex'
-                      alignItems='center'
-                      justifyContent='center'
-                      w='9'
-                      h='9'
-                      borderRadius='lg'
-                      bg='green.50'
-                      color='primary'
-                      flexShrink={0}
-                      _hover={{
-                        bg: 'green.100',
-                        textDecoration: 'none',
-                      }}
-                    >
-                      <DownloadSimpleIcon size={18} />
+                    <Link href={attachment.fileUrl} target='_blank' rel='noreferrer' color='primary'>
+                      <HStack gap='1'>
+                        <DownloadSimpleIcon size={16} />
+                        <Text fontSize='sm' fontWeight='bold'>
+                          Download
+                        </Text>
+                      </HStack>
                     </Link>
                   </Flex>
                 ))}
               </Stack>
             ) : (
-              <Text color='textSecondary'>No attachments found.</Text>
+              <Text color='textSecondary'>No attachments.</Text>
             )}
           </InfoCard>
         </Stack>
 
         <Stack gap='6'>
-          <InfoCard title='Metadata'>
-            <Stack gap='5' fontSize='sm'>
-              <Field label='ID' value={communication.id} />
-              <Field label='Created by' value={communication.createdByUserId ?? 'Not informed'} />
-              <Field label='Template Version ID' value={communication.templateVersionId ?? 'Not informed'} />
+          <InfoCard title='Dates'>
+            <Stack gap='5'>
+              <Field label='Scheduled At' value={formatDateTime(communication.scheduledAt)} />
+              <Field label='Processing At' value={formatDateTime(communication.processingAt)} />
+              <Field label='Sent At' value={formatDateTime(communication.sentAt)} />
+              <Field label='Created At' value={formatDateTime(communication.createdAt)} />
+              <Field label='Updated At' value={formatDateTime(communication.updatedAt)} />
             </Stack>
           </InfoCard>
 
-          <InfoCard title='Timeline'>
-            <Stack gap='5' fontSize='sm'>
-              <Field label='Scheduled' value={formatDateTime(communication.scheduledAt)} />
-              <Field label='Processing' value={formatDateTime(communication.processingAt)} />
-              <Field label='Sent at' value={formatDateTime(communication.sentAt)} />
-            </Stack>
+          <InfoCard title='Dispatches'>
+            {communication.dispatches.length > 0 ? (
+              <Stack gap='3'>
+                {communication.dispatches.map((dispatch) => (
+                  <Box key={dispatch.id} p='4' borderWidth='1px' borderColor='gray.100' borderRadius='xl' bg='white'>
+                    <Flex justify='space-between' align='center' mb='2'>
+                      <Text color='text' fontWeight='bold'>
+                        Attempt #{dispatch.attemptNumber}
+                      </Text>
+
+                      <Badge variant='subtle' colorScheme={dispatch.status === 'sent' ? 'green' : 'red'}>
+                        {dispatch.status}
+                      </Badge>
+                    </Flex>
+
+                    <Text fontSize='sm' color='textSecondary'>
+                      Provider: {dispatch.provider}
+                    </Text>
+
+                    <Text fontSize='xs' color='textSecondary' mt='2'>
+                      Started: {formatDateTime(dispatch.startedAt)}
+                    </Text>
+
+                    <Text fontSize='xs' color='textSecondary'>
+                      Finished: {formatDateTime(dispatch.finishedAt)}
+                    </Text>
+                  </Box>
+                ))}
+              </Stack>
+            ) : (
+              <Text color='textSecondary'>No dispatches yet.</Text>
+            )}
           </InfoCard>
         </Stack>
       </Grid>

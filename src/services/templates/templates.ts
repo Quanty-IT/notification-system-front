@@ -6,8 +6,11 @@ export const createTemplate = async (payload: T.CreateTemplateRequest) => {
   return data;
 };
 
-export const getTemplates = async () => {
-  const { data } = await api.get<T.GetTemplatesResponse>('/templates');
+export const getTemplates = async (params?: T.GetTemplatesRequest) => {
+  const { data } = await api.get<T.GetTemplatesResponse>('/templates', {
+    params,
+  });
+
   return data;
 };
 

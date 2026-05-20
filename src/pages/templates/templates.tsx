@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { activateTemplate, deactivateTemplate, deleteTemplate, getTemplates } from '@/services';
+import { GetTemplatesResponse } from '@/services/templates/types';
 import { CreateTemplateDrawer, TemplateCard, TemplateCardSkeleton, UpdateTemplateDrawer } from './components';
 
 type ToggleTemplateVariables = {
@@ -18,11 +19,6 @@ const gridStyle = {
 
 export const Templates: React.FC = () => {
   const navigate = useNavigate();
-
-  const openVersions = (uuid: string) => {
-    navigate(`/templates/${uuid}/versions`);
-  };
-
   const queryClient = useQueryClient();
 
   const [editUuid, setEditUuid] = React.useState<string | null>(null);
@@ -32,7 +28,7 @@ export const Templates: React.FC = () => {
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['templates'],
-    queryFn: getTemplates,
+    queryFn: () => getTemplates(),
   });
 
   const toggleMutation = useMutation({
@@ -47,9 +43,9 @@ export const Templates: React.FC = () => {
     onMutate: async ({ id, isActive }) => {
       await queryClient.cancelQueries({ queryKey: ['templates'] });
 
-      const previousTemplates = queryClient.getQueryData<Awaited<ReturnType<typeof getTemplates>>>(['templates']);
+      const previousTemplates = queryClient.getQueryData<GetTemplatesResponse>(['templates']);
 
-      queryClient.setQueryData<Awaited<ReturnType<typeof getTemplates>>>(['templates'], (old) => {
+      queryClient.setQueryData<GetTemplatesResponse>(['templates'], (old) => {
         if (!old) return old;
 
         return {
@@ -69,7 +65,7 @@ export const Templates: React.FC = () => {
     },
 
     onSuccess: (response) => {
-      queryClient.setQueryData<Awaited<ReturnType<typeof getTemplates>>>(['templates'], (old) => {
+      queryClient.setQueryData<GetTemplatesResponse>(['templates'], (old) => {
         if (!old) return old;
 
         return {
@@ -100,9 +96,9 @@ export const Templates: React.FC = () => {
     onMutate: async ({ uuid }) => {
       await queryClient.cancelQueries({ queryKey: ['templates'] });
 
-      const previousTemplates = queryClient.getQueryData<Awaited<ReturnType<typeof getTemplates>>>(['templates']);
+      const previousTemplates = queryClient.getQueryData<GetTemplatesResponse>(['templates']);
 
-      queryClient.setQueryData<Awaited<ReturnType<typeof getTemplates>>>(['templates'], (old) => {
+      queryClient.setQueryData<GetTemplatesResponse>(['templates'], (old) => {
         if (!old) return old;
 
         return {
@@ -126,6 +122,10 @@ export const Templates: React.FC = () => {
   });
 
   const templates = data?.templates ?? [];
+
+  const openVersions = (uuid: string) => {
+    navigate(`/templates/${uuid}/versions`);
+  };
 
   const handleToggle = (id: string, isActive: boolean) => {
     toggleMutation.mutate({ id, isActive });

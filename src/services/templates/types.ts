@@ -12,6 +12,10 @@ export type CreateTemplateRequest = {
   description: string;
 };
 
+export type GetTemplatesRequest = {
+  isActive?: boolean;
+};
+
 export type GetTemplatesResponse = {
   templates: Template[];
 };

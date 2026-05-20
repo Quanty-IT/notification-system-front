@@ -6,8 +6,13 @@ export const createTemplateVersion = async (payload: T.CreateTemplateVersionRequ
   return data;
 };
 
-export const getTemplateVersions = async ({ templateId }: T.GetTemplateVersionsRequest) => {
-  const { data } = await api.get<T.GetTemplateVersionsResponse>(`/template-versions/template/${templateId}`);
+export const getTemplateVersions = async ({ templateId, isActive }: T.GetTemplateVersionsRequest) => {
+  const { data } = await api.get<T.GetTemplateVersionsResponse>(`/templates/${templateId}/versions`, {
+    params: {
+      isActive,
+    },
+  });
+
   return data;
 };
 

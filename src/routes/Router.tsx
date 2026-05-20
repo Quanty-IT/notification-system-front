@@ -41,9 +41,11 @@ export function Router() {
         }
       >
         <Route path={ROUTES.DASHBOARD.BASE} element={<Dashboard />} />
-        <Route path={ROUTES.COMMUNICATIONS.DETAILS} element={<CommunicationDetails />} />
-        <Route path={ROUTES.COMMUNICATIONS.EDIT} element={<EditCommunication />} />
+
         <Route path={ROUTES.COMMUNICATIONS.CREATE} element={<CreateCommunication />} />
+        <Route path={ROUTES.COMMUNICATIONS.EDIT} element={<EditCommunication />} />
+        <Route path={ROUTES.COMMUNICATIONS.DETAILS} element={<CommunicationDetails />} />
+
         <Route path={ROUTES.TEMPLATES.BASE} element={<Templates />} />
         <Route path={ROUTES.TEMPLATE_VERSIONS.BASE} element={<TemplateVersions />} />
       </Route>

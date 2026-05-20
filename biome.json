@@ -24,6 +24,7 @@
         "noUnusedVariables": "error"
       },
       "suspicious": {
+        "noArrayIndexKey": "off",
         "noExplicitAny": "error",
         "noUnknownAtRules": "off",
         "noTemplateCurlyInString": "off",
