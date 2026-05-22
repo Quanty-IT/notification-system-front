@@ -1,22 +1,6 @@
-import {
-  Badge,
-  Box,
-  Button,
-  Dialog,
-  Field,
-  Flex,
-  Grid,
-  Heading,
-  HStack,
-  IconButton,
-  Input,
-  Stack,
-  Text,
-  Textarea,
-  useDisclosure,
-} from '@chakra-ui/react';
+import { Box, Button, Field, Flex, Grid, Heading, HStack, Input, Stack, Text, useDisclosure } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowLeftIcon, FileIcon, PaperPlaneTiltIcon, PlusIcon, TrashIcon } from '@phosphor-icons/react';
+import { ArrowLeftIcon, PaperPlaneTiltIcon } from '@phosphor-icons/react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
@@ -32,6 +16,16 @@ import {
   uploadCommunicationAttachment,
 } from '@/services';
 import { CreateCommunicationInput } from '@/services/communications/types';
+import { AppSelect, HtmlContentEditor, HtmlContentPreview } from '@/shared/components';
+import {
+  AttachmentsCard,
+  CommunicationFormCard,
+  DeliveryCard,
+  inputStyle,
+  RecipientDialog,
+  RecipientItem,
+  RecipientsCard,
+} from '../components';
 
 const createSchema = z
   .object({
@@ -42,17 +36,17 @@ const createSchema = z
     templateId: z.string().optional(),
     templateVersionId: z.string().optional(),
     templateVariablesJson: z.record(z.string(), z.any()).optional(),
-    scheduledAt: z.string().optional(),
+    scheduledAt: z.date().nullable().optional(),
   })
-  .refine((data) => data.sourceType !== 'manual' || !!data.subject?.trim(), {
+  .refine((data) => data.sourceType !== 'manual' || Boolean(data.subject?.trim()), {
     message: 'Subject is required for manual content',
     path: ['subject'],
   })
-  .refine((data) => data.sourceType !== 'manual' || !!data.body?.trim(), {
+  .refine((data) => data.sourceType !== 'manual' || Boolean(data.body?.trim()), {
     message: 'Body is required for manual content',
     path: ['body'],
   })
-  .refine((data) => data.sourceType !== 'template' || !!data.templateVersionId, {
+  .refine((data) => data.sourceType !== 'template' || Boolean(data.templateVersionId), {
     message: 'Template version is required',
     path: ['templateVersionId'],
   });
@@ -60,33 +54,26 @@ const createSchema = z
 type CreateFormData = z.infer<typeof createSchema>;
 
 const recipientSchema = z.object({
-  email: z.string().email('Invalid email'),
+  email: z.email('Invalid email'),
   recipientType: z.enum(['to', 'cc', 'bcc']),
 });
 
 type RecipientFormData = z.infer<typeof recipientSchema>;
 
-type Recipient = {
-  email: string;
-  recipientType: 'to' | 'cc' | 'bcc';
-};
+const getErrorMessage = (error: unknown): string => {
+  if (error instanceof AxiosError) {
+    const data = error.response?.data as { message?: string | string[]; errors?: unknown } | undefined;
 
-const inputStyle = {
-  h: '2.75rem',
-  bg: 'white',
-  border: '1px solid',
-  borderColor: 'inputBorder',
-  borderRadius: 'md',
-  color: 'gray.900',
-  fontWeight: 'medium',
-  px: 4,
-  _placeholder: { color: 'placeholder' },
-  _hover: { borderColor: 'primary' },
-  _focus: {
-    borderColor: 'primary',
-    outline: '1px solid var(--chakra-colors-primary)',
-    outlineOffset: '0px',
-  },
+    if (Array.isArray(data?.message)) return data.message.join(', ');
+    if (typeof data?.message === 'string') return data.message;
+    if (data?.errors) return typeof data.errors === 'string' ? data.errors : JSON.stringify(data.errors);
+
+    return error.message;
+  }
+
+  if (error instanceof Error) return error.message;
+
+  return 'An unexpected error occurred';
 };
 
 export const CreateCommunication: React.FC = () => {
@@ -95,7 +82,7 @@ export const CreateCommunication: React.FC = () => {
 
   const { open: isRecipientModalOpen, onOpen: onRecipientModalOpen, onClose: onRecipientModalClose } = useDisclosure();
 
-  const [recipients, setRecipients] = useState<Recipient[]>([]);
+  const [recipients, setRecipients] = useState<RecipientItem[]>([]);
   const [attachments, setAttachments] = useState<File[]>([]);
 
   const {
@@ -112,7 +99,7 @@ export const CreateCommunication: React.FC = () => {
       subject: '',
       body: '',
       templateVariablesJson: {},
-      scheduledAt: '',
+      scheduledAt: null,
     },
   });
 
@@ -120,6 +107,8 @@ export const CreateCommunication: React.FC = () => {
     register: registerRecipient,
     handleSubmit: handleSubmitRecipient,
     reset: resetRecipient,
+    watch: watchRecipient,
+    setValue: setRecipientValue,
     formState: { errors: recipientErrors },
   } = useForm<RecipientFormData>({
     resolver: zodResolver(recipientSchema),
@@ -132,6 +121,8 @@ export const CreateCommunication: React.FC = () => {
   const selectedTemplateId = watch('templateId');
   const selectedVersionId = watch('templateVersionId');
   const scheduledAt = watch('scheduledAt');
+  const body = watch('body');
+  const recipientTypeValue = watchRecipient('recipientType');
 
   const { data: templatesData, isLoading: isLoadingTemplates } = useQuery({
     queryKey: ['templates', 'active'],
@@ -157,22 +148,6 @@ export const CreateCommunication: React.FC = () => {
     setValue('templateVariablesJson', {});
   }, [setValue]);
 
-  const getErrorMessage = (error: unknown): string => {
-    if (error instanceof AxiosError) {
-      const data = error.response?.data as { message?: string | string[]; errors?: unknown } | undefined;
-
-      if (Array.isArray(data?.message)) return data.message.join(', ');
-      if (typeof data?.message === 'string') return data.message;
-      if (data?.errors) return typeof data.errors === 'string' ? data.errors : JSON.stringify(data.errors);
-
-      return error.message;
-    }
-
-    if (error instanceof Error) return error.message;
-
-    return 'An unexpected error occurred';
-  };
-
   const createMutation = useMutation({
     mutationFn: async (data: CreateFormData) => {
       const hasToRecipient = recipients.some((recipient) => recipient.recipientType === 'to');
@@ -188,7 +163,7 @@ export const CreateCommunication: React.FC = () => {
       };
 
       if (data.scheduledAt) {
-        payload.scheduledAt = new Date(data.scheduledAt).toISOString();
+        payload.scheduledAt = data.scheduledAt.toISOString();
       }
 
       if (data.sourceType === 'manual') {
@@ -239,9 +214,9 @@ export const CreateCommunication: React.FC = () => {
     onRecipientModalClose();
   };
 
-  const handleRemoveRecipient = (email: string, recipientType: string) => {
+  const handleRemoveRecipient = (recipient: RecipientItem) => {
     setRecipients((prev) =>
-      prev.filter((recipient) => !(recipient.email === email && recipient.recipientType === recipientType)),
+      prev.filter((item) => !(item.email === recipient.email && item.recipientType === recipient.recipientType)),
     );
   };
 
@@ -250,7 +225,6 @@ export const CreateCommunication: React.FC = () => {
 
     setAttachments((prev) => {
       const existingKeys = new Set(prev.map((file) => `${file.name}-${file.size}`));
-
       const newFiles = selectedFiles.filter((file) => !existingKeys.has(`${file.name}-${file.size}`));
 
       return [...prev, ...newFiles];
@@ -259,8 +233,8 @@ export const CreateCommunication: React.FC = () => {
     event.target.value = '';
   };
 
-  const handleRemoveAttachment = (indexToRemove: number) => {
-    setAttachments((prev) => prev.filter((_, index) => index !== indexToRemove));
+  const handleRemoveAttachment = (attachment: { type: 'local'; index: number }) => {
+    setAttachments((prev) => prev.filter((_, index) => index !== attachment.index));
   };
 
   const onCreate: SubmitHandler<CreateFormData> = (data) => {
@@ -291,7 +265,9 @@ export const CreateCommunication: React.FC = () => {
           </Heading>
 
           <Text mt='2' color='textSecondary' fontSize='sm'>
-            {scheduledAt ? 'Create a scheduled email communication.' : 'Create, attach files, and send immediately.'}
+            {scheduledAt
+              ? 'Schedule an email communication for later delivery.'
+              : 'Create and send an email communication instantly.'}
           </Text>
         </Box>
 
@@ -310,21 +286,17 @@ export const CreateCommunication: React.FC = () => {
         >
           <HStack gap='2'>
             <PaperPlaneTiltIcon size={20} />
-            <Text>{scheduledAt ? 'Create Scheduled' : 'Create & Send'}</Text>
+            <Text>{scheduledAt ? 'Schedule Email' : 'Send Now'}</Text>
           </HStack>
         </Button>
       </Flex>
 
       <Grid templateColumns={{ base: '1fr', lg: '2fr 1fr' }} gap='6'>
         <Stack gap='6'>
-          <Box bg='surface' p='6' borderRadius='2xl' borderWidth='1px' borderColor='gray.100' boxShadow='sm'>
-            <Heading size='md' mb='6' color='text'>
-              General Information
-            </Heading>
-
+          <CommunicationFormCard title='Content'>
             <Stack gap='5'>
               <Field.Root>
-                <Field.Label mb={1} color='primary' fontWeight='bold' fontSize='sm'>
+                <Field.Label mb={2} color='primary' fontWeight='bold' fontSize='sm'>
                   Source Type
                 </Field.Label>
 
@@ -332,33 +304,24 @@ export const CreateCommunication: React.FC = () => {
                   name='sourceType'
                   control={control}
                   render={({ field }) => (
-                    <select
-                      {...field}
-                      onChange={(event) => {
-                        const nextSourceType = event.target.value as 'manual' | 'template';
+                    <AppSelect
+                      width='100%'
+                      value={field.value}
+                      options={[
+                        { label: 'Template', value: 'template' },
+                        { label: 'Manual Content', value: 'manual' },
+                      ]}
+                      onChange={(value) => {
+                        const nextSourceType = value as 'manual' | 'template';
 
                         field.onChange(nextSourceType);
-
                         setValue('subject', '');
                         setValue('body', '');
                         setValue('templateId', '');
                         setValue('templateVersionId', '');
                         setValue('templateVariablesJson', {});
                       }}
-                      style={{
-                        width: '100%',
-                        height: '44px',
-                        borderRadius: '8px',
-                        border: '1px solid var(--chakra-colors-inputBorder)',
-                        padding: '0 16px',
-                        background: 'white',
-                        color: '#111827',
-                        fontWeight: 500,
-                      }}
-                    >
-                      <option value='template'>Template</option>
-                      <option value='manual'>Manual Content</option>
-                    </select>
+                    />
                   )}
                 />
               </Field.Root>
@@ -394,30 +357,10 @@ export const CreateCommunication: React.FC = () => {
                       name='body'
                       control={control}
                       render={({ field }) => (
-                        <Textarea
-                          {...field}
+                        <HtmlContentEditor
                           value={field.value ?? ''}
-                          placeholder='Email content'
-                          minH='220px'
-                          bg='white'
-                          border='1px solid'
-                          borderColor={errors.body ? 'error' : 'inputBorder'}
-                          borderRadius='md'
-                          color='gray.900'
-                          fontWeight='medium'
-                          resize='none'
-                          px={4}
-                          py={3}
-                          lineHeight='1.6'
-                          _placeholder={{ color: 'placeholder' }}
-                          _hover={{ borderColor: errors.body ? 'error' : 'primary' }}
-                          _focus={{
-                            borderColor: errors.body ? 'error' : 'primary',
-                            outline: errors.body
-                              ? '1px solid var(--chakra-colors-error)'
-                              : '1px solid var(--chakra-colors-primary)',
-                            outlineOffset: '0px',
-                          }}
+                          onChange={field.onChange}
+                          hasError={!!errors.body}
                         />
                       )}
                     />
@@ -428,13 +371,21 @@ export const CreateCommunication: React.FC = () => {
                       </Text>
                     )}
                   </Field.Root>
+
+                  <Box pt='2'>
+                    <Text fontWeight='bold' color='primary' fontSize='sm' mb='2'>
+                      Preview
+                    </Text>
+
+                    <HtmlContentPreview value={body ?? ''} />
+                  </Box>
                 </>
               )}
 
               {sourceType === 'template' && (
                 <Stack gap='5'>
                   <Field.Root>
-                    <Field.Label mb={1} color='primary' fontWeight='bold' fontSize='sm'>
+                    <Field.Label mb={2} color='primary' fontWeight='bold' fontSize='sm'>
                       Template *
                     </Field.Label>
 
@@ -442,36 +393,28 @@ export const CreateCommunication: React.FC = () => {
                       name='templateId'
                       control={control}
                       render={({ field }) => (
-                        <select
-                          {...field}
+                        <AppSelect
+                          width='100%'
                           value={field.value ?? ''}
-                          disabled={isLoadingTemplates}
-                          style={{
-                            width: '100%',
-                            height: '44px',
-                            borderRadius: '8px',
-                            border: '1px solid var(--chakra-colors-inputBorder)',
-                            padding: '0 16px',
-                            background: 'white',
-                            color: '#111827',
-                            fontWeight: 500,
+                          isDisabled={isLoadingTemplates}
+                          placeholder='Choose a template...'
+                          onChange={(value) => {
+                            field.onChange(value);
                           }}
-                        >
-                          <option value=''>Choose a template...</option>
-
-                          {templatesData?.templates.map((template) => (
-                            <option key={template.id} value={template.id}>
-                              {template.name}
-                            </option>
-                          ))}
-                        </select>
+                          options={
+                            templatesData?.templates.map((template) => ({
+                              label: template.name,
+                              value: template.id,
+                            })) ?? []
+                          }
+                        />
                       )}
                     />
                   </Field.Root>
 
                   {selectedTemplateId && (
                     <Field.Root invalid={!!errors.templateVersionId} position='relative' pb='22px'>
-                      <Field.Label mb={1} color='primary' fontWeight='bold' fontSize='sm'>
+                      <Field.Label mb={2} color='primary' fontWeight='bold' fontSize='sm'>
                         Version *
                       </Field.Label>
 
@@ -479,54 +422,21 @@ export const CreateCommunication: React.FC = () => {
                         name='templateVersionId'
                         control={control}
                         render={({ field }) => (
-                          <select
-                            {...field}
+                          <AppSelect
+                            width='100%'
                             value={field.value ?? ''}
-                            disabled={isLoadingVersions}
-                            onChange={(event) => {
-                              field.onChange(event);
-
-                              const version = versionsData?.templateVersions.find(
-                                (templateVersion) => templateVersion.id === event.target.value,
-                              );
-
-                              if (!version) return;
-
-                              setValue('subject', version.subject ?? '');
-                              setValue('body', version.body ?? '');
-
-                              if (version.variablesSchemaJson) {
-                                const variables = Object.keys(version.variablesSchemaJson).reduce<
-                                  Record<string, string>
-                                >((acc, key) => {
-                                  acc[key] = '';
-                                  return acc;
-                                }, {});
-
-                                setValue('templateVariablesJson', variables);
-                              } else {
-                                setValue('templateVariablesJson', {});
-                              }
+                            isDisabled={isLoadingVersions}
+                            placeholder='Choose a version...'
+                            onChange={(value) => {
+                              field.onChange(value);
                             }}
-                            style={{
-                              width: '100%',
-                              height: '44px',
-                              borderRadius: '8px',
-                              border: '1px solid var(--chakra-colors-inputBorder)',
-                              padding: '0 16px',
-                              background: 'white',
-                              color: '#111827',
-                              fontWeight: 500,
-                            }}
-                          >
-                            {isLoadingVersions && <option>Loading versions...</option>}
-
-                            {versionsData?.templateVersions.map((version) => (
-                              <option key={version.id} value={version.id}>
-                                Version {version.version}
-                              </option>
-                            ))}
-                          </select>
+                            options={
+                              versionsData?.templateVersions.map((version) => ({
+                                label: `Version ${version.version}`,
+                                value: version.id,
+                              })) ?? []
+                            }
+                          />
                         )}
                       />
 
@@ -572,266 +482,45 @@ export const CreateCommunication: React.FC = () => {
                 </Stack>
               )}
             </Stack>
-          </Box>
+          </CommunicationFormCard>
 
-          <Box bg='surface' p='6' borderRadius='2xl' borderWidth='1px' borderColor='gray.100' boxShadow='sm'>
-            <Flex justify='space-between' align='center' mb='6'>
-              <Heading size='md' color='text'>
-                Recipients
-              </Heading>
-
-              <Button
-                size='sm'
-                variant='ghost'
-                color='primary'
-                fontWeight='bold'
-                onClick={onRecipientModalOpen}
-                disabled={createMutation.isPending}
-              >
-                <HStack gap='1'>
-                  <PlusIcon size={16} />
-                  <Text>Add Recipient</Text>
-                </HStack>
-              </Button>
-            </Flex>
-
-            {recipients.length === 0 ? (
-              <Flex py='8' justify='center' align='center' bg='gray.50' borderRadius='xl'>
-                <Text color='textSecondary' fontSize='sm'>
-                  No recipients added yet.
-                </Text>
-              </Flex>
-            ) : (
-              <Stack gap='3'>
-                {recipients.map((recipient) => (
-                  <Flex
-                    key={`${recipient.email}-${recipient.recipientType}`}
-                    align='center'
-                    justify='space-between'
-                    p='3'
-                    borderWidth='1px'
-                    borderColor='gray.100'
-                    borderRadius='xl'
-                    bg='white'
-                  >
-                    <Box minW='0' flex='1' mr='3'>
-                      <Text fontWeight='medium' color='text' truncate>
-                        {recipient.email}
-                      </Text>
-                    </Box>
-
-                    <HStack gap='3'>
-                      <Badge variant='subtle' colorScheme='blue'>
-                        {recipient.recipientType}
-                      </Badge>
-
-                      <IconButton
-                        aria-label='Remove recipient'
-                        variant='ghost'
-                        colorScheme='red'
-                        size='xs'
-                        onClick={() => handleRemoveRecipient(recipient.email, recipient.recipientType)}
-                        disabled={createMutation.isPending}
-                      >
-                        <TrashIcon size={16} />
-                      </IconButton>
-                    </HStack>
-                  </Flex>
-                ))}
-              </Stack>
-            )}
-          </Box>
+          <RecipientsCard
+            recipients={recipients}
+            disabled={createMutation.isPending}
+            onAddClick={onRecipientModalOpen}
+            onRemove={handleRemoveRecipient}
+          />
         </Stack>
 
         <Stack gap='6'>
-          <Box bg='surface' p='6' borderRadius='2xl' borderWidth='1px' borderColor='gray.100' boxShadow='sm'>
-            <Heading size='md' mb='6' color='text'>
-              Scheduling
-            </Heading>
+          <DeliveryCard control={control} errors={errors} disabled={createMutation.isPending} />
 
-            <Field.Root invalid={!!errors.scheduledAt}>
-              <Field.Label mb={1} color='primary' fontWeight='bold' fontSize='sm'>
-                Scheduled For
-              </Field.Label>
-
-              <Controller
-                name='scheduledAt'
-                control={control}
-                render={({ field }) => (
-                  <Input {...field} value={field.value ?? ''} type='datetime-local' {...inputStyle} />
-                )}
-              />
-
-              <Text fontSize='xs' color='textSecondary' mt='2'>
-                Leave blank to create, upload attachments, and send now.
-              </Text>
-            </Field.Root>
-          </Box>
-
-          <Box bg='surface' p='6' borderRadius='2xl' borderWidth='1px' borderColor='gray.100' boxShadow='sm'>
-            <Flex justify='space-between' align='center' mb='6'>
-              <Heading size='md' color='text'>
-                Attachments
-              </Heading>
-
-              <Button
-                size='sm'
-                variant='ghost'
-                color='primary'
-                fontWeight='bold'
-                onClick={() => fileInputRef.current?.click()}
-                disabled={createMutation.isPending}
-              >
-                <HStack gap='1'>
-                  <PlusIcon size={16} />
-                  <Text>Add File</Text>
-                </HStack>
-              </Button>
-
-              <input ref={fileInputRef} type='file' multiple hidden onChange={handleSelectFiles} />
-            </Flex>
-
-            {attachments.length === 0 ? (
-              <Flex py='8' justify='center' align='center' bg='gray.50' borderRadius='xl'>
-                <Text color='textSecondary' fontSize='sm'>
-                  No attachments added yet.
-                </Text>
-              </Flex>
-            ) : (
-              <Stack gap='3'>
-                {attachments.map((file, index) => (
-                  <Flex
-                    key={`${file.name}-${file.size}-${index}`}
-                    align='center'
-                    justify='space-between'
-                    p='3'
-                    borderWidth='1px'
-                    borderColor='gray.100'
-                    borderRadius='xl'
-                    bg='white'
-                    gap='3'
-                  >
-                    <HStack minW='0' flex='1'>
-                      <FileIcon size={18} />
-
-                      <Box minW='0'>
-                        <Text fontWeight='medium' color='text' truncate>
-                          {file.name}
-                        </Text>
-
-                        <Text fontSize='xs' color='textSecondary'>
-                          {(file.size / 1024 / 1024).toFixed(2)} MB
-                        </Text>
-                      </Box>
-                    </HStack>
-
-                    <IconButton
-                      aria-label='Remove attachment'
-                      variant='ghost'
-                      colorScheme='red'
-                      size='xs'
-                      onClick={() => handleRemoveAttachment(index)}
-                      disabled={createMutation.isPending}
-                    >
-                      <TrashIcon size={16} />
-                    </IconButton>
-                  </Flex>
-                ))}
-              </Stack>
-            )}
-          </Box>
+          <AttachmentsCard
+            attachments={attachments.map((file, index) => ({ type: 'local', file, index }))}
+            disabled={createMutation.isPending}
+            fileInputRef={fileInputRef}
+            onFileChange={handleSelectFiles}
+            onRemove={(attachment) => {
+              if (attachment.type === 'local') handleRemoveAttachment(attachment);
+            }}
+          />
         </Stack>
       </Grid>
 
-      <Dialog.Root
+      <RecipientDialog
         open={isRecipientModalOpen}
-        onOpenChange={(details: { open: boolean }) => !details.open && onRecipientModalClose()}
-      >
-        <Dialog.Backdrop bg='blackAlpha.400' />
-
-        <Dialog.Positioner>
-          <Dialog.Content borderRadius='2xl' boxShadow='2xl' bg='surface' p='6'>
-            <Dialog.Header px='0' pt='0' pb='4'>
-              <Heading size='md' color='text'>
-                Add Recipient
-              </Heading>
-            </Dialog.Header>
-
-            <Dialog.CloseTrigger onClick={onRecipientModalClose} top='4' right='4' />
-
-            <Dialog.Body px='0'>
-              <Stack gap='4' py='4'>
-                <Field.Root invalid={!!recipientErrors.email} position='relative' pb='22px'>
-                  <Field.Label fontSize='sm' fontWeight='bold' color='primary'>
-                    Email Address
-                  </Field.Label>
-
-                  <Input {...registerRecipient('email')} placeholder='recipient@example.com' {...inputStyle} />
-
-                  {recipientErrors.email && (
-                    <Text position='absolute' bottom='0' color='error' fontSize='xs'>
-                      {recipientErrors.email.message}
-                    </Text>
-                  )}
-                </Field.Root>
-
-                <Field.Root>
-                  <Field.Label fontSize='sm' fontWeight='bold' color='primary'>
-                    Type
-                  </Field.Label>
-
-                  <select
-                    {...registerRecipient('recipientType')}
-                    style={{
-                      width: '100%',
-                      height: '44px',
-                      borderRadius: '8px',
-                      border: '1px solid var(--chakra-colors-inputBorder)',
-                      padding: '0 16px',
-                      background: 'white',
-                      color: '#111827',
-                      fontWeight: 500,
-                    }}
-                  >
-                    <option value='to'>To</option>
-                    <option value='cc'>Cc</option>
-                    <option value='bcc'>Bcc</option>
-                  </select>
-                </Field.Root>
-              </Stack>
-            </Dialog.Body>
-
-            <Dialog.Footer px='0' gap='3'>
-              <Button
-                variant='outline'
-                borderColor='inputBorder'
-                color='primary'
-                fontWeight='bold'
-                borderRadius='full'
-                px={6}
-                h='2.75rem'
-                _hover={{ bg: 'gray.50', borderColor: 'primary' }}
-                onClick={onRecipientModalClose}
-              >
-                Cancel
-              </Button>
-
-              <Button
-                bg='primary'
-                color='white'
-                fontWeight='bold'
-                borderRadius='full'
-                px={6}
-                h='2.75rem'
-                _hover={{ bg: 'secondary' }}
-                onClick={handleSubmitRecipient(handleAddRecipient)}
-              >
-                Add Recipient
-              </Button>
-            </Dialog.Footer>
-          </Dialog.Content>
-        </Dialog.Positioner>
-      </Dialog.Root>
+        emailError={recipientErrors.email?.message}
+        emailRegister={registerRecipient('email')}
+        recipientTypeValue={recipientTypeValue}
+        onRecipientTypeChange={(value) => {
+          setRecipientValue('recipientType', value as 'to' | 'cc' | 'bcc', {
+            shouldValidate: true,
+            shouldDirty: true,
+          });
+        }}
+        onClose={onRecipientModalClose}
+        onSubmit={handleSubmitRecipient(handleAddRecipient)}
+      />
     </Box>
   );
 };

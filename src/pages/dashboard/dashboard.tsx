@@ -1,4 +1,4 @@
-import { Badge, Box, Button, Flex, Grid, Heading, HStack, IconButton, Spinner, Stack, Text } from '@chakra-ui/react';
+import { Box, Button, Flex, Grid, Heading, HStack, IconButton, Spinner, Stack, Text } from '@chakra-ui/react';
 import {
   ChatCircleTextIcon,
   ClockCounterClockwiseIcon,
@@ -10,8 +10,9 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getCommunicationDetailPath, getCreateCommunicationPath, getEditCommunicationPath } from '@/routes';
+import { getCommunicationDetailPath, getCreateCommunicationPath, getUpdateCommunicationPath } from '@/routes';
 import { getCommunications } from '@/services';
+import { StatusBadge } from '@/shared';
 
 type TypeIconProps = {
   type: 'Whatsapp' | 'Teams' | 'Email';
@@ -30,34 +31,6 @@ const TypeIcon = ({ type }: TypeIconProps) => {
     default:
       return null;
   }
-};
-
-const statusStyles: Record<string, { bg: string; color: string; label: string }> = {
-  draft: { bg: 'gray.100', color: 'gray.700', label: 'Draft' },
-  scheduled: { bg: 'blue.100', color: 'blue.800', label: 'Scheduled' },
-  processing: { bg: 'purple.100', color: 'purple.800', label: 'Processing' },
-  sent: { bg: 'green.100', color: 'green.800', label: 'Sent' },
-  failed: { bg: 'red.100', color: 'red.800', label: 'Failed' },
-  canceled: { bg: 'orange.100', color: 'orange.800', label: 'Canceled' },
-};
-
-const StatusBadge = ({ status }: { status: string }) => {
-  const style = statusStyles[status] || { bg: 'gray.100', color: 'gray.700', label: status };
-
-  return (
-    <Badge
-      px='3'
-      py='1'
-      borderRadius='full'
-      fontSize='xs'
-      fontWeight='bold'
-      textTransform='none'
-      bg={style.bg}
-      color={style.color}
-    >
-      {style.label}
-    </Badge>
-  );
 };
 
 const formatDateTime = (value: string | null) => {
@@ -310,7 +283,7 @@ export const Dashboard: React.FC = () => {
                         size='sm'
                         onClick={(e) => {
                           e.stopPropagation();
-                          navigate(getEditCommunicationPath(comm.id));
+                          navigate(getUpdateCommunicationPath(comm.id));
                         }}
                       >
                         <PencilSimpleIcon size={18} />
@@ -346,7 +319,7 @@ export const Dashboard: React.FC = () => {
                   }}
                 >
                   <Flex justify='space-between' align='flex-start' mb='3'>
-                    <Text fontWeight='bold' color='text' noOfLines={2} flex='1' mr='3'>
+                    <Text fontWeight='bold' color='text' lineClamp={2} flex='1' mr='3'>
                       {comm.subject || 'No subject'}
                     </Text>
                     <StatusBadge status={comm.status} />
@@ -372,7 +345,7 @@ export const Dashboard: React.FC = () => {
                       size='sm'
                       onClick={(e) => {
                         e.stopPropagation();
-                        navigate(getEditCommunicationPath(comm.id));
+                        navigate(getUpdateCommunicationPath(comm.id));
                       }}
                     >
                       <PencilSimpleIcon size={18} />

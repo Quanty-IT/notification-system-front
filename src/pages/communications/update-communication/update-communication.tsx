@@ -1,23 +1,19 @@
 import {
-  Badge,
   Box,
   Button,
-  Dialog,
   Field,
   Flex,
   Grid,
   Heading,
   HStack,
-  IconButton,
   Input,
   Spinner,
   Stack,
   Text,
-  Textarea,
   useDisclosure,
 } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowLeftIcon, FileIcon, FloppyDiskIcon, PlusIcon, TrashIcon } from '@phosphor-icons/react';
+import { ArrowLeftIcon, FloppyDiskIcon } from '@phosphor-icons/react';
 import { AxiosError } from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
@@ -33,12 +29,22 @@ import {
   uploadCommunicationAttachment,
 } from '@/services';
 import { CommunicationDetail, UpdateCommunicationInput } from '@/services/communications/types';
+import { HtmlContentEditor, HtmlContentPreview, StatusBadge } from '@/shared';
+import {
+  AttachmentsCard,
+  CommunicationFormCard,
+  inputStyle,
+  RecipientDialog,
+  RecipientItem,
+  RecipientsCard,
+} from '../components';
+import { DeliveryCard } from '../components/delivery-card';
 
 const updateSchema = z.object({
   subject: z.string().max(255).optional(),
   body: z.string().optional(),
-  scheduledAt: z.string().optional(),
   templateVariablesJson: z.record(z.string(), z.any()).optional(),
+  scheduledAt: z.date().nullable().optional(),
 });
 
 type UpdateFormData = z.infer<typeof updateSchema>;
@@ -52,23 +58,6 @@ type RecipientFormData = z.infer<typeof recipientSchema>;
 
 const editableStatuses = ['draft', 'scheduled'];
 
-const inputStyle = {
-  h: '2.75rem',
-  bg: 'white',
-  border: '1px solid',
-  borderColor: 'inputBorder',
-  borderRadius: 'md',
-  color: 'gray.900',
-  fontWeight: 'medium',
-  px: 4,
-  _placeholder: { color: 'placeholder' },
-  _hover: { borderColor: 'primary' },
-  _focus: {
-    borderColor: 'primary',
-    outline: '1px solid var(--chakra-colors-primary)',
-    outlineOffset: '0px',
-  },
-};
 const getErrorMessage = (error: unknown): string => {
   if (error instanceof AxiosError) {
     const data = error.response?.data as { message?: string | string[]; errors?: unknown } | undefined;
@@ -85,7 +74,13 @@ const getErrorMessage = (error: unknown): string => {
   return 'An unexpected error occurred';
 };
 
-export const EditCommunication: React.FC = () => {
+const parseScheduledAt = (scheduledAt: string | null | undefined) => {
+  if (!scheduledAt) return null;
+
+  return new Date(scheduledAt);
+};
+
+export const UpdateCommunication: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -102,14 +97,15 @@ export const EditCommunication: React.FC = () => {
     control,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm<UpdateFormData>({
     resolver: zodResolver(updateSchema),
     defaultValues: {
       subject: '',
       body: '',
-      scheduledAt: '',
       templateVariablesJson: {},
+      scheduledAt: null,
     },
   });
 
@@ -117,6 +113,8 @@ export const EditCommunication: React.FC = () => {
     register: registerRecipient,
     handleSubmit: handleSubmitRecipient,
     reset: resetRecipient,
+    watch: watchRecipient,
+    setValue: setRecipientValue,
     formState: { errors: recipientErrors },
   } = useForm<RecipientFormData>({
     resolver: zodResolver(recipientSchema),
@@ -124,6 +122,9 @@ export const EditCommunication: React.FC = () => {
       recipientType: 'to',
     },
   });
+
+  const body = watch('body');
+  const recipientTypeValue = watchRecipient('recipientType');
 
   const canEdit = communication ? editableStatuses.includes(communication.status) : false;
 
@@ -140,8 +141,8 @@ export const EditCommunication: React.FC = () => {
       reset({
         subject: data.subject ?? '',
         body: data.body ?? '',
-        scheduledAt: data.scheduledAt ? new Date(data.scheduledAt).toISOString().slice(0, 16) : '',
         templateVariablesJson: data.templateVariablesJson ?? {},
+        scheduledAt: parseScheduledAt(data.scheduledAt),
       });
     } catch (error) {
       alert(`Failed to load communication: ${getErrorMessage(error)}`);
@@ -161,11 +162,9 @@ export const EditCommunication: React.FC = () => {
     try {
       setIsSaving(true);
 
-      const payload: UpdateCommunicationInput = {};
-
-      if (data.scheduledAt) {
-        payload.scheduledAt = new Date(data.scheduledAt).toISOString();
-      }
+      const payload: UpdateCommunicationInput = {
+        scheduledAt: data.scheduledAt ? data.scheduledAt.toISOString() : undefined,
+      };
 
       if (communication.sourceType === 'manual') {
         payload.subject = data.subject?.trim();
@@ -227,20 +226,20 @@ export const EditCommunication: React.FC = () => {
     }
   };
 
-  const handleRemoveRecipient = async (recipientId: string) => {
-    if (!id) return;
+  const handleRemoveRecipient = async (recipient: RecipientItem) => {
+    if (!id || !recipient.id) return;
 
     try {
       await removeCommunicationRecipient({
         communicationId: id,
-        recipientId,
+        recipientId: recipient.id,
       });
 
       setCommunication((prev) =>
         prev
           ? {
               ...prev,
-              recipients: prev.recipients.filter((recipient) => recipient.id !== recipientId),
+              recipients: prev.recipients.filter((item) => item.id !== recipient.id),
             }
           : null,
       );
@@ -283,20 +282,20 @@ export const EditCommunication: React.FC = () => {
     }
   };
 
-  const handleRemoveAttachment = async (attachmentId: string) => {
+  const handleRemoveAttachment = async (attachment: { type: 'persisted'; id: string }) => {
     if (!id) return;
 
     try {
       await removeCommunicationAttachment({
         communicationId: id,
-        attachmentId,
+        attachmentId: attachment.id,
       });
 
       setCommunication((prev) =>
         prev
           ? {
               ...prev,
-              attachments: prev.attachments.filter((attachment) => attachment.id !== attachmentId),
+              attachments: prev.attachments.filter((item) => item.id !== attachment.id),
             }
           : null,
       );
@@ -347,7 +346,7 @@ export const EditCommunication: React.FC = () => {
 
           <Text mt='2' color='textSecondary' fontSize='sm'>
             {canEdit
-              ? 'Update communication details, recipients and attachments.'
+              ? 'Update communication content, delivery, recipients and attachments.'
               : 'This communication can no longer be edited.'}
           </Text>
         </Box>
@@ -375,11 +374,7 @@ export const EditCommunication: React.FC = () => {
 
       <Grid templateColumns={{ base: '1fr', lg: '2fr 1fr' }} gap='6'>
         <Stack gap='6'>
-          <Box bg='surface' p='6' borderRadius='2xl' borderWidth='1px' borderColor='gray.100' boxShadow='sm'>
-            <Heading size='md' mb='6' color='text'>
-              General Information
-            </Heading>
-
+          <CommunicationFormCard title='Content'>
             <Stack gap='5'>
               <Field.Root>
                 <Field.Label mb={1} color='primary' fontWeight='bold' fontSize='sm'>
@@ -414,12 +409,6 @@ export const EditCommunication: React.FC = () => {
                         />
                       )}
                     />
-
-                    {errors.subject && (
-                      <Text position='absolute' bottom='0' color='error' fontSize='xs'>
-                        {errors.subject.message}
-                      </Text>
-                    )}
                   </Field.Root>
 
                   <Field.Root invalid={!!errors.body} position='relative' pb='22px'>
@@ -431,53 +420,34 @@ export const EditCommunication: React.FC = () => {
                       name='body'
                       control={control}
                       render={({ field }) => (
-                        <Textarea
-                          {...field}
+                        <HtmlContentEditor
                           value={field.value ?? ''}
-                          placeholder='Email content'
-                          minH='220px'
-                          bg='white'
-                          border='1px solid'
-                          borderColor={errors.body ? 'error' : 'inputBorder'}
-                          borderRadius='md'
-                          color='gray.900'
-                          fontWeight='medium'
-                          resize='none'
-                          px={4}
-                          py={3}
-                          lineHeight='1.6'
-                          disabled={!canEdit}
-                          _placeholder={{ color: 'placeholder' }}
-                          _hover={{ borderColor: errors.body ? 'error' : 'primary' }}
-                          _focus={{
-                            borderColor: errors.body ? 'error' : 'primary',
-                            outline: errors.body
-                              ? '1px solid var(--chakra-colors-error)'
-                              : '1px solid var(--chakra-colors-primary)',
-                            outlineOffset: '0px',
-                          }}
+                          onChange={field.onChange}
+                          hasError={!!errors.body}
                         />
                       )}
                     />
-
-                    {errors.body && (
-                      <Text position='absolute' bottom='0' color='error' fontSize='xs'>
-                        {errors.body.message}
-                      </Text>
-                    )}
                   </Field.Root>
+
+                  <Box pt='2'>
+                    <Text fontWeight='bold' color='primary' fontSize='sm' mb='2'>
+                      Preview
+                    </Text>
+
+                    <HtmlContentPreview value={body ?? ''} />
+                  </Box>
                 </>
               )}
 
               {communication.sourceType === 'template' && (
                 <Stack gap='5'>
-                  <Box p='4' bg='gray.50' borderRadius='xl' borderLeftWidth='4px' borderColor='primary'>
-                    <Text color='primary' fontWeight='bold'>
+                  <Box p='4' bg='green.50' borderRadius='xl' borderWidth='1px' borderColor='green.100'>
+                    <Text color='green.800' fontWeight='bold'>
                       Template based communication
                     </Text>
 
                     <Text color='textSecondary' fontSize='sm' mt='1'>
-                      Template version: {communication.templateVersionId}
+                      The subject and body come from the selected template version.
                     </Text>
                   </Box>
 
@@ -521,191 +491,44 @@ export const EditCommunication: React.FC = () => {
                   )}
                 </Stack>
               )}
-
-              <Field.Root invalid={!!errors.scheduledAt}>
-                <Field.Label mb={1} color='primary' fontWeight='bold' fontSize='sm'>
-                  Scheduled For
-                </Field.Label>
-
-                <Controller
-                  name='scheduledAt'
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      {...field}
-                      value={field.value ?? ''}
-                      type='datetime-local'
-                      disabled={!canEdit}
-                      {...inputStyle}
-                    />
-                  )}
-                />
-
-                <Text fontSize='xs' color='textSecondary' mt='2'>
-                  Leave blank to keep it as draft. Sending now should use the send action.
-                </Text>
-              </Field.Root>
             </Stack>
-          </Box>
+          </CommunicationFormCard>
 
-          <Box bg='surface' p='6' borderRadius='2xl' borderWidth='1px' borderColor='gray.100' boxShadow='sm'>
-            <Flex justify='space-between' align='center' mb='6'>
-              <Heading size='md' color='text'>
-                Recipients
-              </Heading>
-
-              <Button
-                size='sm'
-                variant='ghost'
-                color='primary'
-                fontWeight='bold'
-                onClick={onRecipientModalOpen}
-                disabled={!canEdit || isAddingRecipient}
-              >
-                <HStack gap='1'>
-                  <PlusIcon size={16} />
-                  <Text>Add Recipient</Text>
-                </HStack>
-              </Button>
-            </Flex>
-
-            {communication.recipients.length === 0 ? (
-              <Flex py='8' justify='center' align='center' bg='gray.50' borderRadius='xl'>
-                <Text color='textSecondary' fontSize='sm'>
-                  No recipients added yet.
-                </Text>
-              </Flex>
-            ) : (
-              <Stack gap='3'>
-                {communication.recipients.map((recipient) => (
-                  <Flex
-                    key={recipient.id}
-                    align='center'
-                    justify='space-between'
-                    p='3'
-                    borderWidth='1px'
-                    borderColor='gray.100'
-                    borderRadius='xl'
-                    bg='white'
-                  >
-                    <Box minW='0' flex='1' mr='3'>
-                      <Text fontWeight='medium' color='text' truncate>
-                        {recipient.email}
-                      </Text>
-                    </Box>
-
-                    <HStack gap='3'>
-                      <Badge variant='subtle' colorScheme='blue'>
-                        {recipient.recipientType}
-                      </Badge>
-
-                      <IconButton
-                        aria-label='Remove recipient'
-                        variant='ghost'
-                        colorScheme='red'
-                        size='xs'
-                        onClick={() => handleRemoveRecipient(recipient.id)}
-                        disabled={!canEdit}
-                      >
-                        <TrashIcon size={16} />
-                      </IconButton>
-                    </HStack>
-                  </Flex>
-                ))}
-              </Stack>
-            )}
-          </Box>
+          <RecipientsCard
+            recipients={communication.recipients}
+            disabled={!canEdit || isAddingRecipient}
+            onAddClick={onRecipientModalOpen}
+            onRemove={handleRemoveRecipient}
+          />
         </Stack>
 
         <Stack gap='6'>
-          <Box bg='surface' p='6' borderRadius='2xl' borderWidth='1px' borderColor='gray.100' boxShadow='sm'>
-            <Flex justify='space-between' align='center' mb='6'>
-              <Heading size='md' color='text'>
-                Attachments
-              </Heading>
+          <DeliveryCard control={control} errors={errors} disabled={!canEdit} />
 
-              <Button
-                size='sm'
-                variant='ghost'
-                color='primary'
-                fontWeight='bold'
-                onClick={() => fileInputRef.current?.click()}
-                loading={isUploadingAttachment}
-                disabled={!canEdit}
-              >
-                <HStack gap='1'>
-                  <PlusIcon size={16} />
-                  <Text>Add File</Text>
-                </HStack>
-              </Button>
+          <AttachmentsCard
+            attachments={communication.attachments.map((attachment) => ({
+              type: 'persisted',
+              id: attachment.id,
+              originalFileName: attachment.originalFileName,
+              fileSizeBytes: attachment.fileSizeBytes,
+            }))}
+            disabled={!canEdit}
+            isLoading={isUploadingAttachment}
+            fileInputRef={fileInputRef}
+            onFileChange={handleUploadAttachment}
+            onRemove={(attachment) => {
+              if (attachment.type === 'persisted') handleRemoveAttachment(attachment);
+            }}
+          />
 
-              <input ref={fileInputRef} type='file' multiple hidden onChange={handleUploadAttachment} />
-            </Flex>
-
-            {communication.attachments.length === 0 ? (
-              <Flex py='8' justify='center' align='center' bg='gray.50' borderRadius='xl'>
-                <Text color='textSecondary' fontSize='sm'>
-                  No attachments added yet.
-                </Text>
-              </Flex>
-            ) : (
-              <Stack gap='3'>
-                {communication.attachments.map((attachment) => (
-                  <Flex
-                    key={attachment.id}
-                    align='center'
-                    justify='space-between'
-                    p='3'
-                    borderWidth='1px'
-                    borderColor='gray.100'
-                    borderRadius='xl'
-                    bg='white'
-                    gap='3'
-                  >
-                    <HStack minW='0' flex='1'>
-                      <FileIcon size={18} />
-
-                      <Box minW='0'>
-                        <Text fontWeight='medium' color='text' truncate>
-                          {attachment.originalFileName}
-                        </Text>
-
-                        <Text fontSize='xs' color='textSecondary'>
-                          {(attachment.fileSizeBytes / 1024 / 1024).toFixed(2)} MB
-                        </Text>
-                      </Box>
-                    </HStack>
-
-                    <IconButton
-                      aria-label='Remove attachment'
-                      variant='ghost'
-                      colorScheme='red'
-                      size='xs'
-                      onClick={() => handleRemoveAttachment(attachment.id)}
-                      disabled={!canEdit}
-                    >
-                      <TrashIcon size={16} />
-                    </IconButton>
-                  </Flex>
-                ))}
-              </Stack>
-            )}
-          </Box>
-
-          <Box bg='surface' p='6' borderRadius='2xl' borderWidth='1px' borderColor='gray.100' boxShadow='sm'>
-            <Heading size='md' mb='6' color='text'>
-              Status
-            </Heading>
-
+          <CommunicationFormCard title='Status'>
             <Stack gap='3'>
               <Flex justify='space-between' align='center'>
                 <Text fontSize='sm' color='textSecondary'>
                   Status
                 </Text>
 
-                <Badge variant='subtle' colorScheme={canEdit ? 'blue' : 'gray'}>
-                  {communication.status}
-                </Badge>
+                <StatusBadge status={communication.status} />
               </Flex>
 
               <Flex justify='space-between' align='center'>
@@ -728,102 +551,25 @@ export const EditCommunication: React.FC = () => {
                 </Text>
               </Flex>
             </Stack>
-          </Box>
+          </CommunicationFormCard>
         </Stack>
       </Grid>
 
-      <Dialog.Root
+      <RecipientDialog
         open={isRecipientModalOpen}
-        onOpenChange={(details: { open: boolean }) => !details.open && onRecipientModalClose()}
-      >
-        <Dialog.Backdrop bg='blackAlpha.400' />
-
-        <Dialog.Positioner>
-          <Dialog.Content borderRadius='2xl' boxShadow='2xl' bg='surface' p='6'>
-            <Dialog.Header px='0' pt='0' pb='4'>
-              <Heading size='md' color='text'>
-                Add Recipient
-              </Heading>
-            </Dialog.Header>
-
-            <Dialog.CloseTrigger onClick={onRecipientModalClose} top='4' right='4' />
-
-            <Dialog.Body px='0'>
-              <Stack gap='4' py='4'>
-                <Field.Root invalid={!!recipientErrors.email} position='relative' pb='22px'>
-                  <Field.Label fontSize='sm' fontWeight='bold' color='primary'>
-                    Email Address
-                  </Field.Label>
-
-                  <Input {...registerRecipient('email')} placeholder='recipient@example.com' {...inputStyle} />
-
-                  {recipientErrors.email && (
-                    <Text position='absolute' bottom='0' color='error' fontSize='xs'>
-                      {recipientErrors.email.message}
-                    </Text>
-                  )}
-                </Field.Root>
-
-                <Field.Root>
-                  <Field.Label fontSize='sm' fontWeight='bold' color='primary'>
-                    Type
-                  </Field.Label>
-
-                  <select
-                    {...registerRecipient('recipientType')}
-                    style={{
-                      width: '100%',
-                      height: '44px',
-                      borderRadius: '8px',
-                      border: '1px solid var(--chakra-colors-inputBorder)',
-                      padding: '0 16px',
-                      background: 'white',
-                      color: '#111827',
-                      fontWeight: 500,
-                    }}
-                  >
-                    <option value='to'>To</option>
-                    <option value='cc'>Cc</option>
-                    <option value='bcc'>Bcc</option>
-                  </select>
-                </Field.Root>
-              </Stack>
-            </Dialog.Body>
-
-            <Dialog.Footer px='0' gap='3'>
-              <Button
-                variant='outline'
-                borderColor='inputBorder'
-                color='primary'
-                fontWeight='bold'
-                borderRadius='full'
-                px={6}
-                h='2.75rem'
-                _hover={{ bg: 'gray.50', borderColor: 'primary' }}
-                onClick={onRecipientModalClose}
-                disabled={isAddingRecipient}
-              >
-                Cancel
-              </Button>
-
-              <Button
-                bg='primary'
-                color='white'
-                fontWeight='bold'
-                borderRadius='full'
-                px={6}
-                h='2.75rem'
-                _hover={{ bg: 'secondary' }}
-                loading={isAddingRecipient}
-                loadingText='Adding...'
-                onClick={handleSubmitRecipient(handleAddRecipient)}
-              >
-                Add Recipient
-              </Button>
-            </Dialog.Footer>
-          </Dialog.Content>
-        </Dialog.Positioner>
-      </Dialog.Root>
+        isLoading={isAddingRecipient}
+        emailError={recipientErrors.email?.message}
+        emailRegister={registerRecipient('email')}
+        recipientTypeValue={recipientTypeValue}
+        onRecipientTypeChange={(value) => {
+          setRecipientValue('recipientType', value as 'to' | 'cc' | 'bcc', {
+            shouldValidate: true,
+            shouldDirty: true,
+          });
+        }}
+        onClose={onRecipientModalClose}
+        onSubmit={handleSubmitRecipient(handleAddRecipient)}
+      />
     </Box>
   );
 };

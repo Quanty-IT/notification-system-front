@@ -23,5 +23,5 @@ export const ROUTES = {
 } as const;
 
 export const getCommunicationDetailPath = (id: string) => `/communications/${id}`;
-export const getEditCommunicationPath = (id: string) => `/communications/${id}/edit`;
+export const getUpdateCommunicationPath = (id: string) => `/communications/${id}/edit`;
 export const getCreateCommunicationPath = () => '/communications/create';

@@ -9,28 +9,10 @@ import {
 import { AxiosError } from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getEditCommunicationPath } from '@/routes';
+import { getUpdateCommunicationPath } from '@/routes';
 import { getCommunicationById, sendCommunicationNow } from '@/services';
 import { CommunicationDetail, CommunicationStatus } from '@/services/communications/types';
-import { HtmlContentPreview } from '@/shared/components';
-
-const statusLabelMap: Record<CommunicationStatus, string> = {
-  draft: 'Draft',
-  scheduled: 'Scheduled',
-  processing: 'Processing',
-  sent: 'Sent',
-  failed: 'Failed',
-  canceled: 'Canceled',
-};
-
-const statusStyles: Record<CommunicationStatus, { bg: string; color: string }> = {
-  draft: { bg: 'gray.100', color: 'gray.700' },
-  scheduled: { bg: 'blue.100', color: 'blue.800' },
-  processing: { bg: 'purple.100', color: 'purple.800' },
-  sent: { bg: 'green.100', color: 'green.800' },
-  failed: { bg: 'red.100', color: 'red.800' },
-  canceled: { bg: 'orange.100', color: 'orange.800' },
-};
+import { HtmlContentPreview, StatusBadge } from '@/shared/components';
 
 const editableStatuses: CommunicationStatus[] = ['draft', 'scheduled'];
 
@@ -89,28 +71,6 @@ const Field = ({ label, value }: { label: string; value: React.ReactNode }) => (
     </Text>
   </Box>
 );
-
-const StatusBadge = ({ status }: { status: CommunicationStatus | string }) => {
-  const styles = statusStyles[status as CommunicationStatus] ?? {
-    bg: status === 'sent' ? 'green.100' : 'red.100',
-    color: status === 'sent' ? 'green.800' : 'red.800',
-  };
-
-  return (
-    <Badge
-      px='3'
-      py='1'
-      borderRadius='full'
-      fontSize='xs'
-      fontWeight='bold'
-      textTransform='none'
-      bg={styles.bg}
-      color={styles.color}
-    >
-      {statusLabelMap[status as CommunicationStatus] ?? status}
-    </Badge>
-  );
-};
 
 const KeyValueRow = ({ label, value }: { label: string; value: React.ReactNode }) => (
   <Grid templateColumns={{ base: '1fr', md: '92px 1fr' }} gap='2' alignItems='center'>
@@ -272,7 +232,7 @@ export const CommunicationDetails: React.FC = () => {
               fontWeight='bold'
               px='6'
               _hover={{ bg: 'gray.50', borderColor: 'primary' }}
-              onClick={() => navigate(getEditCommunicationPath(communication.id))}
+              onClick={() => navigate(getUpdateCommunicationPath(communication.id))}
             >
               <HStack gap='2'>
                 <PencilSimpleIcon size={18} />
@@ -322,20 +282,18 @@ export const CommunicationDetails: React.FC = () => {
             )}
           </InfoCard>
 
-          <InfoCard title='Template Variables'>
-            {communication.templateVariablesJson && Object.keys(communication.templateVariablesJson).length > 0 ? (
+          {communication.templateVariablesJson && Object.keys(communication.templateVariablesJson).length > 0 && (
+            <InfoCard title='Template Variables'>
               <Stack gap='3'>
                 {Object.entries(communication.templateVariablesJson).map(([key, value]) => (
                   <KeyValueRow key={key} label={key} value={String(value)} />
                 ))}
               </Stack>
-            ) : (
-              <Text color='textSecondary'>Not informed</Text>
-            )}
-          </InfoCard>
+            </InfoCard>
+          )}
 
-          <InfoCard title='Attachments'>
-            {communication.attachments.length > 0 ? (
+          {communication.attachments.length > 0 && (
+            <InfoCard title='Attachments'>
               <Stack gap='0' borderWidth='1px' borderColor='gray.100' borderRadius='2xl' overflow='hidden'>
                 {communication.attachments.map((attachment) => (
                   <Flex
@@ -372,10 +330,8 @@ export const CommunicationDetails: React.FC = () => {
                   </Flex>
                 ))}
               </Stack>
-            ) : (
-              <Text color='textSecondary'>No attachments.</Text>
-            )}
-          </InfoCard>
+            </InfoCard>
+          )}
         </Stack>
 
         <Stack gap='6'>
@@ -386,7 +342,10 @@ export const CommunicationDetails: React.FC = () => {
                 label='Scheduled At'
                 value={communication.scheduledAt ? formatDateTime(communication.scheduledAt) : 'Sent immediately'}
               />
-              <Field label='Sent At' value={formatDateTime(communication.sentAt)} />
+              <Field
+                label='Sent At'
+                value={communication.sentAt ? formatDateTime(communication.sentAt) : 'Not sent yet'}
+              />
             </Stack>
           </InfoCard>
 
