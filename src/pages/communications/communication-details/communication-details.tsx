@@ -12,6 +12,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { getEditCommunicationPath } from '@/routes';
 import { getCommunicationById, sendCommunicationNow } from '@/services';
 import { CommunicationDetail, CommunicationStatus } from '@/services/communications/types';
+import { HtmlContentPreview } from '@/shared/components';
 
 const statusLabelMap: Record<CommunicationStatus, string> = {
   draft: 'Draft',
@@ -87,6 +88,55 @@ const Field = ({ label, value }: { label: string; value: React.ReactNode }) => (
       {value}
     </Text>
   </Box>
+);
+
+const StatusBadge = ({ status }: { status: CommunicationStatus | string }) => {
+  const styles = statusStyles[status as CommunicationStatus] ?? {
+    bg: status === 'sent' ? 'green.100' : 'red.100',
+    color: status === 'sent' ? 'green.800' : 'red.800',
+  };
+
+  return (
+    <Badge
+      px='3'
+      py='1'
+      borderRadius='full'
+      fontSize='xs'
+      fontWeight='bold'
+      textTransform='none'
+      bg={styles.bg}
+      color={styles.color}
+    >
+      {statusLabelMap[status as CommunicationStatus] ?? status}
+    </Badge>
+  );
+};
+
+const KeyValueRow = ({ label, value }: { label: string; value: React.ReactNode }) => (
+  <Grid templateColumns={{ base: '1fr', md: '92px 1fr' }} gap='2' alignItems='center'>
+    <Flex
+      align='center'
+      justify='center'
+      px='3'
+      py='2'
+      borderRadius='lg'
+      bg='green.50'
+      borderWidth='1px'
+      borderColor='green.100'
+      color='green.800'
+      fontWeight='bold'
+      fontSize='xs'
+      minH='9'
+    >
+      <Text truncate>{label}</Text>
+    </Flex>
+
+    <Flex align='center' px='4' py='2' borderRadius='lg' bg='gray.50' borderWidth='1px' borderColor='gray.100' minH='9'>
+      <Text fontSize='sm' fontWeight='semibold' color='text' wordBreak='break-word'>
+        {value}
+      </Text>
+    </Flex>
+  </Grid>
 );
 
 export const CommunicationDetails: React.FC = () => {
@@ -178,18 +228,7 @@ export const CommunicationDetails: React.FC = () => {
           </Heading>
 
           <HStack gap='3' wrap='wrap'>
-            <Badge
-              px='3'
-              py='1'
-              borderRadius='full'
-              fontSize='xs'
-              fontWeight='bold'
-              textTransform='none'
-              bg={statusStyles[communication.status].bg}
-              color={statusStyles[communication.status].color}
-            >
-              {statusLabelMap[communication.status]}
-            </Badge>
+            <StatusBadge status={communication.status} />
 
             <Badge px='3' py='1' borderRadius='full' bg='green.50' color='green.800' textTransform='none'>
               <HStack gap='1'>
@@ -249,7 +288,25 @@ export const CommunicationDetails: React.FC = () => {
           <InfoCard title='Content'>
             <Stack gap='6'>
               <Field label='Subject' value={communication.subject ?? 'Not informed'} />
-              <Field label='Body' value={communication.body ?? 'Not informed'} />
+
+              <Box>
+                <Text
+                  fontSize='xs'
+                  fontWeight='bold'
+                  color='textSecondary'
+                  textTransform='uppercase'
+                  letterSpacing='wider'
+                  mb='2'
+                >
+                  Body
+                </Text>
+
+                {communication.body ? (
+                  <HtmlContentPreview value={communication.body} />
+                ) : (
+                  <Text color='textSecondary'>Not informed</Text>
+                )}
+              </Box>
             </Stack>
           </InfoCard>
 
@@ -257,24 +314,7 @@ export const CommunicationDetails: React.FC = () => {
             {communication.recipients.length > 0 ? (
               <Stack gap='3'>
                 {communication.recipients.map((recipient) => (
-                  <Flex
-                    key={recipient.id}
-                    align='center'
-                    justify='space-between'
-                    p='3'
-                    borderWidth='1px'
-                    borderColor='gray.100'
-                    borderRadius='xl'
-                    bg='white'
-                  >
-                    <Text fontWeight='medium' color='text' truncate>
-                      {recipient.email}
-                    </Text>
-
-                    <Badge variant='subtle' colorScheme='blue'>
-                      {recipient.recipientType}
-                    </Badge>
-                  </Flex>
+                  <KeyValueRow key={recipient.id} label={recipient.recipientType} value={recipient.email} />
                 ))}
               </Stack>
             ) : (
@@ -286,20 +326,7 @@ export const CommunicationDetails: React.FC = () => {
             {communication.templateVariablesJson && Object.keys(communication.templateVariablesJson).length > 0 ? (
               <Stack gap='3'>
                 {Object.entries(communication.templateVariablesJson).map(([key, value]) => (
-                  <Flex
-                    key={key}
-                    justify='space-between'
-                    align='center'
-                    gap='4'
-                    borderBottomWidth='1px'
-                    borderColor='gray.100'
-                    pb='3'
-                  >
-                    <Text color='textSecondary'>{key}</Text>
-                    <Text color='text' fontWeight='semibold'>
-                      {String(value)}
-                    </Text>
-                  </Flex>
+                  <KeyValueRow key={key} label={key} value={String(value)} />
                 ))}
               </Stack>
             ) : (
@@ -354,11 +381,12 @@ export const CommunicationDetails: React.FC = () => {
         <Stack gap='6'>
           <InfoCard title='Dates'>
             <Stack gap='5'>
-              <Field label='Scheduled At' value={formatDateTime(communication.scheduledAt)} />
-              <Field label='Processing At' value={formatDateTime(communication.processingAt)} />
-              <Field label='Sent At' value={formatDateTime(communication.sentAt)} />
               <Field label='Created At' value={formatDateTime(communication.createdAt)} />
-              <Field label='Updated At' value={formatDateTime(communication.updatedAt)} />
+              <Field
+                label='Scheduled At'
+                value={communication.scheduledAt ? formatDateTime(communication.scheduledAt) : 'Sent immediately'}
+              />
+              <Field label='Sent At' value={formatDateTime(communication.sentAt)} />
             </Stack>
           </InfoCard>
 
@@ -372,9 +400,7 @@ export const CommunicationDetails: React.FC = () => {
                         Attempt #{dispatch.attemptNumber}
                       </Text>
 
-                      <Badge variant='subtle' colorScheme={dispatch.status === 'sent' ? 'green' : 'red'}>
-                        {dispatch.status}
-                      </Badge>
+                      <StatusBadge status={dispatch.status} />
                     </Flex>
 
                     <Text fontSize='sm' color='textSecondary'>

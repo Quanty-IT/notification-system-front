@@ -4,9 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { createTemplateVersion } from '@/services';
-import { FormErrorInline } from '@/shared/components';
-import { TemplateBodyEditor } from '../template-body-editor';
-import { TemplateBodyPreview } from '../template-body-preview';
+import { FormErrorInline, HtmlContentEditor, HtmlContentPreview } from '@/shared';
 import {
   CreateTemplateVersionFormData,
   createTemplateVersionSchema,
@@ -194,11 +192,7 @@ export const CreateTemplateVersionDrawer = ({ isOpen, onClose, templateId }: Pro
                     name='body'
                     control={control}
                     render={({ field }) => (
-                      <TemplateBodyEditor
-                        value={field.value ?? ''}
-                        onChange={field.onChange}
-                        hasError={!!errors.body}
-                      />
+                      <HtmlContentEditor value={field.value ?? ''} onChange={field.onChange} hasError={!!errors.body} />
                     )}
                   />
 
@@ -209,7 +203,7 @@ export const CreateTemplateVersionDrawer = ({ isOpen, onClose, templateId }: Pro
                       Preview
                     </Text>
 
-                    <TemplateBodyPreview value={body ?? ''} />
+                    <HtmlContentPreview value={body ?? ''} />
                   </Box>
                 </VStack>
               </Field.Root>

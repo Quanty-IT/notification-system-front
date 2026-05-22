@@ -4,9 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { updateTemplateVersion } from '@/services';
-import { FormErrorInline } from '@/shared/components';
-import { TemplateBodyEditor } from '../template-body-editor';
-import { TemplateBodyPreview } from '../template-body-preview';
+import { FormErrorInline, HtmlContentEditor, HtmlContentPreview } from '@/shared';
 import {
   TemplateVariableType,
   templateVariableTypes,
@@ -217,11 +215,7 @@ export const UpdateTemplateVersionDrawer = ({ isOpen, onClose, templateId, versi
                     name='body'
                     control={control}
                     render={({ field }) => (
-                      <TemplateBodyEditor
-                        value={field.value ?? ''}
-                        onChange={field.onChange}
-                        hasError={!!errors.body}
-                      />
+                      <HtmlContentEditor value={field.value ?? ''} onChange={field.onChange} hasError={!!errors.body} />
                     )}
                   />
 
@@ -232,7 +226,7 @@ export const UpdateTemplateVersionDrawer = ({ isOpen, onClose, templateId, versi
                       Preview
                     </Text>
 
-                    <TemplateBodyPreview value={body ?? ''} />
+                    <HtmlContentPreview value={body ?? ''} />
                   </Box>
                 </VStack>
               </Field.Root>

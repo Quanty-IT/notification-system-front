@@ -2,7 +2,7 @@ import { Box } from '@chakra-ui/react';
 import { autocompletion, CompletionContext, snippetCompletion } from '@codemirror/autocomplete';
 import { html } from '@codemirror/lang-html';
 import CodeMirror from '@uiw/react-codemirror';
-import type { TemplateBodyEditorProps } from './types';
+import type { HtmlContentEditorProps } from './types';
 
 const htmlSnippets = [
   snippetCompletion(
@@ -360,7 +360,7 @@ const htmlSnippetCompletionSource = (context: CompletionContext) => {
   };
 };
 
-export const TemplateBodyEditor = ({ value, onChange, hasError }: TemplateBodyEditorProps) => {
+export const HtmlContentEditor = ({ value, onChange, hasError }: HtmlContentEditorProps) => {
   return (
     <Box
       w='full'

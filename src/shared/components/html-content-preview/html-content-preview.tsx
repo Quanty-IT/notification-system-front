@@ -1,12 +1,12 @@
 import { Box, Text } from '@chakra-ui/react';
 import DOMPurify from 'dompurify';
-import { TemplateBodyPreviewProps } from './types';
+import { HtmlContentPreviewProps } from './types';
 
 const hasHtmlTag = (value: string) => {
   return /<\/?[a-zA-Z][a-zA-Z0-9-]*(\s[^>]*)?>/i.test(value);
 };
 
-export const TemplateBodyPreview = ({ value }: TemplateBodyPreviewProps) => {
+export const HtmlContentPreview = ({ value }: HtmlContentPreviewProps) => {
   const isHtml = hasHtmlTag(value);
 
   const sanitizedHtml = DOMPurify.sanitize(value, {
@@ -18,7 +18,7 @@ export const TemplateBodyPreview = ({ value }: TemplateBodyPreviewProps) => {
     return (
       <Box border='1px solid' borderColor='inputBorder' borderRadius='md' p='4' bg='white' h='16rem' overflowY='auto'>
         <Text whiteSpace='pre-wrap' color={value ? 'text' : 'textSecondary'}>
-          {value || 'Text preview will appear here...'}
+          {value || 'Content preview will appear here...'}
         </Text>
       </Box>
     );
@@ -27,8 +27,8 @@ export const TemplateBodyPreview = ({ value }: TemplateBodyPreviewProps) => {
   return (
     <Box border='1px solid' borderColor='inputBorder' borderRadius='md' overflow='hidden' bg='white' h='16rem'>
       <iframe
-        title='HTML preview'
-        srcDoc={sanitizedHtml || '<p style="font-family:Arial;color:#777;">HTML preview will appear here...</p>'}
+        title='HTML content preview'
+        srcDoc={sanitizedHtml || '<p style="font-family:Arial;color:#777;">Content preview will appear here...</p>'}
         style={{
           width: '100%',
           height: '100%',
