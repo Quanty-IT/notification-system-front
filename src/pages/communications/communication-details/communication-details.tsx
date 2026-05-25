@@ -51,7 +51,17 @@ const getErrorMessage = (error: unknown): string => {
 };
 
 const InfoCard = ({ title, children }: { title: string; children: React.ReactNode }) => (
-  <Box bg='surface' borderRadius='2xl' borderWidth='1px' borderColor='gray.100' boxShadow='sm' p='6'>
+  <Box
+    bg='surface'
+    borderRadius='2xl'
+    borderWidth='1px'
+    borderStyle='solid'
+    borderColor='gray.100'
+    boxShadow='sm'
+    p={{ base: '5', md: '6' }}
+    w='full'
+    minW='0'
+  >
     <Heading size='sm' color='text' mb='5'>
       {title}
     </Heading>
@@ -61,8 +71,16 @@ const InfoCard = ({ title, children }: { title: string; children: React.ReactNod
 );
 
 const Field = ({ label, value }: { label: string; value: React.ReactNode }) => (
-  <Box>
-    <Text fontSize='xs' fontWeight='bold' color='textSecondary' textTransform='uppercase' letterSpacing='wider' mb='2'>
+  <Box minW='0'>
+    <Text
+      fontSize='xs'
+      fontWeight='bold'
+      color='textSecondary'
+      textTransform='uppercase'
+      letterSpacing='wider'
+      mb='2'
+      wordBreak='break-word'
+    >
       {label}
     </Text>
 
@@ -73,7 +91,13 @@ const Field = ({ label, value }: { label: string; value: React.ReactNode }) => (
 );
 
 const KeyValueRow = ({ label, value }: { label: string; value: React.ReactNode }) => (
-  <Grid templateColumns={{ base: '1fr', md: '92px 1fr' }} gap='2' alignItems='center'>
+  <Grid
+    templateColumns={{ base: '1fr', sm: '120px 1fr' }}
+    gap={{ base: '2', sm: '3' }}
+    alignItems='stretch'
+    w='full'
+    minW='0'
+  >
     <Flex
       align='center'
       justify='center'
@@ -82,17 +106,30 @@ const KeyValueRow = ({ label, value }: { label: string; value: React.ReactNode }
       borderRadius='lg'
       bg='green.50'
       borderWidth='1px'
+      borderStyle='solid'
       borderColor='green.100'
       color='green.800'
       fontWeight='bold'
       fontSize='xs'
       minH='9'
+      minW='0'
     >
       <Text truncate>{label}</Text>
     </Flex>
 
-    <Flex align='center' px='4' py='2' borderRadius='lg' bg='gray.50' borderWidth='1px' borderColor='gray.100' minH='9'>
-      <Text fontSize='sm' fontWeight='semibold' color='text' wordBreak='break-word'>
+    <Flex
+      align='center'
+      px='4'
+      py='2'
+      borderRadius='lg'
+      bg='gray.50'
+      borderWidth='1px'
+      borderStyle='solid'
+      borderColor='gray.100'
+      minH='9'
+      minW='0'
+    >
+      <Text fontSize='sm' fontWeight='semibold' color='text' wordBreak='break-word' minW='0'>
         {value}
       </Text>
     </Flex>
@@ -152,6 +189,7 @@ export const CommunicationDetails: React.FC = () => {
     return (
       <Flex minH='60vh' align='center' justify='center' direction='column' gap='3'>
         <Spinner color='primary' />
+
         <Text color='textSecondary'>Loading communication...</Text>
       </Flex>
     );
@@ -166,10 +204,18 @@ export const CommunicationDetails: React.FC = () => {
   }
 
   return (
-    <Box w='full' minH='100vh' overflowX='hidden' py={{ base: '6', md: '8' }} px={{ base: '4', md: '8', lg: '10' }}>
+    <Box
+      w='full'
+      maxW='none'
+      minH='100vh'
+      overflowX='hidden'
+      py={{ base: '5', md: '8', xl: '10' }}
+      px={{ base: '4', md: '8', lg: '10', xl: '12', '2xl': '16' }}
+      pb={{ base: '24', md: '10' }}
+    >
       <Button
         variant='ghost'
-        mb='8'
+        mb={{ base: '6', md: '8' }}
         px='0'
         color='textSecondary'
         _hover={{ bg: 'transparent', color: 'primary' }}
@@ -181,13 +227,21 @@ export const CommunicationDetails: React.FC = () => {
         </HStack>
       </Button>
 
-      <Flex justify='space-between' align={{ base: 'flex-start', md: 'center' }} gap='6' mb='8' wrap='wrap'>
-        <Box>
-          <Heading size='xl' color='text' letterSpacing='tight' mb='4'>
+      <Flex
+        justify='space-between'
+        align={{ base: 'stretch', md: 'center' }}
+        direction={{ base: 'column', md: 'row' }}
+        gap={{ base: '4', md: '6' }}
+        mb={{ base: '6', md: '8' }}
+        w='full'
+        minW='0'
+      >
+        <Box minW='0'>
+          <Heading size={{ base: 'lg', md: 'xl' }} color='text' letterSpacing='tight' mb='4' wordBreak='break-word'>
             {communication.subject ?? 'No subject'}
           </Heading>
 
-          <HStack gap='3' wrap='wrap'>
+          <HStack gap='2' wrap='wrap'>
             <StatusBadge status={communication.status} />
 
             <Badge px='3' py='1' borderRadius='full' bg='green.50' color='green.800' textTransform='none'>
@@ -203,14 +257,22 @@ export const CommunicationDetails: React.FC = () => {
           </HStack>
         </Box>
 
-        <Flex direction={{ base: 'column', sm: 'row' }} align={{ base: 'stretch', sm: 'center' }} gap='3'>
+        <Flex
+          direction={{ base: 'column', sm: 'row' }}
+          align={{ base: 'stretch', sm: 'center' }}
+          gap='3'
+          w={{ base: 'full', md: 'auto' }}
+          flexShrink={0}
+        >
           {canSendNow && (
             <Button
+              w={{ base: 'full', sm: 'auto' }}
               bg='primary'
               color='white'
               borderRadius='xl'
               fontWeight='bold'
               px='6'
+              h='11'
               loading={isSending}
               loadingText='Sending...'
               _hover={{ bg: 'secondary' }}
@@ -225,12 +287,14 @@ export const CommunicationDetails: React.FC = () => {
 
           {canEdit && (
             <Button
+              w={{ base: 'full', sm: 'auto' }}
               variant='outline'
               borderColor='inputBorder'
               color='primary'
               borderRadius='xl'
               fontWeight='bold'
               px='6'
+              h='11'
               _hover={{ bg: 'gray.50', borderColor: 'primary' }}
               onClick={() => navigate(getUpdateCommunicationPath(communication.id))}
             >
@@ -243,13 +307,23 @@ export const CommunicationDetails: React.FC = () => {
         </Flex>
       </Flex>
 
-      <Grid templateColumns={{ base: '1fr', xl: '2fr 1fr' }} gap='6'>
-        <Stack gap='6'>
+      <Grid
+        templateColumns={{
+          base: '1fr',
+          xl: 'minmax(0, 2fr) minmax(360px, 0.85fr)',
+          '2xl': 'minmax(0, 2.2fr) minmax(420px, 0.8fr)',
+        }}
+        gap={{ base: '5', md: '6', xl: '8' }}
+        w='full'
+        minW='0'
+        alignItems='start'
+      >
+        <Stack gap={{ base: '5', md: '6' }} minW='0'>
           <InfoCard title='Content'>
-            <Stack gap='6'>
+            <Stack gap='6' minW='0'>
               <Field label='Subject' value={communication.subject ?? 'Not informed'} />
 
-              <Box>
+              <Box minW='0'>
                 <Text
                   fontSize='xs'
                   fontWeight='bold'
@@ -262,7 +336,28 @@ export const CommunicationDetails: React.FC = () => {
                 </Text>
 
                 {communication.body ? (
-                  <HtmlContentPreview value={communication.body} />
+                  <Box
+                    w='full'
+                    maxW='full'
+                    overflowX='auto'
+                    borderRadius='md'
+                    css={{
+                      '& *': {
+                        maxWidth: '100%',
+                        boxSizing: 'border-box',
+                      },
+                      '& img': {
+                        maxWidth: '100%',
+                        height: 'auto',
+                      },
+                      '& table': {
+                        width: '100%',
+                        maxWidth: '100%',
+                      },
+                    }}
+                  >
+                    <HtmlContentPreview value={communication.body} />
+                  </Box>
                 ) : (
                   <Text color='textSecondary'>Not informed</Text>
                 )}
@@ -272,7 +367,7 @@ export const CommunicationDetails: React.FC = () => {
 
           <InfoCard title='Recipients'>
             {communication.recipients.length > 0 ? (
-              <Stack gap='3'>
+              <Stack gap='3' minW='0'>
                 {communication.recipients.map((recipient) => (
                   <KeyValueRow key={recipient.id} label={recipient.recipientType} value={recipient.email} />
                 ))}
@@ -284,7 +379,7 @@ export const CommunicationDetails: React.FC = () => {
 
           {communication.templateVariablesJson && Object.keys(communication.templateVariablesJson).length > 0 && (
             <InfoCard title='Template Variables'>
-              <Stack gap='3'>
+              <Stack gap='3' minW='0'>
                 {Object.entries(communication.templateVariablesJson).map(([key, value]) => (
                   <KeyValueRow key={key} label={key} value={String(value)} />
                 ))}
@@ -294,32 +389,43 @@ export const CommunicationDetails: React.FC = () => {
 
           {communication.attachments.length > 0 && (
             <InfoCard title='Attachments'>
-              <Stack gap='0' borderWidth='1px' borderColor='gray.100' borderRadius='2xl' overflow='hidden'>
+              <Stack
+                gap='0'
+                borderWidth='1px'
+                borderStyle='solid'
+                borderColor='gray.100'
+                borderRadius='2xl'
+                overflow='hidden'
+                minW='0'
+              >
                 {communication.attachments.map((attachment) => (
                   <Flex
                     key={attachment.id}
-                    align='center'
+                    align={{ base: 'flex-start', sm: 'center' }}
                     justify='space-between'
-                    gap='4'
-                    px='5'
+                    direction={{ base: 'column', sm: 'row' }}
+                    gap='3'
+                    px={{ base: '4', md: '5' }}
                     py='4'
                     bg='white'
                     borderBottomWidth='1px'
+                    borderStyle='solid'
                     borderColor='gray.100'
                     _last={{ borderBottomWidth: 0 }}
                     _hover={{ bg: 'gray.50' }}
+                    minW='0'
                   >
-                    <Box minW='0'>
-                      <Text fontWeight='semibold' color='text' truncate>
+                    <Box minW='0' w='full'>
+                      <Text fontWeight='semibold' color='text' wordBreak='break-word'>
                         {attachment.originalFileName}
                       </Text>
 
-                      <Text fontSize='xs' color='textSecondary'>
+                      <Text fontSize='xs' color='textSecondary' wordBreak='break-word'>
                         {attachment.mimeType} • {formatFileSize(attachment.fileSizeBytes)}
                       </Text>
                     </Box>
 
-                    <Link href={attachment.fileUrl} target='_blank' rel='noreferrer' color='primary'>
+                    <Link href={attachment.fileUrl} target='_blank' rel='noreferrer' color='primary' flexShrink={0}>
                       <HStack gap='1'>
                         <DownloadSimpleIcon size={16} />
                         <Text fontSize='sm' fontWeight='bold'>
@@ -334,52 +440,70 @@ export const CommunicationDetails: React.FC = () => {
           )}
         </Stack>
 
-        <Stack gap='6'>
-          <InfoCard title='Dates'>
-            <Stack gap='5'>
-              <Field label='Created At' value={formatDateTime(communication.createdAt)} />
-              <Field
-                label='Scheduled At'
-                value={communication.scheduledAt ? formatDateTime(communication.scheduledAt) : 'Sent immediately'}
-              />
-              <Field
-                label='Sent At'
-                value={communication.sentAt ? formatDateTime(communication.sentAt) : 'Not sent yet'}
-              />
-            </Stack>
-          </InfoCard>
+        <Stack gap={{ base: '5', md: '6' }} minW='0' position={{ base: 'static', xl: 'sticky' }} top={{ xl: '6' }}>
+          <Grid
+            templateColumns={{ base: '1fr', sm: 'repeat(2, minmax(0, 1fr))', xl: '1fr' }}
+            gap={{ base: '5', md: '6' }}
+          >
+            <InfoCard title='Dates'>
+              <Stack gap='5' minW='0'>
+                <Field label='Created At' value={formatDateTime(communication.createdAt)} />
 
-          <InfoCard title='Dispatches'>
-            {communication.dispatches.length > 0 ? (
-              <Stack gap='3'>
-                {communication.dispatches.map((dispatch) => (
-                  <Box key={dispatch.id} p='4' borderWidth='1px' borderColor='gray.100' borderRadius='xl' bg='white'>
-                    <Flex justify='space-between' align='center' mb='2'>
-                      <Text color='text' fontWeight='bold'>
-                        Attempt #{dispatch.attemptNumber}
+                <Field
+                  label='Scheduled At'
+                  value={communication.scheduledAt ? formatDateTime(communication.scheduledAt) : 'Sent immediately'}
+                />
+
+                <Field
+                  label='Sent At'
+                  value={communication.sentAt ? formatDateTime(communication.sentAt) : 'Not sent yet'}
+                />
+              </Stack>
+            </InfoCard>
+
+            <InfoCard title='Dispatches'>
+              {communication.dispatches.length > 0 ? (
+                <Stack gap='3' minW='0'>
+                  {communication.dispatches.map((dispatch) => (
+                    <Box
+                      key={dispatch.id}
+                      p='4'
+                      borderWidth='1px'
+                      borderStyle='solid'
+                      borderColor='gray.100'
+                      borderRadius='xl'
+                      bg='white'
+                      minW='0'
+                    >
+                      <Flex justify='space-between' align='flex-start' gap='3' mb='2'>
+                        <Text color='text' fontWeight='bold' wordBreak='break-word'>
+                          Attempt #{dispatch.attemptNumber}
+                        </Text>
+
+                        <Box flexShrink={0}>
+                          <StatusBadge status={dispatch.status} />
+                        </Box>
+                      </Flex>
+
+                      <Text fontSize='sm' color='textSecondary' wordBreak='break-word'>
+                        Provider: {dispatch.provider}
                       </Text>
 
-                      <StatusBadge status={dispatch.status} />
-                    </Flex>
+                      <Text fontSize='xs' color='textSecondary' mt='2' wordBreak='break-word'>
+                        Started: {formatDateTime(dispatch.startedAt)}
+                      </Text>
 
-                    <Text fontSize='sm' color='textSecondary'>
-                      Provider: {dispatch.provider}
-                    </Text>
-
-                    <Text fontSize='xs' color='textSecondary' mt='2'>
-                      Started: {formatDateTime(dispatch.startedAt)}
-                    </Text>
-
-                    <Text fontSize='xs' color='textSecondary'>
-                      Finished: {formatDateTime(dispatch.finishedAt)}
-                    </Text>
-                  </Box>
-                ))}
-              </Stack>
-            ) : (
-              <Text color='textSecondary'>No dispatches yet.</Text>
-            )}
-          </InfoCard>
+                      <Text fontSize='xs' color='textSecondary' wordBreak='break-word'>
+                        Finished: {formatDateTime(dispatch.finishedAt)}
+                      </Text>
+                    </Box>
+                  ))}
+                </Stack>
+              ) : (
+                <Text color='textSecondary'>No dispatches yet.</Text>
+              )}
+            </InfoCard>
+          </Grid>
         </Stack>
       </Grid>
     </Box>

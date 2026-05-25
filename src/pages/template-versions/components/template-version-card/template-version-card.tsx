@@ -17,11 +17,12 @@ export const TemplateVersionCard = ({
     <Box
       w='100%'
       minW={0}
-      border='2px solid'
-      borderColor='gray.200'
+      bg='surface'
+      p='6'
       borderRadius='2xl'
-      p={5}
-      bg='gray.50'
+      borderWidth='1px'
+      borderColor='gray.100'
+      boxShadow='sm'
       display='flex'
       flexDirection='column'
       gap={3}
@@ -30,14 +31,12 @@ export const TemplateVersionCard = ({
       transition='all 0.2s ease'
       _hover={{
         boxShadow: 'md',
-        borderColor: 'gray.300',
-        transform: 'translateY(-2px)',
       }}
     >
       <Heading
         as='h3'
         size='md'
-        color='gray.800'
+        color='text'
         lineHeight='1.3'
         overflow='hidden'
         textOverflow='ellipsis'

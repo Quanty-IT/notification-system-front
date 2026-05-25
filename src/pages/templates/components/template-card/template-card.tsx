@@ -16,31 +16,30 @@ export const TemplateCard = ({
     <Box
       w='100%'
       minW={0}
-      border='2px solid'
-      borderColor='gray.200'
+      bg='surface'
+      p='6'
       borderRadius='2xl'
-      p={5}
-      bg='gray.50'
+      borderWidth='1px'
+      borderColor='gray.100'
+      boxShadow='sm'
       display='flex'
       flexDirection='column'
       gap={3}
-      h='200px'
+      h='220px'
       overflow='hidden'
       cursor='pointer'
-      transition='all 0.2s ease'
       role='button'
       tabIndex={0}
+      transition='all 0.2s ease'
+      _hover={{
+        boxShadow: 'md',
+      }}
       onClick={onClick}
       onKeyDown={(event) => {
         if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault();
           onClick?.();
         }
-      }}
-      _hover={{
-        boxShadow: 'md',
-        borderColor: 'gray.300',
-        transform: 'translateY(-2px)',
       }}
     >
       <Heading
@@ -52,20 +51,15 @@ export const TemplateCard = ({
         textOverflow='ellipsis'
         whiteSpace='nowrap'
         flexShrink={0}
-        _hover={{
-          textDecoration: 'underline',
-          color: 'green.700',
-        }}
       >
         {template.name}
       </Heading>
 
-      <Box h='72px' overflow='hidden' flexShrink={0} minW={0}>
+      <Box display='flex' flexDirection='column' gap={1} minW={0} overflow='hidden'>
         <Text
           fontSize='sm'
           color='gray.600'
           lineHeight='1.6'
-          textAlign='justify'
           overflow='hidden'
           display='-webkit-box'
           css={{
@@ -73,7 +67,7 @@ export const TemplateCard = ({
             WebkitBoxOrient: 'vertical',
           }}
         >
-          {template.description}
+          {template.description || 'No description'}
         </Text>
       </Box>
 
@@ -83,7 +77,11 @@ export const TemplateCard = ({
             event.stopPropagation();
           }}
         >
-          <Toggle isActive={template.isActive} onChange={(val) => onToggle(template.id, val)} isLoading={isToggling} />
+          <Toggle
+            isActive={template.isActive}
+            onChange={(value) => onToggle(template.id, value)}
+            isLoading={isToggling}
+          />
         </Box>
 
         <Box display='flex' alignItems='center' gap={1}>

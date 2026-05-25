@@ -14,7 +14,7 @@ type ToggleTemplateVariables = {
 const SKELETON_KEYS = Array.from({ length: 6 }, (_, i) => `skeleton-${i}`);
 
 const gridStyle = {
-  gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+  gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
 };
 
 export const Templates: React.FC = () => {
@@ -159,17 +159,41 @@ export const Templates: React.FC = () => {
   };
 
   return (
-    <Box w='full' minH='100vh' overflowX='hidden' py={{ base: '6', md: '8' }} px={{ base: '4', md: '8', lg: '10' }}>
+    <Box
+      w='full'
+      maxW='none'
+      minH='100vh'
+      overflowX='hidden'
+      bg='background'
+      py={{ base: '5', md: '8', xl: '10' }}
+      px={{ base: '4', md: '8', lg: '10', xl: '12', '2xl': '16' }}
+      pb={{ base: '24', md: '10' }}
+    >
       <CreateTemplateDrawer isOpen={isCreateDrawerOpen} onClose={closeCreateDrawer} />
 
       <UpdateTemplateDrawer isOpen={isUpdateDrawerOpen} onClose={closeUpdateDrawer} uuid={editUuid ?? undefined} />
 
-      <Flex w='full' justify='space-between' align='center' gap='4' mb='8'>
-        <Heading size='xl' color='text' letterSpacing='tight'>
-          Templates
-        </Heading>
+      <Flex
+        w='full'
+        justify='space-between'
+        align={{ base: 'stretch', sm: 'flex-start' }}
+        direction={{ base: 'column', sm: 'row' }}
+        gap={{ base: '4', md: '6' }}
+        mb='8'
+      >
+        <Box minW={0}>
+          <Heading size={{ base: 'lg', md: 'xl' }} color='text' letterSpacing='tight' mb='2'>
+            Templates
+          </Heading>
+
+          <Text color='textSecondary' fontSize={{ base: 'sm', md: 'md' }}>
+            Manage reusable communication templates.
+          </Text>
+        </Box>
 
         <Button
+          w={{ base: 'full', sm: 'auto' }}
+          minW={{ sm: '170px' }}
           bg='primary'
           color='white'
           px='6'
@@ -177,6 +201,7 @@ export const Templates: React.FC = () => {
           borderRadius='xl'
           fontWeight='bold'
           boxShadow='lg'
+          flexShrink={0}
           _hover={{ bg: 'secondary' }}
           onClick={openCreateDrawer}
         >

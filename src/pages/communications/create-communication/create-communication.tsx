@@ -1,6 +1,6 @@
 import { Box, Button, Field, Flex, Grid, Heading, HStack, Input, Stack, Text, useDisclosure } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowLeftIcon, PaperPlaneTiltIcon } from '@phosphor-icons/react';
+import { PaperPlaneTiltIcon } from '@phosphor-icons/react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
@@ -242,29 +242,30 @@ export const CreateCommunication: React.FC = () => {
   };
 
   return (
-    <Box w='full' minH='100vh' overflowX='hidden' py={{ base: '6', md: '8' }} px={{ base: '4', md: '8', lg: '10' }}>
-      <Button
-        variant='ghost'
+    <Box
+      w='full'
+      maxW='none'
+      minH='100vh'
+      overflowX='hidden'
+      py={{ base: '5', md: '8', xl: '10' }}
+      px={{ base: '4', md: '8', lg: '10', xl: '12', '2xl': '16' }}
+      pb={{ base: '24', md: '10' }}
+    >
+      <Flex
+        justify='space-between'
+        align={{ base: 'stretch', md: 'center' }}
+        direction={{ base: 'column', md: 'row' }}
+        gap={{ base: '4', md: '6' }}
         mb='8'
-        px='0'
-        color='textSecondary'
-        _hover={{ bg: 'transparent', color: 'primary' }}
-        onClick={() => navigate(-1)}
-        disabled={createMutation.isPending}
+        w='full'
+        minW='0'
       >
-        <HStack gap='2'>
-          <ArrowLeftIcon size={16} />
-          <Text>Back</Text>
-        </HStack>
-      </Button>
-
-      <Flex justify='space-between' align={{ base: 'flex-start', md: 'center' }} gap='4' wrap='wrap' mb='8'>
-        <Box>
-          <Heading size='xl' color='text' letterSpacing='tight'>
+        <Box minW='0'>
+          <Heading size={{ base: 'lg', md: 'xl' }} color='text' letterSpacing='tight' wordBreak='break-word'>
             New Communication
           </Heading>
 
-          <Text mt='2' color='textSecondary' fontSize='sm'>
+          <Text mt='2' color='textSecondary' fontSize='sm' wordBreak='break-word'>
             {scheduledAt
               ? 'Schedule an email communication for later delivery.'
               : 'Create and send an email communication instantly.'}
@@ -272,6 +273,9 @@ export const CreateCommunication: React.FC = () => {
         </Box>
 
         <Button
+          w={{ base: 'full', sm: 'auto' }}
+          minW={{ sm: '170px' }}
+          alignSelf={{ base: 'stretch', md: 'center' }}
           bg='primary'
           color='white'
           px='6'
@@ -283,6 +287,7 @@ export const CreateCommunication: React.FC = () => {
           loadingText={scheduledAt ? 'Scheduling...' : 'Sending...'}
           onClick={handleSubmit(onCreate)}
           _hover={{ bg: 'secondary' }}
+          flexShrink={0}
         >
           <HStack gap='2'>
             <PaperPlaneTiltIcon size={20} />
@@ -291,219 +296,292 @@ export const CreateCommunication: React.FC = () => {
         </Button>
       </Flex>
 
-      <Grid templateColumns={{ base: '1fr', lg: '2fr 1fr' }} gap='6'>
-        <Stack gap='6'>
-          <CommunicationFormCard title='Content'>
-            <Stack gap='5'>
-              <Field.Root>
-                <Field.Label mb={2} color='primary' fontWeight='bold' fontSize='sm'>
-                  Source Type
-                </Field.Label>
+      <Grid
+        templateColumns={{
+          base: '1fr',
+          xl: 'minmax(0, 2fr) minmax(360px, 0.85fr)',
+          '2xl': 'minmax(0, 2.2fr) minmax(420px, 0.8fr)',
+        }}
+        gap={{ base: '5', md: '6', xl: '8' }}
+        w='full'
+        minW='0'
+        alignItems='start'
+      >
+        <Stack gap='6' minW='0'>
+          <Box minW='0' w='full'>
+            <CommunicationFormCard title='Content'>
+              <Stack gap='5' minW='0'>
+                <Field.Root minW='0'>
+                  <Field.Label mb={2} color='primary' fontWeight='bold' fontSize='sm'>
+                    Source Type
+                  </Field.Label>
 
-                <Controller
-                  name='sourceType'
-                  control={control}
-                  render={({ field }) => (
-                    <AppSelect
-                      width='100%'
-                      value={field.value}
-                      options={[
-                        { label: 'Template', value: 'template' },
-                        { label: 'Manual Content', value: 'manual' },
-                      ]}
-                      onChange={(value) => {
-                        const nextSourceType = value as 'manual' | 'template';
-
-                        field.onChange(nextSourceType);
-                        setValue('subject', '');
-                        setValue('body', '');
-                        setValue('templateId', '');
-                        setValue('templateVersionId', '');
-                        setValue('templateVariablesJson', {});
-                      }}
-                    />
-                  )}
-                />
-              </Field.Root>
-
-              {sourceType === 'manual' && (
-                <>
-                  <Field.Root invalid={!!errors.subject} position='relative' pb='22px'>
-                    <Field.Label mb={1} color='primary' fontWeight='bold' fontSize='sm'>
-                      Subject *
-                    </Field.Label>
-
-                    <Controller
-                      name='subject'
-                      control={control}
-                      render={({ field }) => (
-                        <Input {...field} value={field.value ?? ''} placeholder='Email subject' {...inputStyle} />
-                      )}
-                    />
-
-                    {errors.subject && (
-                      <Text position='absolute' bottom='0' color='error' fontSize='xs'>
-                        {errors.subject.message}
-                      </Text>
-                    )}
-                  </Field.Root>
-
-                  <Field.Root invalid={!!errors.body} position='relative' pb='22px'>
-                    <Field.Label mb={1} color='primary' fontWeight='bold' fontSize='sm'>
-                      Body *
-                    </Field.Label>
-
-                    <Controller
-                      name='body'
-                      control={control}
-                      render={({ field }) => (
-                        <HtmlContentEditor
-                          value={field.value ?? ''}
-                          onChange={field.onChange}
-                          hasError={!!errors.body}
-                        />
-                      )}
-                    />
-
-                    {errors.body && (
-                      <Text position='absolute' bottom='0' color='error' fontSize='xs'>
-                        {errors.body.message}
-                      </Text>
-                    )}
-                  </Field.Root>
-
-                  <Box pt='2'>
-                    <Text fontWeight='bold' color='primary' fontSize='sm' mb='2'>
-                      Preview
-                    </Text>
-
-                    <HtmlContentPreview value={body ?? ''} />
-                  </Box>
-                </>
-              )}
-
-              {sourceType === 'template' && (
-                <Stack gap='5'>
-                  <Field.Root>
-                    <Field.Label mb={2} color='primary' fontWeight='bold' fontSize='sm'>
-                      Template *
-                    </Field.Label>
-
-                    <Controller
-                      name='templateId'
-                      control={control}
-                      render={({ field }) => (
+                  <Controller
+                    name='sourceType'
+                    control={control}
+                    render={({ field }) => (
+                      <Box w='full' minW='0'>
                         <AppSelect
                           width='100%'
-                          value={field.value ?? ''}
-                          isDisabled={isLoadingTemplates}
-                          placeholder='Choose a template...'
+                          value={field.value}
+                          options={[
+                            { label: 'Template', value: 'template' },
+                            { label: 'Manual Content', value: 'manual' },
+                          ]}
                           onChange={(value) => {
-                            field.onChange(value);
-                          }}
-                          options={
-                            templatesData?.templates.map((template) => ({
-                              label: template.name,
-                              value: template.id,
-                            })) ?? []
-                          }
-                        />
-                      )}
-                    />
-                  </Field.Root>
+                            const nextSourceType = value as 'manual' | 'template';
 
-                  {selectedTemplateId && (
-                    <Field.Root invalid={!!errors.templateVersionId} position='relative' pb='22px'>
-                      <Field.Label mb={2} color='primary' fontWeight='bold' fontSize='sm'>
-                        Version *
+                            field.onChange(nextSourceType);
+                            setValue('subject', '');
+                            setValue('body', '');
+                            setValue('templateId', '');
+                            setValue('templateVersionId', '');
+                            setValue('templateVariablesJson', {});
+                          }}
+                        />
+                      </Box>
+                    )}
+                  />
+                </Field.Root>
+
+                {sourceType === 'manual' && (
+                  <>
+                    <Field.Root invalid={!!errors.subject} position='relative' pb='22px' minW='0'>
+                      <Field.Label mb={1} color='primary' fontWeight='bold' fontSize='sm'>
+                        Subject *
                       </Field.Label>
 
                       <Controller
-                        name='templateVersionId'
+                        name='subject'
                         control={control}
                         render={({ field }) => (
-                          <AppSelect
-                            width='100%'
+                          <Input
+                            {...field}
                             value={field.value ?? ''}
-                            isDisabled={isLoadingVersions}
-                            placeholder='Choose a version...'
-                            onChange={(value) => {
-                              field.onChange(value);
-                            }}
-                            options={
-                              versionsData?.templateVersions.map((version) => ({
-                                label: `Version ${version.version}`,
-                                value: version.id,
-                              })) ?? []
-                            }
+                            placeholder='Email subject'
+                            w='full'
+                            minW='0'
+                            {...inputStyle}
                           />
                         )}
                       />
 
-                      {errors.templateVersionId && (
+                      {errors.subject && (
                         <Text position='absolute' bottom='0' color='error' fontSize='xs'>
-                          {errors.templateVersionId.message}
+                          {errors.subject.message}
                         </Text>
                       )}
                     </Field.Root>
-                  )}
 
-                  {selectedVersion?.variablesSchemaJson &&
-                    Object.keys(selectedVersion.variablesSchemaJson).length > 0 && (
-                      <Box p='4' bg='gray.50' borderRadius='xl'>
-                        <Text fontWeight='bold' fontSize='sm' color='primary' mb='4'>
-                          Template Variables
-                        </Text>
+                    <Field.Root invalid={!!errors.body} position='relative' pb='22px' minW='0'>
+                      <Field.Label mb={1} color='primary' fontWeight='bold' fontSize='sm'>
+                        Body *
+                      </Field.Label>
 
-                        <Stack gap='4'>
-                          {Object.keys(selectedVersion.variablesSchemaJson).map((variableName) => (
-                            <Field.Root key={variableName}>
-                              <Field.Label fontSize='xs' fontWeight='bold' color='textSecondary'>
-                                {`{{${variableName}}}`}
-                              </Field.Label>
-
-                              <Controller
-                                name={`templateVariablesJson.${variableName}`}
-                                control={control}
-                                render={({ field }) => (
-                                  <Input
-                                    {...field}
-                                    value={field.value ?? ''}
-                                    placeholder={`Enter ${variableName}`}
-                                    {...inputStyle}
-                                  />
-                                )}
-                              />
-                            </Field.Root>
-                          ))}
-                        </Stack>
+                      <Box
+                        w='full'
+                        maxW='full'
+                        minW='0'
+                        overflowX='auto'
+                        css={{
+                          '& *': {
+                            maxWidth: '100%',
+                            boxSizing: 'border-box',
+                          },
+                        }}
+                      >
+                        <Controller
+                          name='body'
+                          control={control}
+                          render={({ field }) => (
+                            <HtmlContentEditor
+                              value={field.value ?? ''}
+                              onChange={field.onChange}
+                              hasError={!!errors.body}
+                            />
+                          )}
+                        />
                       </Box>
-                    )}
-                </Stack>
-              )}
-            </Stack>
-          </CommunicationFormCard>
 
-          <RecipientsCard
-            recipients={recipients}
-            disabled={createMutation.isPending}
-            onAddClick={onRecipientModalOpen}
-            onRemove={handleRemoveRecipient}
-          />
+                      {errors.body && (
+                        <Text position='absolute' bottom='0' color='error' fontSize='xs'>
+                          {errors.body.message}
+                        </Text>
+                      )}
+                    </Field.Root>
+
+                    <Box pt='2' minW='0'>
+                      <Text fontWeight='bold' color='primary' fontSize='sm' mb='2'>
+                        Preview
+                      </Text>
+
+                      <Box
+                        w='full'
+                        maxW='full'
+                        minW='0'
+                        overflowX='auto'
+                        borderRadius='md'
+                        css={{
+                          '& *': {
+                            maxWidth: '100%',
+                            boxSizing: 'border-box',
+                          },
+                          '& img': {
+                            maxWidth: '100%',
+                            height: 'auto',
+                          },
+                          '& table': {
+                            width: '100%',
+                            maxWidth: '100%',
+                          },
+                        }}
+                      >
+                        <HtmlContentPreview value={body ?? ''} />
+                      </Box>
+                    </Box>
+                  </>
+                )}
+
+                {sourceType === 'template' && (
+                  <Stack gap='5' minW='0'>
+                    <Field.Root minW='0'>
+                      <Field.Label mb={2} color='primary' fontWeight='bold' fontSize='sm'>
+                        Template *
+                      </Field.Label>
+
+                      <Controller
+                        name='templateId'
+                        control={control}
+                        render={({ field }) => (
+                          <Box w='full' minW='0'>
+                            <AppSelect
+                              width='100%'
+                              value={field.value ?? ''}
+                              isDisabled={isLoadingTemplates}
+                              placeholder='Choose a template...'
+                              onChange={(value) => {
+                                field.onChange(value);
+                              }}
+                              options={
+                                templatesData?.templates.map((template) => ({
+                                  label: template.name,
+                                  value: template.id,
+                                })) ?? []
+                              }
+                            />
+                          </Box>
+                        )}
+                      />
+                    </Field.Root>
+
+                    {selectedTemplateId && (
+                      <Field.Root invalid={!!errors.templateVersionId} position='relative' pb='22px' minW='0'>
+                        <Field.Label mb={2} color='primary' fontWeight='bold' fontSize='sm'>
+                          Version *
+                        </Field.Label>
+
+                        <Controller
+                          name='templateVersionId'
+                          control={control}
+                          render={({ field }) => (
+                            <Box w='full' minW='0'>
+                              <AppSelect
+                                width='100%'
+                                value={field.value ?? ''}
+                                isDisabled={isLoadingVersions}
+                                placeholder='Choose a version...'
+                                onChange={(value) => {
+                                  field.onChange(value);
+                                }}
+                                options={
+                                  versionsData?.templateVersions.map((version) => ({
+                                    label: `Version ${version.version}`,
+                                    value: version.id,
+                                  })) ?? []
+                                }
+                              />
+                            </Box>
+                          )}
+                        />
+
+                        {errors.templateVersionId && (
+                          <Text position='absolute' bottom='0' color='error' fontSize='xs'>
+                            {errors.templateVersionId.message}
+                          </Text>
+                        )}
+                      </Field.Root>
+                    )}
+
+                    {selectedVersion?.variablesSchemaJson &&
+                      Object.keys(selectedVersion.variablesSchemaJson).length > 0 && (
+                        <Box p={{ base: '3', md: '4' }} bg='gray.50' borderRadius='xl' minW='0'>
+                          <Text fontWeight='bold' fontSize='sm' color='primary' mb='4'>
+                            Template Variables
+                          </Text>
+
+                          <Stack gap='4' minW='0'>
+                            {Object.keys(selectedVersion.variablesSchemaJson).map((variableName) => (
+                              <Field.Root key={variableName} minW='0'>
+                                <Field.Label
+                                  fontSize='xs'
+                                  fontWeight='bold'
+                                  color='textSecondary'
+                                  wordBreak='break-word'
+                                >
+                                  {`{{${variableName}}}`}
+                                </Field.Label>
+
+                                <Controller
+                                  name={`templateVariablesJson.${variableName}`}
+                                  control={control}
+                                  render={({ field }) => (
+                                    <Input
+                                      {...field}
+                                      value={field.value ?? ''}
+                                      placeholder={`Enter ${variableName}`}
+                                      w='full'
+                                      minW='0'
+                                      {...inputStyle}
+                                    />
+                                  )}
+                                />
+                              </Field.Root>
+                            ))}
+                          </Stack>
+                        </Box>
+                      )}
+                  </Stack>
+                )}
+              </Stack>
+            </CommunicationFormCard>
+          </Box>
+
+          <Box minW='0' w='full'>
+            <RecipientsCard
+              recipients={recipients}
+              disabled={createMutation.isPending}
+              onAddClick={onRecipientModalOpen}
+              onRemove={handleRemoveRecipient}
+            />
+          </Box>
         </Stack>
 
-        <Stack gap='6'>
-          <DeliveryCard control={control} errors={errors} disabled={createMutation.isPending} />
+        <Stack gap='6' minW='0'>
+          <Box minW='0' w='full'>
+            <DeliveryCard control={control} errors={errors} disabled={createMutation.isPending} />
+          </Box>
 
-          <AttachmentsCard
-            attachments={attachments.map((file, index) => ({ type: 'local', file, index }))}
-            disabled={createMutation.isPending}
-            fileInputRef={fileInputRef}
-            onFileChange={handleSelectFiles}
-            onRemove={(attachment) => {
-              if (attachment.type === 'local') handleRemoveAttachment(attachment);
-            }}
-          />
+          <Box minW='0' w='full'>
+            <AttachmentsCard
+              attachments={attachments.map((file, index) => ({ type: 'local', file, index }))}
+              disabled={createMutation.isPending}
+              fileInputRef={fileInputRef}
+              onFileChange={handleSelectFiles}
+              onRemove={(attachment) => {
+                if (attachment.type === 'local') handleRemoveAttachment(attachment);
+              }}
+            />
+          </Box>
         </Stack>
       </Grid>
 

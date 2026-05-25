@@ -157,7 +157,7 @@ export const UpdateCommunication: React.FC = () => {
   }, [loadCommunication]);
 
   const onSave: SubmitHandler<UpdateFormData> = async (data) => {
-    if (!id || !communication) return;
+    if (!id || !communication || !canEdit) return;
 
     try {
       setIsSaving(true);
@@ -189,7 +189,7 @@ export const UpdateCommunication: React.FC = () => {
   };
 
   const handleAddRecipient = async (data: RecipientFormData) => {
-    if (!id) return;
+    if (!id || !canEdit) return;
 
     const alreadyExists = communication?.recipients.some(
       (recipient) => recipient.email === data.email && recipient.recipientType === data.recipientType,
@@ -227,7 +227,7 @@ export const UpdateCommunication: React.FC = () => {
   };
 
   const handleRemoveRecipient = async (recipient: RecipientItem) => {
-    if (!id || !recipient.id) return;
+    if (!id || !recipient.id || !canEdit) return;
 
     try {
       await removeCommunicationRecipient({
@@ -251,7 +251,7 @@ export const UpdateCommunication: React.FC = () => {
   const handleUploadAttachment = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files ?? []);
 
-    if (!id || files.length === 0) return;
+    if (!id || files.length === 0 || !canEdit) return;
 
     try {
       setIsUploadingAttachment(true);
@@ -283,7 +283,7 @@ export const UpdateCommunication: React.FC = () => {
   };
 
   const handleRemoveAttachment = async (attachment: { type: 'persisted'; id: string }) => {
-    if (!id) return;
+    if (!id || !canEdit) return;
 
     try {
       await removeCommunicationAttachment({
@@ -308,6 +308,7 @@ export const UpdateCommunication: React.FC = () => {
     return (
       <Flex minH='60vh' align='center' justify='center' direction='column' gap='3'>
         <Spinner color='primary' />
+
         <Text color='textSecondary'>Loading communication...</Text>
       </Flex>
     );
@@ -322,10 +323,18 @@ export const UpdateCommunication: React.FC = () => {
   }
 
   return (
-    <Box w='full' minH='100vh' overflowX='hidden' py={{ base: '6', md: '8' }} px={{ base: '4', md: '8', lg: '10' }}>
+    <Box
+      w='full'
+      maxW='none'
+      minH='100vh'
+      overflowX='hidden'
+      py={{ base: '5', md: '8', xl: '10' }}
+      px={{ base: '4', md: '8', lg: '10', xl: '12', '2xl': '16' }}
+      pb={{ base: '24', md: '10' }}
+    >
       <Button
         variant='ghost'
-        mb='8'
+        mb={{ base: '6', md: '8' }}
         px='0'
         color='textSecondary'
         _hover={{ bg: 'transparent', color: 'primary' }}
@@ -338,220 +347,315 @@ export const UpdateCommunication: React.FC = () => {
         </HStack>
       </Button>
 
-      <Flex justify='space-between' align={{ base: 'flex-start', md: 'center' }} gap='4' wrap='wrap' mb='8'>
-        <Box>
-          <Heading size='xl' color='text' letterSpacing='tight'>
+      <Flex
+        justify='space-between'
+        align={{ base: 'stretch', md: 'center' }}
+        direction={{ base: 'column', md: 'row' }}
+        gap={{ base: '4', md: '6' }}
+        mb='8'
+        w='full'
+        minW='0'
+      >
+        <Box minW='0'>
+          <Heading size={{ base: 'lg', md: 'xl' }} color='text' letterSpacing='tight' wordBreak='break-word'>
             Edit Communication
           </Heading>
 
-          <Text mt='2' color='textSecondary' fontSize='sm'>
+          <Text mt='2' color='textSecondary' fontSize='sm' wordBreak='break-word'>
             {canEdit
               ? 'Update communication content, delivery, recipients and attachments.'
               : 'This communication can no longer be edited.'}
           </Text>
         </Box>
 
-        <Button
-          bg='primary'
-          color='white'
-          px='6'
-          py='2.5'
-          borderRadius='xl'
-          fontWeight='bold'
-          boxShadow='lg'
-          loading={isSaving}
-          loadingText='Saving...'
-          onClick={handleSubmit(onSave)}
-          disabled={!canEdit}
-          _hover={{ bg: 'secondary' }}
-        >
-          <HStack gap='2'>
-            <FloppyDiskIcon size={20} />
-            <Text>Save Changes</Text>
-          </HStack>
-        </Button>
+        {canEdit && (
+          <Button
+            w={{ base: 'full', sm: 'auto' }}
+            minW={{ sm: '170px' }}
+            bg='primary'
+            color='white'
+            px='6'
+            py='2.5'
+            borderRadius='xl'
+            fontWeight='bold'
+            boxShadow='lg'
+            loading={isSaving}
+            loadingText='Saving...'
+            onClick={handleSubmit(onSave)}
+            _hover={{ bg: 'secondary' }}
+            flexShrink={0}
+          >
+            <HStack gap='2'>
+              <FloppyDiskIcon size={20} />
+              <Text>Save Changes</Text>
+            </HStack>
+          </Button>
+        )}
       </Flex>
 
-      <Grid templateColumns={{ base: '1fr', lg: '2fr 1fr' }} gap='6'>
-        <Stack gap='6'>
-          <CommunicationFormCard title='Content'>
-            <Stack gap='5'>
-              <Field.Root>
-                <Field.Label mb={1} color='primary' fontWeight='bold' fontSize='sm'>
-                  Source Type
-                </Field.Label>
+      <Grid
+        templateColumns={{
+          base: '1fr',
+          xl: 'minmax(0, 2fr) minmax(360px, 0.85fr)',
+          '2xl': 'minmax(0, 2.2fr) minmax(420px, 0.8fr)',
+        }}
+        gap={{ base: '5', md: '6', xl: '8' }}
+        w='full'
+        minW='0'
+        alignItems='start'
+      >
+        <Stack gap={{ base: '5', md: '6' }} minW='0'>
+          <Box minW='0' w='full'>
+            <CommunicationFormCard title='Content'>
+              <Stack gap='5' minW='0'>
+                <Field.Root minW='0'>
+                  <Field.Label mb={1} color='primary' fontWeight='bold' fontSize='sm'>
+                    Source Type
+                  </Field.Label>
 
-                <Input
-                  value={communication.sourceType === 'manual' ? 'Manual Content' : 'Template'}
-                  readOnly
-                  disabled
-                  {...inputStyle}
-                />
-              </Field.Root>
+                  <Input
+                    value={communication.sourceType === 'manual' ? 'Manual Content' : 'Template'}
+                    readOnly
+                    disabled
+                    w='full'
+                    minW='0'
+                    {...inputStyle}
+                  />
+                </Field.Root>
 
-              {communication.sourceType === 'manual' && (
-                <>
-                  <Field.Root invalid={!!errors.subject} position='relative' pb='22px'>
-                    <Field.Label mb={1} color='primary' fontWeight='bold' fontSize='sm'>
-                      Subject
-                    </Field.Label>
+                {communication.sourceType === 'manual' && (
+                  <>
+                    <Field.Root invalid={!!errors.subject} position='relative' pb='22px' minW='0'>
+                      <Field.Label mb={1} color='primary' fontWeight='bold' fontSize='sm'>
+                        Subject
+                      </Field.Label>
 
-                    <Controller
-                      name='subject'
-                      control={control}
-                      render={({ field }) => (
-                        <Input
-                          {...field}
-                          value={field.value ?? ''}
-                          placeholder='Email subject'
-                          disabled={!canEdit}
-                          {...inputStyle}
-                        />
+                      <Controller
+                        name='subject'
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            value={field.value ?? ''}
+                            placeholder='Email subject'
+                            disabled={!canEdit}
+                            w='full'
+                            minW='0'
+                            {...inputStyle}
+                          />
+                        )}
+                      />
+
+                      {errors.subject && (
+                        <Text position='absolute' bottom='0' color='error' fontSize='xs'>
+                          {errors.subject.message}
+                        </Text>
                       )}
-                    />
-                  </Field.Root>
+                    </Field.Root>
 
-                  <Field.Root invalid={!!errors.body} position='relative' pb='22px'>
-                    <Field.Label mb={1} color='primary' fontWeight='bold' fontSize='sm'>
-                      Body
-                    </Field.Label>
+                    <Field.Root invalid={!!errors.body} position='relative' pb='22px' minW='0'>
+                      <Field.Label mb={1} color='primary' fontWeight='bold' fontSize='sm'>
+                        Body
+                      </Field.Label>
 
-                    <Controller
-                      name='body'
-                      control={control}
-                      render={({ field }) => (
-                        <HtmlContentEditor
-                          value={field.value ?? ''}
-                          onChange={field.onChange}
-                          hasError={!!errors.body}
-                        />
-                      )}
-                    />
-                  </Field.Root>
-
-                  <Box pt='2'>
-                    <Text fontWeight='bold' color='primary' fontSize='sm' mb='2'>
-                      Preview
-                    </Text>
-
-                    <HtmlContentPreview value={body ?? ''} />
-                  </Box>
-                </>
-              )}
-
-              {communication.sourceType === 'template' && (
-                <Stack gap='5'>
-                  <Box p='4' bg='green.50' borderRadius='xl' borderWidth='1px' borderColor='green.100'>
-                    <Text color='green.800' fontWeight='bold'>
-                      Template based communication
-                    </Text>
-
-                    <Text color='textSecondary' fontSize='sm' mt='1'>
-                      The subject and body come from the selected template version.
-                    </Text>
-                  </Box>
-
-                  {communication.templateVariablesJson &&
-                  Object.keys(communication.templateVariablesJson).length > 0 ? (
-                    <Box p='4' bg='gray.50' borderRadius='xl'>
-                      <Text fontWeight='bold' fontSize='sm' color='primary' mb='4'>
-                        Template Variables
-                      </Text>
-
-                      <Stack gap='4'>
-                        {Object.keys(communication.templateVariablesJson).map((variableName) => (
-                          <Field.Root key={variableName}>
-                            <Field.Label fontSize='xs' fontWeight='bold' color='textSecondary'>
-                              {`{{${variableName}}}`}
-                            </Field.Label>
-
-                            <Controller
-                              name={`templateVariablesJson.${variableName}`}
-                              control={control}
-                              render={({ field }) => (
-                                <Input
-                                  {...field}
-                                  value={field.value ?? ''}
-                                  placeholder={`Enter ${variableName}`}
-                                  disabled={!canEdit}
-                                  {...inputStyle}
-                                />
-                              )}
+                      <Box
+                        w='full'
+                        maxW='full'
+                        minW='0'
+                        overflowX='auto'
+                        css={{
+                          '& *': {
+                            maxWidth: '100%',
+                            boxSizing: 'border-box',
+                          },
+                        }}
+                      >
+                        <Controller
+                          name='body'
+                          control={control}
+                          render={({ field }) => (
+                            <HtmlContentEditor
+                              value={field.value ?? ''}
+                              onChange={field.onChange}
+                              hasError={!!errors.body}
                             />
-                          </Field.Root>
-                        ))}
-                      </Stack>
+                          )}
+                        />
+                      </Box>
+
+                      {errors.body && (
+                        <Text position='absolute' bottom='0' color='error' fontSize='xs'>
+                          {errors.body.message}
+                        </Text>
+                      )}
+                    </Field.Root>
+
+                    <Box pt='2' minW='0'>
+                      <Text fontWeight='bold' color='primary' fontSize='sm' mb='2'>
+                        Preview
+                      </Text>
+
+                      <Box
+                        w='full'
+                        maxW='full'
+                        minW='0'
+                        overflowX='auto'
+                        borderRadius='md'
+                        css={{
+                          '& *': {
+                            maxWidth: '100%',
+                            boxSizing: 'border-box',
+                          },
+                          '& img': {
+                            maxWidth: '100%',
+                            height: 'auto',
+                          },
+                          '& table': {
+                            width: '100%',
+                            maxWidth: '100%',
+                          },
+                        }}
+                      >
+                        <HtmlContentPreview value={body ?? ''} />
+                      </Box>
                     </Box>
-                  ) : (
-                    <Box p='4' bg='gray.50' borderRadius='xl'>
-                      <Text color='textSecondary' fontSize='sm'>
-                        This template has no variables.
+                  </>
+                )}
+
+                {communication.sourceType === 'template' && (
+                  <Stack gap='5' minW='0'>
+                    <Box
+                      p={{ base: '4', md: '4' }}
+                      bg='green.50'
+                      borderRadius='xl'
+                      borderWidth='1px'
+                      borderStyle='solid'
+                      borderColor='green.100'
+                      minW='0'
+                    >
+                      <Text color='green.800' fontWeight='bold' wordBreak='break-word'>
+                        Template based communication
+                      </Text>
+
+                      <Text color='textSecondary' fontSize='sm' mt='1' wordBreak='break-word'>
+                        The subject and body come from the selected template version.
                       </Text>
                     </Box>
-                  )}
-                </Stack>
-              )}
-            </Stack>
-          </CommunicationFormCard>
 
-          <RecipientsCard
-            recipients={communication.recipients}
-            disabled={!canEdit || isAddingRecipient}
-            onAddClick={onRecipientModalOpen}
-            onRemove={handleRemoveRecipient}
-          />
+                    {communication.templateVariablesJson &&
+                    Object.keys(communication.templateVariablesJson).length > 0 ? (
+                      <Box p={{ base: '4', md: '4' }} bg='gray.50' borderRadius='xl' minW='0'>
+                        <Text fontWeight='bold' fontSize='sm' color='primary' mb='4'>
+                          Template Variables
+                        </Text>
+
+                        <Stack gap='4' minW='0'>
+                          {Object.keys(communication.templateVariablesJson).map((variableName) => (
+                            <Field.Root key={variableName} minW='0'>
+                              <Field.Label fontSize='xs' fontWeight='bold' color='textSecondary' wordBreak='break-word'>
+                                {`{{${variableName}}}`}
+                              </Field.Label>
+
+                              <Controller
+                                name={`templateVariablesJson.${variableName}`}
+                                control={control}
+                                render={({ field }) => (
+                                  <Input
+                                    {...field}
+                                    value={field.value ?? ''}
+                                    placeholder={`Enter ${variableName}`}
+                                    disabled={!canEdit}
+                                    w='full'
+                                    minW='0'
+                                    {...inputStyle}
+                                  />
+                                )}
+                              />
+                            </Field.Root>
+                          ))}
+                        </Stack>
+                      </Box>
+                    ) : (
+                      <Box p='4' bg='gray.50' borderRadius='xl' minW='0'>
+                        <Text color='textSecondary' fontSize='sm'>
+                          This template has no variables.
+                        </Text>
+                      </Box>
+                    )}
+                  </Stack>
+                )}
+              </Stack>
+            </CommunicationFormCard>
+          </Box>
+
+          <Box minW='0' w='full'>
+            <RecipientsCard
+              recipients={communication.recipients}
+              disabled={!canEdit || isAddingRecipient}
+              onAddClick={onRecipientModalOpen}
+              onRemove={handleRemoveRecipient}
+            />
+          </Box>
         </Stack>
 
-        <Stack gap='6'>
-          <DeliveryCard control={control} errors={errors} disabled={!canEdit} />
+        <Stack gap={{ base: '5', md: '6' }} minW='0' position={{ base: 'static', xl: 'sticky' }} top={{ xl: '6' }}>
+          <Box minW='0' w='full'>
+            <DeliveryCard control={control} errors={errors} disabled={!canEdit} />
+          </Box>
 
-          <AttachmentsCard
-            attachments={communication.attachments.map((attachment) => ({
-              type: 'persisted',
-              id: attachment.id,
-              originalFileName: attachment.originalFileName,
-              fileSizeBytes: attachment.fileSizeBytes,
-            }))}
-            disabled={!canEdit}
-            isLoading={isUploadingAttachment}
-            fileInputRef={fileInputRef}
-            onFileChange={handleUploadAttachment}
-            onRemove={(attachment) => {
-              if (attachment.type === 'persisted') handleRemoveAttachment(attachment);
-            }}
-          />
+          <Box minW='0' w='full'>
+            <AttachmentsCard
+              attachments={communication.attachments.map((attachment) => ({
+                type: 'persisted',
+                id: attachment.id,
+                originalFileName: attachment.originalFileName,
+                fileSizeBytes: attachment.fileSizeBytes,
+              }))}
+              disabled={!canEdit}
+              isLoading={isUploadingAttachment}
+              fileInputRef={fileInputRef}
+              onFileChange={handleUploadAttachment}
+              onRemove={(attachment) => {
+                if (attachment.type === 'persisted') handleRemoveAttachment(attachment);
+              }}
+            />
+          </Box>
 
-          <CommunicationFormCard title='Status'>
-            <Stack gap='3'>
-              <Flex justify='space-between' align='center'>
-                <Text fontSize='sm' color='textSecondary'>
-                  Status
-                </Text>
+          <Box minW='0' w='full'>
+            <CommunicationFormCard title='Status'>
+              <Stack gap='3' minW='0'>
+                <Flex justify='space-between' align='center' gap='3'>
+                  <Text fontSize='sm' color='textSecondary'>
+                    Status
+                  </Text>
 
-                <StatusBadge status={communication.status} />
-              </Flex>
+                  <Box flexShrink={0}>
+                    <StatusBadge status={communication.status} />
+                  </Box>
+                </Flex>
 
-              <Flex justify='space-between' align='center'>
-                <Text fontSize='sm' color='textSecondary'>
-                  Channel
-                </Text>
+                <Flex justify='space-between' align='center' gap='3'>
+                  <Text fontSize='sm' color='textSecondary'>
+                    Channel
+                  </Text>
 
-                <Text fontSize='sm' fontWeight='bold' color='text'>
-                  {communication.channel}
-                </Text>
-              </Flex>
+                  <Text fontSize='sm' fontWeight='bold' color='text' wordBreak='break-word' textAlign='right'>
+                    {communication.channel}
+                  </Text>
+                </Flex>
 
-              <Flex justify='space-between' align='center'>
-                <Text fontSize='sm' color='textSecondary'>
-                  Created
-                </Text>
+                <Flex justify='space-between' align='center' gap='3'>
+                  <Text fontSize='sm' color='textSecondary'>
+                    Created
+                  </Text>
 
-                <Text fontSize='sm' fontWeight='bold' color='text'>
-                  {new Date(communication.createdAt).toLocaleString()}
-                </Text>
-              </Flex>
-            </Stack>
-          </CommunicationFormCard>
+                  <Text fontSize='sm' fontWeight='bold' color='text' wordBreak='break-word' textAlign='right'>
+                    {new Date(communication.createdAt).toLocaleString()}
+                  </Text>
+                </Flex>
+              </Stack>
+            </CommunicationFormCard>
+          </Box>
         </Stack>
       </Grid>
 

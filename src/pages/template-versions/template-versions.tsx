@@ -1,7 +1,8 @@
-import { Box, Button, Flex, Grid, Heading, Spinner, Text } from '@chakra-ui/react';
+import { Box, Button, Flex, Grid, Heading, HStack, Spinner, Text } from '@chakra-ui/react';
+import { ArrowLeftIcon } from '@phosphor-icons/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   activateTemplateVersion,
   deactivateTemplateVersion,
@@ -22,6 +23,7 @@ const gridStyle = {
 
 export const TemplateVersions: React.FC = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const [editUuid, setEditUuid] = React.useState<string | null>(null);
@@ -197,7 +199,16 @@ export const TemplateVersions: React.FC = () => {
   const selectedVersion = versions.find((version) => version.id === editUuid);
 
   return (
-    <Box w='full' minH='100vh' overflowX='hidden' py={{ base: '6', md: '8' }} px={{ base: '4', md: '8', lg: '10' }}>
+    <Box
+      w='full'
+      maxW='none'
+      minH='100vh'
+      overflowX='hidden'
+      bg='background'
+      py={{ base: '5', md: '8', xl: '10' }}
+      px={{ base: '4', md: '8', lg: '10', xl: '12', '2xl': '16' }}
+      pb={{ base: '24', md: '10' }}
+    >
       <CreateTemplateVersionDrawer isOpen={isCreateDrawerOpen} onClose={closeCreateDrawer} templateId={id ?? ''} />
 
       <UpdateTemplateVersionDrawer
@@ -207,18 +218,43 @@ export const TemplateVersions: React.FC = () => {
         version={selectedVersion}
       />
 
-      <Flex w='full' justify='space-between' align='flex-start' gap='6' mb='8'>
-        <Box minW={0}>
-          <Heading size='xl' color='text' letterSpacing='tight' mb='2'>
+      <Button
+        variant='ghost'
+        mb={{ base: '6', md: '8' }}
+        px='0'
+        color='textSecondary'
+        _hover={{ bg: 'transparent', color: 'primary' }}
+        onClick={() => navigate(-1)}
+      >
+        <HStack gap='2'>
+          <ArrowLeftIcon size={16} />
+          <Text>Back</Text>
+        </HStack>
+      </Button>
+
+      <Flex
+        w='full'
+        justify='space-between'
+        align={{ base: 'stretch', md: 'center' }}
+        direction={{ base: 'column', md: 'row' }}
+        gap={{ base: '4', md: '6' }}
+        mb='8'
+        minW='0'
+      >
+        <Box minW='0'>
+          <Heading size={{ base: 'lg', md: 'xl' }} color='text' letterSpacing='tight' wordBreak='break-word'>
             {template.name}
           </Heading>
 
-          <Text color='textSecondary' lineHeight='1.7' maxW='900px' whiteSpace='pre-wrap'>
+          <Text mt='2' color='textSecondary' fontSize='sm' wordBreak='break-word'>
             {template.description}
           </Text>
         </Box>
 
         <Button
+          w={{ base: 'full', sm: 'auto' }}
+          minW={{ sm: '170px' }}
+          alignSelf={{ base: 'stretch', md: 'center' }}
           bg='primary'
           color='white'
           px='6'

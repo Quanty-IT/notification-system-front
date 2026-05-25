@@ -1,7 +1,7 @@
 import { Box, Button, Flex, Grid, Heading, HStack, IconButton, Spinner, Stack, Text } from '@chakra-ui/react';
 import {
+  CalendarCheckIcon,
   ChatCircleTextIcon,
-  ClockCounterClockwiseIcon,
   EnvelopeIcon,
   MonitorIcon,
   PaperPlaneTiltIcon,
@@ -18,8 +18,12 @@ type TypeIconProps = {
   type: 'Whatsapp' | 'Teams' | 'Email';
 };
 
+const editableStatuses = ['draft', 'scheduled'];
+
+const canEditCommunication = (status: string) => editableStatuses.includes(status);
+
 const TypeIcon = ({ type }: TypeIconProps) => {
-  const iconProps = { size: 16 };
+  const iconProps = { size: 15 };
 
   switch (type) {
     case 'Email':
@@ -55,261 +59,332 @@ export const Dashboard: React.FC = () => {
 
   const communications = data?.communications || [];
 
+  const sentCommunications = communications.filter((communication) => communication.status === 'sent');
+
+  const scheduledCommunications = communications.filter((communication) => communication.status === 'scheduled');
+
   const stats = [
-    { label: 'Total', value: communications.length.toString() },
-    { label: 'Scheduled', value: communications.filter((c) => c.status === 'scheduled').length.toString() },
-    { label: 'Drafts', value: communications.filter((c) => c.status === 'draft').length.toString() },
+    {
+      label: 'Sent',
+      value: sentCommunications.length.toString(),
+      icon: <PaperPlaneTiltIcon size={22} />,
+      description: 'Delivered communications',
+    },
+    {
+      label: 'Scheduled',
+      value: scheduledCommunications.length.toString(),
+      icon: <CalendarCheckIcon size={22} />,
+      description: 'Waiting to be sent',
+    },
   ];
 
   return (
     <Box
       w='full'
+      maxW='none'
+      minH='100vh'
       overflowX='hidden'
-      py={{ base: '10', md: '12' }}
-      px={{ base: '4', md: '8', lg: '12' }}
-      maxW='7xl'
-      mx='auto'
+      py={{ base: '5', md: '8', xl: '10' }}
+      px={{ base: '4', md: '8', lg: '10', xl: '12', '2xl': '16' }}
+      pb={{ base: '24', md: '10' }}
     >
-      <Flex wrap='wrap' justify='space-between' align='center' gap='4' mb='12'>
-        <Heading size='xl' color='text' letterSpacing='tight'>
-          Dashboard
-        </Heading>
+      <Flex
+        justify='space-between'
+        align={{ base: 'stretch', sm: 'center' }}
+        direction={{ base: 'column', sm: 'row' }}
+        gap={{ base: '4', md: '6' }}
+        mb={{ base: '6', md: '8', xl: '10' }}
+        w='full'
+        minW='0'
+      >
+        <Box minW='0'>
+          <Heading size={{ base: 'lg', md: 'xl' }} color='text' letterSpacing='tight' wordBreak='break-word'>
+            Dashboard
+          </Heading>
 
-        <HStack gap='4' wrap='wrap'>
-          <Button
-            bg='primary'
-            color='white'
-            px='6'
-            py='2.5'
-            borderRadius='xl'
-            fontWeight='bold'
-            boxShadow='lg'
-            _hover={{ bg: 'secondary' }}
-            onClick={() => navigate(getCreateCommunicationPath())}
-          >
-            <HStack gap='2'>
-              <PaperPlaneTiltIcon size={18} />
-              <Text>Send New</Text>
-            </HStack>
-          </Button>
+          <Text mt='2' color='textSecondary' fontSize='sm' wordBreak='break-word'>
+            Track sent and scheduled communications.
+          </Text>
+        </Box>
 
-          <Button
-            bg='surface'
-            color='text'
-            borderWidth='1px'
-            borderColor='inputBorder'
-            px='6'
-            py='2.5'
-            borderRadius='xl'
-            fontWeight='bold'
-            _hover={{ bg: 'gray.50' }}
-          >
-            <HStack gap='2'>
-              <ClockCounterClockwiseIcon size={18} />
-              <Text>History</Text>
-            </HStack>
-          </Button>
-        </HStack>
+        <Button
+          w={{ base: 'full', sm: 'auto' }}
+          minW={{ sm: '170px' }}
+          bg='primary'
+          color='white'
+          px='6'
+          py='2.5'
+          borderRadius='xl'
+          fontWeight='bold'
+          boxShadow='lg'
+          flexShrink={0}
+          _hover={{ bg: 'secondary' }}
+          onClick={() => navigate(getCreateCommunicationPath())}
+        >
+          <HStack gap='2'>
+            <PaperPlaneTiltIcon size={18} />
+            <Text>Send New</Text>
+          </HStack>
+        </Button>
       </Flex>
 
       <Grid
         templateColumns={{
-          base: '1fr',
-          md: 'repeat(2, 1fr)',
-          lg: 'repeat(3, 1fr)',
+          base: 'repeat(2, minmax(0, 1fr))',
+          xl: 'repeat(2, minmax(0, 420px))',
+          '2xl': 'repeat(2, minmax(0, 520px))',
         }}
-        gap={{ base: '4', md: '6' }}
-        mb='12'
+        gap={{ base: '3', md: '5', xl: '6' }}
+        mb={{ base: '8', md: '10', xl: '12' }}
+        w='full'
+        minW='0'
       >
         {stats.map((stat) => (
           <Flex
             key={stat.label}
             direction='column'
-            align='center'
-            justify='center'
-            textAlign='center'
-            bg='background'
-            p='6'
-            borderRadius='3xl'
+            justify='space-between'
+            bg='surface'
+            p={{ base: '4', md: '6' }}
+            minH={{ base: '142px', md: '160px' }}
+            borderRadius='2xl'
             boxShadow='sm'
             borderWidth='1px'
+            borderStyle='solid'
             borderColor='gray.100'
+            minW='0'
+            overflow='hidden'
           >
-            <Text fontSize='xs' fontWeight='bold' color='textSecondary' textTransform='uppercase' letterSpacing='wider'>
-              {stat.label}
-            </Text>
+            <Flex align='center' justify='space-between' gap='2'>
+              <Text
+                fontSize={{ base: 'xs', md: 'sm' }}
+                fontWeight='bold'
+                color='textSecondary'
+                textTransform='uppercase'
+                letterSpacing='wide'
+                lineHeight='1.2'
+              >
+                {stat.label}
+              </Text>
 
-            <Text mt='2' fontSize='4xl' fontWeight='black' color='text'>
-              {stat.value}
-            </Text>
+              <Flex
+                align='center'
+                justify='center'
+                w={{ base: '9', md: '10' }}
+                h={{ base: '9', md: '10' }}
+                borderRadius='full'
+                bg='green.50'
+                color='primary'
+                flexShrink={0}
+              >
+                {stat.icon}
+              </Flex>
+            </Flex>
+
+            <Box mt='4' minW='0'>
+              <Text fontSize={{ base: '3xl', md: '5xl' }} lineHeight='1' fontWeight='black' color='text'>
+                {stat.value}
+              </Text>
+
+              <Text
+                mt='2'
+                fontSize={{ base: 'xs', md: 'sm' }}
+                color='textSecondary'
+                lineClamp={{ base: 1, md: 2 }}
+                wordBreak='break-word'
+              >
+                {stat.description}
+              </Text>
+            </Box>
           </Flex>
         ))}
       </Grid>
 
-      <Stack gap='4'>
-        <Heading size='md' color='text'>
-          Recent Timeline
-        </Heading>
+      <Stack gap='4' w='full' minW='0'>
+        <Flex justify='space-between' align='center' gap='3'>
+          <Box minW='0'>
+            <Heading size={{ base: 'sm', md: 'lg' }} color='text'>
+              Recent Communications
+            </Heading>
+
+            <Text mt='1' fontSize={{ base: 'xs', md: 'sm' }} color='textSecondary' wordBreak='break-word'>
+              Latest sent or scheduled messages.
+            </Text>
+          </Box>
+        </Flex>
 
         {isLoading ? (
-          <Flex py='20' justify='center' align='center' direction='column' gap='4'>
-            <Spinner color='primary' size='xl' />
-            <Text color='textSecondary'>Loading communications...</Text>
+          <Flex py='16' justify='center' align='center' direction='column' gap='4'>
+            <Spinner color='primary' size='lg' />
+
+            <Text color='textSecondary' fontSize='sm'>
+              Loading communications...
+            </Text>
           </Flex>
         ) : isError ? (
-          <Flex py='20' justify='center' align='center' direction='column' gap='4' bg='red.50' borderRadius='2xl'>
+          <Flex py='14' justify='center' align='center' direction='column' gap='4' bg='red.50' borderRadius='2xl'>
             <Text color='red.600' fontWeight='bold'>
               Error loading communications
             </Text>
+
             <Button size='sm' onClick={() => window.location.reload()}>
               Try again
             </Button>
           </Flex>
         ) : communications.length === 0 ? (
-          <Flex py='20' justify='center' align='center' direction='column' gap='4' bg='gray.50' borderRadius='2xl'>
-            <Text color='textSecondary'>No communications found</Text>
-            <Text fontSize='sm' color='textSecondary'>
-              Click "Send New" to create one
+          <Flex py='14' justify='center' align='center' direction='column' gap='3' bg='gray.50' borderRadius='2xl'>
+            <Text color='text' fontWeight='bold'>
+              No communications yet
+            </Text>
+
+            <Text fontSize='sm' color='textSecondary' textAlign='center'>
+              Click "Send New" to create your first communication.
             </Text>
           </Flex>
         ) : (
           <>
-            {/* Desktop Timeline View */}
-            <Box w='full' overflowX='auto' maxW='full' pb='4' display={{ base: 'none', md: 'block' }}>
-              <Grid templateColumns='repeat(5, 1fr)' gap='4' minW='800px' px='6' py='3' mb='4'>
-                <Text
-                  fontSize='xs'
-                  fontWeight='bold'
-                  color='textSecondary'
-                  textTransform='uppercase'
-                  letterSpacing='wider'
+            <Box
+              display={{ base: 'none', md: 'block' }}
+              w='full'
+              maxW='full'
+              overflowX={{ md: 'auto', xl: 'visible' }}
+              pb='2'
+            >
+              <Box minW={{ md: '980px', xl: '0' }} w='full'>
+                <Grid
+                  templateColumns='minmax(260px, 2.2fr) minmax(120px, 0.8fr) minmax(120px, 0.8fr) minmax(120px, 0.8fr) 96px'
+                  gap='5'
+                  px='6'
+                  py='3'
+                  alignItems='center'
                 >
-                  Subject
-                </Text>
-                <Text
-                  fontSize='xs'
-                  fontWeight='bold'
-                  color='textSecondary'
-                  textTransform='uppercase'
-                  letterSpacing='wider'
-                >
-                  Channel
-                </Text>
-                <Text
-                  fontSize='xs'
-                  fontWeight='bold'
-                  color='textSecondary'
-                  textTransform='uppercase'
-                  letterSpacing='wider'
-                >
-                  Source
-                </Text>
-                <Text
-                  fontSize='xs'
-                  fontWeight='bold'
-                  color='textSecondary'
-                  textTransform='uppercase'
-                  letterSpacing='wider'
-                >
-                  Status
-                </Text>
-                <Text
-                  fontSize='xs'
-                  fontWeight='bold'
-                  color='textSecondary'
-                  textTransform='uppercase'
-                  letterSpacing='wider'
-                  textAlign='right'
-                >
-                  Actions
-                </Text>
-              </Grid>
+                  <Text fontSize='xs' fontWeight='bold' color='textSecondary' textTransform='uppercase'>
+                    Subject
+                  </Text>
 
-              <Stack gap='4' minW='800px'>
-                {communications.map((comm) => (
-                  <Grid
-                    key={comm.id}
-                    templateColumns='repeat(5, 1fr)'
-                    gap='4'
-                    alignItems='center'
-                    bg='surface'
-                    p='5'
-                    borderRadius='2xl'
-                    boxShadow='sm'
-                    borderWidth='1px'
-                    borderColor='gray.100'
-                    fontSize='sm'
-                    cursor='pointer'
-                    role='button'
-                    tabIndex={0}
-                    transition='all 0.2s ease'
-                    _hover={{
-                      borderColor: 'primary',
-                      transform: 'translateY(-1px)',
-                    }}
-                    onClick={() => navigate(getCommunicationDetailPath(comm.id))}
-                    onKeyDown={(event) => {
-                      if (event.key === 'Enter' || event.key === ' ') {
-                        event.preventDefault();
-                        navigate(getCommunicationDetailPath(comm.id));
-                      }
-                    }}
+                  <Text fontSize='xs' fontWeight='bold' color='textSecondary' textTransform='uppercase'>
+                    Channel
+                  </Text>
+
+                  <Text fontSize='xs' fontWeight='bold' color='textSecondary' textTransform='uppercase'>
+                    Source
+                  </Text>
+
+                  <Text fontSize='xs' fontWeight='bold' color='textSecondary' textTransform='uppercase'>
+                    Status
+                  </Text>
+
+                  <Text
+                    fontSize='xs'
+                    fontWeight='bold'
+                    color='textSecondary'
+                    textTransform='uppercase'
+                    textAlign='right'
                   >
-                    <Text truncate fontWeight='medium' color='text'>
-                      {comm.subject || 'No subject'}
-                    </Text>
+                    Actions
+                  </Text>
+                </Grid>
 
-                    <HStack gap='2' color='textSecondary'>
-                      <TypeIcon type='Email' />
-                      <Text>Email</Text>
-                    </HStack>
+                <Stack gap='3' w='full' minW='0'>
+                  {communications.map((comm) => (
+                    <Grid
+                      key={comm.id}
+                      templateColumns='minmax(260px, 2.2fr) minmax(120px, 0.8fr) minmax(120px, 0.8fr) minmax(120px, 0.8fr) 96px'
+                      gap='5'
+                      alignItems='center'
+                      bg='surface'
+                      px='6'
+                      py='5'
+                      minH='78px'
+                      borderRadius='2xl'
+                      boxShadow='sm'
+                      borderWidth='1px'
+                      borderStyle='solid'
+                      borderColor='gray.100'
+                      outline='1px solid transparent'
+                      fontSize='sm'
+                      cursor='pointer'
+                      role='button'
+                      tabIndex={0}
+                      transition='border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease'
+                      _hover={{
+                        borderColor: 'primary',
+                        boxShadow: 'md',
+                        transform: 'translateY(-1px)',
+                      }}
+                      onClick={() => navigate(getCommunicationDetailPath(comm.id))}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                          event.preventDefault();
+                          navigate(getCommunicationDetailPath(comm.id));
+                        }
+                      }}
+                    >
+                      <Box minW='0'>
+                        <Text truncate fontWeight='bold' color='text' fontSize='md'>
+                          {comm.subject || 'No subject'}
+                        </Text>
 
-                    <Text truncate color='textSecondary'>
-                      {comm.sourceType}
-                    </Text>
+                        <Text mt='1' color='textSecondary' fontSize='xs'>
+                          {formatDateTime(comm.createdAt)}
+                        </Text>
+                      </Box>
 
-                    <Box>
-                      <StatusBadge status={comm.status} />
-                    </Box>
+                      <HStack gap='2' color='textSecondary' minW='0'>
+                        <TypeIcon type='Email' />
+                        <Text truncate>Email</Text>
+                      </HStack>
 
-                    <HStack justify='flex-end' gap='2'>
-                      <Text color='textSecondary' fontSize='xs'>
-                        {formatDateTime(comm.createdAt)}
+                      <Text truncate color='textSecondary' textTransform='capitalize'>
+                        {comm.sourceType}
                       </Text>
-                      <IconButton
-                        aria-label='Edit communication'
-                        variant='ghost'
-                        colorScheme='blue'
-                        size='sm'
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(getUpdateCommunicationPath(comm.id));
-                        }}
-                      >
-                        <PencilSimpleIcon size={18} />
-                      </IconButton>
-                    </HStack>
-                  </Grid>
-                ))}
-              </Stack>
+
+                      <Box minW='0'>
+                        <StatusBadge status={comm.status} />
+                      </Box>
+
+                      <HStack justify='flex-end' gap='2'>
+                        {canEditCommunication(comm.status) && (
+                          <IconButton
+                            aria-label='Edit communication'
+                            variant='ghost'
+                            colorScheme='blue'
+                            size='sm'
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              navigate(getUpdateCommunicationPath(comm.id));
+                            }}
+                          >
+                            <PencilSimpleIcon size={18} />
+                          </IconButton>
+                        )}
+                      </HStack>
+                    </Grid>
+                  ))}
+                </Stack>
+              </Box>
             </Box>
 
-            {/* Mobile Timeline View */}
-            <Stack gap='4' display={{ base: 'flex', md: 'none' }} w='full' pb='8'>
+            <Stack gap='3' display={{ base: 'flex', md: 'none' }} w='full' minW='0'>
               {communications.map((comm) => (
                 <Box
                   key={comm.id}
                   bg='surface'
-                  p='5'
+                  p='4'
                   borderRadius='2xl'
-                  boxShadow='md'
+                  boxShadow='sm'
                   borderWidth='1px'
+                  borderStyle='solid'
                   borderColor='gray.100'
+                  outline='1px solid transparent'
                   cursor='pointer'
                   role='button'
                   tabIndex={0}
-                  transition='all 0.2s ease'
-                  _hover={{ borderColor: 'primary' }}
+                  transition='border-color 0.2s ease, box-shadow 0.2s ease'
+                  _hover={{
+                    borderColor: 'primary',
+                    boxShadow: 'md',
+                  }}
                   onClick={() => navigate(getCommunicationDetailPath(comm.id))}
                   onKeyDown={(event) => {
                     if (event.key === 'Enter' || event.key === ' ') {
@@ -318,38 +393,56 @@ export const Dashboard: React.FC = () => {
                     }
                   }}
                 >
-                  <Flex justify='space-between' align='flex-start' mb='3'>
-                    <Text fontWeight='bold' color='text' lineClamp={2} flex='1' mr='3'>
-                      {comm.subject || 'No subject'}
-                    </Text>
-                    <StatusBadge status={comm.status} />
+                  <Flex justify='space-between' align='flex-start' gap='3' mb='3'>
+                    <Box minW='0' flex='1'>
+                      <Text fontWeight='bold' color='text' lineClamp={2} fontSize='sm' lineHeight='1.35'>
+                        {comm.subject || 'No subject'}
+                      </Text>
+
+                      <HStack mt='2' gap='2' color='textSecondary' fontSize='xs' flexWrap='wrap' lineHeight='1'>
+                        <HStack gap='1'>
+                          <TypeIcon type='Email' />
+                          <Text>Email</Text>
+                        </HStack>
+
+                        <Text>•</Text>
+
+                        <Text textTransform='capitalize'>{comm.sourceType}</Text>
+                      </HStack>
+                    </Box>
+
+                    <Box flexShrink={0}>
+                      <StatusBadge status={comm.status} />
+                    </Box>
                   </Flex>
 
-                  <Flex justify='space-between' align='center' color='textSecondary' fontSize='xs' mb='4'>
-                    <HStack gap='2'>
-                      <TypeIcon type='Email' />
-                      <Text>Email</Text>
-                      <Text mx='1'>•</Text>
-                      <Text textTransform='capitalize'>{comm.sourceType}</Text>
-                    </HStack>
-                  </Flex>
-
-                  <Flex justify='space-between' align='center' borderTopWidth='1px' borderColor='gray.50' pt='3'>
-                    <Text color='textSecondary' fontSize='xs'>
+                  <Flex
+                    justify='space-between'
+                    align='center'
+                    borderTopWidth='1px'
+                    borderColor='gray.100'
+                    pt='3'
+                    gap='3'
+                  >
+                    <Text color='textSecondary' fontSize='xs' minW='0'>
                       {formatDateTime(comm.createdAt)}
                     </Text>
-                    <IconButton
-                      aria-label='Edit communication'
-                      variant='ghost'
-                      colorScheme='blue'
-                      size='sm'
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(getUpdateCommunicationPath(comm.id));
-                      }}
-                    >
-                      <PencilSimpleIcon size={18} />
-                    </IconButton>
+
+                    {canEditCommunication(comm.status) && (
+                      <IconButton
+                        aria-label='Edit communication'
+                        variant='ghost'
+                        colorScheme='blue'
+                        size='sm'
+                        flexShrink={0}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          navigate(getUpdateCommunicationPath(comm.id));
+                        }}
+                      >
+                        <PencilSimpleIcon size={17} />
+                      </IconButton>
+                    )}
                   </Flex>
                 </Box>
               ))}
