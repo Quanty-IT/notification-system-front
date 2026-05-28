@@ -239,7 +239,7 @@ export const UpdateTemplateVersionDrawer = ({ isOpen, onClose, templateId, versi
 
                   {variableNames.length === 0 ? (
                     <Text fontSize='sm' color='textSecondary'>
-                      Use variáveis no formato {'{{name}}'}, {'{{company}}'} ou {'{{link}}'} no corpo do template.
+                      Use variables in the format {'{{name}}'}, {'{{company}}'}, or {'{{link}}'} in the template body.
                     </Text>
                   ) : (
                     <VStack align='stretch' gap={4} w='full'>
