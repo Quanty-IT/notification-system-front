@@ -21,7 +21,7 @@ export const Input = ({ label, ...props }: Props) => {
         borderRadius='lg'
         border='1px solid'
         borderColor='inputBorder'
-        bg='white'
+        bg='inputBg'
         color='text'
         outline='none'
         boxShadow='none'

@@ -16,7 +16,7 @@ export const HtmlContentPreview = ({ value }: HtmlContentPreviewProps) => {
 
   if (!isHtml) {
     return (
-      <Box border='1px solid' borderColor='inputBorder' borderRadius='md' p='4' bg='white' h='16rem' overflowY='auto'>
+      <Box border='1px solid' borderColor='inputBorder' borderRadius='md' p='4' bg='inputBg' h='16rem' overflowY='auto'>
         <Text whiteSpace='pre-wrap' color={value ? 'text' : 'textSecondary'}>
           {value || 'Content preview will appear here...'}
         </Text>
@@ -25,7 +25,7 @@ export const HtmlContentPreview = ({ value }: HtmlContentPreviewProps) => {
   }
 
   return (
-    <Box border='1px solid' borderColor='inputBorder' borderRadius='md' overflow='hidden' bg='white' h='16rem'>
+    <Box border='1px solid' borderColor='inputBorder' borderRadius='md' overflow='hidden' bg='inputBg' h='16rem'>
       <iframe
         title='HTML content preview'
         srcDoc={sanitizedHtml || '<p style="font-family:Arial;color:#777;">Content preview will appear here...</p>'}

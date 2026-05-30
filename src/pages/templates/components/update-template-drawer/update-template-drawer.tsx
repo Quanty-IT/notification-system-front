@@ -149,7 +149,7 @@ export const UpdateTemplateDrawer = ({ isOpen, onClose, uuid }: UpdateTemplateDr
             {isLoadingTemplate && (
               <VStack mt={8} gap={4}>
                 <Spinner size='lg' />
-                <Text color='gray.600'>Loading template...</Text>
+                <Text color='textSecondary'>Loading template...</Text>
               </VStack>
             )}
 
@@ -169,11 +169,11 @@ export const UpdateTemplateDrawer = ({ isOpen, onClose, uuid }: UpdateTemplateDr
                   <Input
                     placeholder='Template name'
                     h='2.75rem'
-                    bg='white'
+                    bg='inputBg'
                     border='1px solid'
                     borderColor={hasNameError ? 'error' : 'inputBorder'}
                     borderRadius='md'
-                    color='gray.900'
+                    color='text'
                     fontWeight='medium'
                     px={4}
                     _placeholder={{ color: 'placeholder' }}
@@ -187,8 +187,8 @@ export const UpdateTemplateDrawer = ({ isOpen, onClose, uuid }: UpdateTemplateDr
                     }}
                     _autofill={{
                       boxShadow: hasNameError
-                        ? '0 0 0px 1000px white inset, 0 0 0 1px var(--chakra-colors-error) !important'
-                        : '0 0 0px 1000px white inset',
+                        ? '0 0 0px 1000px var(--chakra-colors-inputBg) inset, 0 0 0 1px var(--chakra-colors-error) !important'
+                        : '0 0 0px 1000px var(--chakra-colors-inputBg) inset',
                     }}
                     {...register('name', { onChange: handleInputChange })}
                   />
@@ -204,11 +204,11 @@ export const UpdateTemplateDrawer = ({ isOpen, onClose, uuid }: UpdateTemplateDr
                   <Textarea
                     placeholder='Template description'
                     minH='8rem'
-                    bg='white'
+                    bg='inputBg'
                     border='1px solid'
                     borderColor={errors.description ? 'error' : 'inputBorder'}
                     borderRadius='md'
-                    color='gray.900'
+                    color='text'
                     fontWeight='medium'
                     resize='none'
                     px={4}
@@ -225,8 +225,8 @@ export const UpdateTemplateDrawer = ({ isOpen, onClose, uuid }: UpdateTemplateDr
                     }}
                     _autofill={{
                       boxShadow: errors.description
-                        ? '0 0 0px 1000px white inset, 0 0 0 1px var(--chakra-colors-error) !important'
-                        : '0 0 0px 1000px white inset',
+                        ? '0 0 0px 1000px var(--chakra-colors-inputBg) inset, 0 0 0 1px var(--chakra-colors-error) !important'
+                        : '0 0 0px 1000px var(--chakra-colors-inputBg) inset',
                     }}
                     {...register('description', { onChange: handleInputChange })}
                   />
@@ -258,13 +258,13 @@ export const UpdateTemplateDrawer = ({ isOpen, onClose, uuid }: UpdateTemplateDr
                 <Button
                   type='submit'
                   form='update-template-form'
-                  bg='primary'
+                  bg='actionBg'
                   color='white'
                   fontWeight='bold'
                   borderRadius='full'
                   px={6}
                   h='2.75rem'
-                  _hover={{ bg: 'secondary' }}
+                  _hover={{ bg: 'actionHover' }}
                   loading={updateMutation.isPending}
                   loadingText='Updating...'
                   disabled={isLoadingTemplate || isErrorTemplate}

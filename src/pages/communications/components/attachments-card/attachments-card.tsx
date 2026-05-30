@@ -56,9 +56,9 @@ export const AttachmentsCard = ({
             justify='space-between'
             p='3'
             borderWidth='1px'
-            borderColor='gray.100'
+            borderColor='border'
             borderRadius='xl'
-            bg='white'
+            bg='surfaceMuted'
             gap='3'
           >
             <HStack minW='0' flex='1'>

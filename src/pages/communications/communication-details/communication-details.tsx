@@ -56,7 +56,7 @@ const InfoCard = ({ title, children }: { title: string; children: React.ReactNod
     borderRadius='2xl'
     borderWidth='1px'
     borderStyle='solid'
-    borderColor='gray.100'
+    borderColor='border'
     boxShadow='sm'
     p={{ base: '5', md: '6' }}
     w='full'
@@ -104,11 +104,11 @@ const KeyValueRow = ({ label, value }: { label: string; value: React.ReactNode }
       px='3'
       py='2'
       borderRadius='lg'
-      bg='green.50'
+      bg='successBg'
       borderWidth='1px'
       borderStyle='solid'
-      borderColor='green.100'
-      color='green.800'
+      borderColor='border'
+      color='successText'
       fontWeight='bold'
       fontSize='xs'
       minH='9'
@@ -122,10 +122,10 @@ const KeyValueRow = ({ label, value }: { label: string; value: React.ReactNode }
       px='4'
       py='2'
       borderRadius='lg'
-      bg='gray.50'
+      bg='surfaceMuted'
       borderWidth='1px'
       borderStyle='solid'
-      borderColor='gray.100'
+      borderColor='border'
       minH='9'
       minW='0'
     >
@@ -244,7 +244,7 @@ export const CommunicationDetails: React.FC = () => {
           <HStack gap='2' wrap='wrap'>
             <StatusBadge status={communication.status} />
 
-            <Badge px='3' py='1' borderRadius='full' bg='green.50' color='green.800' textTransform='none'>
+            <Badge px='3' py='1' borderRadius='full' bg='successBg' color='successText' textTransform='none'>
               <HStack gap='1'>
                 <EnvelopeIcon size={14} />
                 <Text>{communication.channel}</Text>
@@ -267,7 +267,7 @@ export const CommunicationDetails: React.FC = () => {
           {canSendNow && (
             <Button
               w={{ base: 'full', sm: 'auto' }}
-              bg='primary'
+              bg='actionBg'
               color='white'
               borderRadius='xl'
               fontWeight='bold'
@@ -275,7 +275,7 @@ export const CommunicationDetails: React.FC = () => {
               h='11'
               loading={isSending}
               loadingText='Sending...'
-              _hover={{ bg: 'secondary' }}
+              _hover={{ bg: 'actionHover' }}
               onClick={handleSendNow}
             >
               <HStack gap='2'>
@@ -393,7 +393,7 @@ export const CommunicationDetails: React.FC = () => {
                 gap='0'
                 borderWidth='1px'
                 borderStyle='solid'
-                borderColor='gray.100'
+                borderColor='border'
                 borderRadius='2xl'
                 overflow='hidden'
                 minW='0'
@@ -407,12 +407,12 @@ export const CommunicationDetails: React.FC = () => {
                     gap='3'
                     px={{ base: '4', md: '5' }}
                     py='4'
-                    bg='white'
+                    bg='surfaceMuted'
                     borderBottomWidth='1px'
                     borderStyle='solid'
-                    borderColor='gray.100'
+                    borderColor='border'
                     _last={{ borderBottomWidth: 0 }}
-                    _hover={{ bg: 'gray.50' }}
+                    _hover={{ bg: 'surface' }}
                     minW='0'
                   >
                     <Box minW='0' w='full'>
@@ -470,9 +470,9 @@ export const CommunicationDetails: React.FC = () => {
                       p='4'
                       borderWidth='1px'
                       borderStyle='solid'
-                      borderColor='gray.100'
+                      borderColor='border'
                       borderRadius='xl'
-                      bg='white'
+                      bg='surfaceMuted'
                       minW='0'
                     >
                       <Flex justify='space-between' align='flex-start' gap='3' mb='2'>

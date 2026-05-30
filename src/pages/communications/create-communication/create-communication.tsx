@@ -276,7 +276,7 @@ export const CreateCommunication: React.FC = () => {
           w={{ base: 'full', sm: 'auto' }}
           minW={{ sm: '170px' }}
           alignSelf={{ base: 'stretch', md: 'center' }}
-          bg='primary'
+          bg='actionBg'
           color='white'
           px='6'
           py='2.5'
@@ -286,7 +286,7 @@ export const CreateCommunication: React.FC = () => {
           loading={createMutation.isPending}
           loadingText={scheduledAt ? 'Scheduling...' : 'Sending...'}
           onClick={handleSubmit(onCreate)}
-          _hover={{ bg: 'secondary' }}
+          _hover={{ bg: 'actionHover' }}
           flexShrink={0}
         >
           <HStack gap='2'>
@@ -514,7 +514,7 @@ export const CreateCommunication: React.FC = () => {
 
                     {selectedVersion?.variablesSchemaJson &&
                       Object.keys(selectedVersion.variablesSchemaJson).length > 0 && (
-                        <Box p={{ base: '3', md: '4' }} bg='gray.50' borderRadius='xl' minW='0'>
+                        <Box p={{ base: '3', md: '4' }} bg='surfaceMuted' borderRadius='xl' minW='0'>
                           <Text fontWeight='bold' fontSize='sm' color='primary' mb='4'>
                             Template Variables
                           </Text>

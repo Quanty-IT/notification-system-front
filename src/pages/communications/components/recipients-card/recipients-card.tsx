@@ -27,9 +27,9 @@ export const RecipientsCard = ({ recipients, disabled, onAddClick, onRemove }: R
             justify='space-between'
             p='3'
             borderWidth='1px'
-            borderColor='gray.100'
+            borderColor='border'
             borderRadius='xl'
-            bg='white'
+            bg='surfaceMuted'
           >
             <Box minW='0' flex='1' mr='3'>
               <Text fontWeight='medium' color='text' truncate>
@@ -38,7 +38,7 @@ export const RecipientsCard = ({ recipients, disabled, onAddClick, onRemove }: R
             </Box>
 
             <HStack gap='3'>
-              <Badge bg='green.50' color='green.800' borderRadius='full' px='3' py='1' textTransform='none'>
+              <Badge bg='successBg' color='successText' borderRadius='full' px='3' py='1' textTransform='none'>
                 {recipient.recipientType}
               </Badge>
 

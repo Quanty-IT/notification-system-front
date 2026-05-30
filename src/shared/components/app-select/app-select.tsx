@@ -21,9 +21,11 @@ export const AppSelect = ({ value, options, placeholder, isDisabled, onChange, w
           width: '100%',
           minHeight: '52px',
           borderRadius: '12px',
-          borderColor: state.isFocused ? '#2f7d32' : '#d6ddd2',
-          boxShadow: state.isFocused ? '0 0 0 1px #2f7d32' : '0 6px 18px rgba(15, 23, 42, 0.06)',
-          backgroundColor: '#fff',
+          borderColor: state.isFocused ? 'var(--chakra-colors-primary)' : 'var(--chakra-colors-inputBorder)',
+          boxShadow: state.isFocused
+            ? '0 0 0 1px var(--chakra-colors-primary)'
+            : '0 6px 18px rgba(15, 23, 42, 0.06)',
+          backgroundColor: 'var(--chakra-colors-inputBg)',
           padding: '0 6px',
           cursor: 'pointer',
         }),
@@ -37,22 +39,27 @@ export const AppSelect = ({ value, options, placeholder, isDisabled, onChange, w
           overflow: 'hidden',
           boxShadow: '0 18px 40px rgba(15, 23, 42, 0.18)',
           zIndex: 30,
+          backgroundColor: 'var(--chakra-colors-surface)',
         }),
         option: (base, state) => ({
           ...base,
-          backgroundColor: state.isSelected ? '#2f7d32' : state.isFocused ? '#eef8ef' : '#fff',
-          color: state.isSelected ? '#fff' : '#1f2933',
+          backgroundColor: state.isSelected
+            ? 'var(--chakra-colors-secondary)'
+            : state.isFocused
+              ? 'var(--chakra-colors-surfaceMuted)'
+              : 'var(--chakra-colors-surface)',
+          color: state.isSelected ? '#fff' : 'var(--chakra-colors-text)',
           fontWeight: state.isSelected ? 700 : 500,
           cursor: 'pointer',
         }),
         singleValue: (base) => ({
           ...base,
-          color: '#111827',
+          color: 'var(--chakra-colors-text)',
           fontWeight: 600,
         }),
         placeholder: (base) => ({
           ...base,
-          color: '#6b7280',
+          color: 'var(--chakra-colors-placeholder)',
           fontWeight: 500,
         }),
         indicatorSeparator: () => ({

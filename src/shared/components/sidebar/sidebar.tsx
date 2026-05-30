@@ -1,8 +1,16 @@
 import { Box, Button, Flex, Icon, Image, Text, VStack } from '@chakra-ui/react';
-import { HouseIcon, PlusSquareIcon, SignOutIcon, SquaresFourIcon } from '@phosphor-icons/react';
+import {
+  HouseIcon,
+  ListIcon,
+  MoonIcon,
+  PlusSquareIcon,
+  SignOutIcon,
+  SquaresFourIcon,
+  SunIcon,
+} from '@phosphor-icons/react';
 import React, { useEffect, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts';
+import { useAuth, useThemeMode } from '@/contexts';
 import { ROUTES } from '@/routes';
 import logo from '../../../assets/logo.png';
 
@@ -13,11 +21,12 @@ const NAV_ITEMS = [
 ];
 
 const SIDEBAR_COLLAPSED_WIDTH = '88px';
-const SIDEBAR_EXPANDED_WIDTH = '232px';
+const SIDEBAR_EXPANDED_WIDTH = '280px';
 const ICON_COLUMN_WIDTH = '72px';
 
 export const Sidebar: React.FC = () => {
   const { logout } = useAuth();
+  const { mode, toggleMode } = useThemeMode();
   const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(true);
   const [isPinnedExpanded, setIsPinnedExpanded] = useState(true);
@@ -42,7 +51,7 @@ export const Sidebar: React.FC = () => {
         left='0'
         h='100vh'
         w={isExpanded ? SIDEBAR_EXPANDED_WIDTH : SIDEBAR_COLLAPSED_WIDTH}
-        bg='primary'
+        bg='sidebarBg'
         boxShadow='2xl'
         zIndex='1000'
         overflow='hidden'
@@ -54,7 +63,7 @@ export const Sidebar: React.FC = () => {
           }
         }}
       >
-        <Flex h='88px' align='center' px='2' borderBottom='1px solid' borderColor='whiteAlpha.200'>
+        <Flex h='88px' align='center' px='3' borderBottom='1px solid' borderColor='whiteAlpha.200'>
           <Flex w={ICON_COLUMN_WIDTH} h='88px' align='center' justify='center' flexShrink={0}>
             <Image src={logo} alt='John Deere' boxSize='40px' objectFit='contain' />
           </Flex>
@@ -72,28 +81,43 @@ export const Sidebar: React.FC = () => {
             </Text>
           </Box>
 
-          <Button
-            onClick={() => {
-              const nextPinned = !isPinnedExpanded;
-              setIsPinnedExpanded(nextPinned);
-              setIsExpanded(nextPinned);
-            }}
-            ml='auto'
-            mr='2'
-            size='sm'
-            variant='ghost'
-            minW='36px'
-            h='36px'
-            p='0'
-            color='whiteAlpha.900'
-            _hover={{ bg: 'whiteAlpha.200', color: 'white' }}
-            aria-label={isPinnedExpanded ? 'Collapse sidebar' : 'Expand sidebar'}
-            title={isPinnedExpanded ? 'Recolher menu' : 'Expandir menu'}
-          >
-            <Text fontSize='lg' lineHeight='1'>
-              ≡
-            </Text>
-          </Button>
+          {isExpanded && (
+            <Flex ml='auto' gap='1' flexShrink={0}>
+              <Button
+                onClick={toggleMode}
+                size='sm'
+                variant='ghost'
+                minW='32px'
+                h='32px'
+                p='0'
+                color='whiteAlpha.900'
+                _hover={{ bg: 'whiteAlpha.200', color: 'white' }}
+                aria-label={mode === 'light' ? 'Ativar tema escuro' : 'Ativar tema claro'}
+                title={mode === 'light' ? 'Tema escuro' : 'Tema claro'}
+              >
+                <Icon as={mode === 'light' ? MoonIcon : SunIcon} boxSize='5' />
+              </Button>
+
+              <Button
+                onClick={() => {
+                  const nextPinned = !isPinnedExpanded;
+                  setIsPinnedExpanded(nextPinned);
+                  setIsExpanded(nextPinned);
+                }}
+                size='sm'
+                variant='ghost'
+                minW='32px'
+                h='32px'
+                p='0'
+                color='whiteAlpha.900'
+                _hover={{ bg: 'whiteAlpha.200', color: 'white' }}
+                aria-label={isPinnedExpanded ? 'Collapse sidebar' : 'Expand sidebar'}
+                title={isPinnedExpanded ? 'Recolher menu' : 'Expandir menu'}
+              >
+                <Icon as={ListIcon} boxSize='5' />
+              </Button>
+            </Flex>
+          )}
         </Flex>
 
         <VStack align='stretch' gap='2' px='2' py='6'>
@@ -105,11 +129,11 @@ export const Sidebar: React.FC = () => {
                   h='56px'
                   borderRadius='2xl'
                   color={isActive ? 'white' : 'whiteAlpha.800'}
-                  bg={isActive ? 'secondary' : 'transparent'}
+                  bg={isActive ? 'sidebarActive' : 'transparent'}
                   boxShadow={isActive ? 'inset 0 4px 6px rgba(0,0,0,0.25)' : 'none'}
                   transition='background 0.2s ease, color 0.2s ease'
                   _hover={{
-                    bg: isActive ? 'secondary' : 'whiteAlpha.200',
+                    bg: isActive ? 'sidebarActive' : 'whiteAlpha.200',
                     color: 'white',
                   }}
                 >
@@ -124,7 +148,7 @@ export const Sidebar: React.FC = () => {
                     fontSize='sm'
                     fontWeight='bold'
                     opacity={isExpanded ? 1 : 0}
-                    maxW={isExpanded ? '120px' : '0'}
+                    maxW={isExpanded ? '170px' : '0'}
                     transition='opacity 0.2s ease, max-width 0.25s ease'
                   >
                     {label}
@@ -158,7 +182,7 @@ export const Sidebar: React.FC = () => {
                 whiteSpace='nowrap'
                 overflow='hidden'
                 opacity={isExpanded ? 1 : 0}
-                maxW={isExpanded ? '120px' : '0'}
+                maxW={isExpanded ? '170px' : '0'}
                 transition='opacity 0.2s ease, max-width 0.25s ease'
               >
                 Logout
@@ -176,7 +200,7 @@ export const Sidebar: React.FC = () => {
         left='0'
         w='full'
         h='70px'
-        bg='primary'
+        bg='sidebarBg'
         zIndex='1000'
         boxShadow='0px -4px 10px rgba(0, 0, 0, 0.1)'
         align='center'

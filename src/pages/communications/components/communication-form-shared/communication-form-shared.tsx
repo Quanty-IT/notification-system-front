@@ -18,11 +18,11 @@ import { UseFormRegisterReturn } from 'react-hook-form';
 
 export const inputStyle = {
   h: '2.75rem',
-  bg: 'white',
+  bg: 'inputBg',
   border: '1px solid',
   borderColor: 'inputBorder',
   borderRadius: 'md',
-  color: 'gray.900',
+  color: 'text',
   fontWeight: 'medium',
   px: 4,
   _placeholder: { color: 'placeholder' },
@@ -40,8 +40,8 @@ export const selectStyle: React.CSSProperties = {
   borderRadius: '12px',
   border: '1px solid var(--chakra-colors-inputBorder)',
   padding: '0 18px',
-  background: '#f9fafb',
-  color: '#111827',
+  background: 'var(--chakra-colors-inputBg)',
+  color: 'var(--chakra-colors-text)',
   fontWeight: 600,
   boxShadow: '0 1px 3px rgba(15, 23, 42, 0.08)',
 };
@@ -53,7 +53,7 @@ type CardProps = {
 };
 
 export const CommunicationFormCard = ({ title, children, action }: CardProps) => (
-  <Box bg='surface' p='6' borderRadius='2xl' borderWidth='1px' borderColor='gray.100' boxShadow='sm'>
+  <Box bg='surface' p='6' borderRadius='2xl' borderWidth='1px' borderColor='border' boxShadow='sm'>
     <Flex justify='space-between' align='center' mb='6'>
       <Heading size='md' color='text'>
         {title}
@@ -67,7 +67,7 @@ export const CommunicationFormCard = ({ title, children, action }: CardProps) =>
 );
 
 export const CommunicationEmptyState = ({ message }: { message: string }) => (
-  <Flex py='8' justify='center' align='center' bg='gray.50' borderRadius='xl'>
+  <Flex py='8' justify='center' align='center' bg='surfaceMuted' borderRadius='xl'>
     <Text color='textSecondary' fontSize='sm'>
       {message}
     </Text>
@@ -110,9 +110,9 @@ export const RecipientsCard = ({ recipients, disabled, onAddClick, onRemove }: R
             justify='space-between'
             p='3'
             borderWidth='1px'
-            borderColor='gray.100'
+            borderColor='border'
             borderRadius='xl'
-            bg='white'
+            bg='surfaceMuted'
           >
             <Box minW='0' flex='1' mr='3'>
               <Text fontWeight='medium' color='text' truncate>
@@ -121,7 +121,7 @@ export const RecipientsCard = ({ recipients, disabled, onAddClick, onRemove }: R
             </Box>
 
             <HStack gap='3'>
-              <Badge bg='green.50' color='green.800' borderRadius='full' px='3' py='1' textTransform='none'>
+              <Badge bg='successBg' color='successText' borderRadius='full' px='3' py='1' textTransform='none'>
                 {recipient.recipientType}
               </Badge>
 
@@ -219,9 +219,9 @@ export const AttachmentsCard = ({
             justify='space-between'
             p='3'
             borderWidth='1px'
-            borderColor='gray.100'
+            borderColor='border'
             borderRadius='xl'
-            bg='white'
+            bg='surfaceMuted'
             gap='3'
           >
             <HStack minW='0' flex='1'>
@@ -333,7 +333,7 @@ export const RecipientDialog = ({
           </Button>
 
           <Button
-            bg='primary'
+            bg='actionBg'
             color='white'
             fontWeight='bold'
             borderRadius='full'
@@ -341,6 +341,7 @@ export const RecipientDialog = ({
             h='2.75rem'
             loading={isLoading}
             loadingText='Adding...'
+            _hover={{ bg: 'actionHover' }}
             onClick={onSubmit}
           >
             Add Recipient

@@ -1,10 +1,10 @@
 export const inputStyle = {
   h: '2.75rem',
-  bg: 'white',
+  bg: 'inputBg',
   border: '1px solid',
   borderColor: 'inputBorder',
   borderRadius: 'md',
-  color: 'gray.900',
+  color: 'text',
   fontWeight: 'medium',
   px: 4,
   _placeholder: { color: 'placeholder' },

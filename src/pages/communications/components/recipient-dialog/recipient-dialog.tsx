@@ -79,7 +79,7 @@ export const RecipientDialog = ({
           </Button>
 
           <Button
-            bg='primary'
+            bg='actionBg'
             color='white'
             fontWeight='bold'
             borderRadius='full'
@@ -87,6 +87,7 @@ export const RecipientDialog = ({
             h='2.75rem'
             loading={isLoading}
             loadingText='Adding...'
+            _hover={{ bg: 'actionHover' }}
             onClick={onSubmit}
           >
             Add Recipient

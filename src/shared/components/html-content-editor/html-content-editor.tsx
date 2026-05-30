@@ -369,7 +369,7 @@ export const HtmlContentEditor = ({ value, onChange, hasError }: HtmlContentEdit
       borderColor={hasError ? 'error' : 'inputBorder'}
       borderRadius='md'
       overflow='hidden'
-      bg='white'
+      bg='inputBg'
     >
       <CodeMirror
         value={value}

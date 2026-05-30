@@ -104,7 +104,8 @@ export const SignIn = () => {
                 <Input
                   type='text'
                   placeholder='Type your email'
-                  bg='white'
+                  bg='inputBg'
+                  color='text'
                   border='1px solid'
                   borderColor={hasEmailError ? 'error' : 'inputBorder'}
                   borderRadius='md'
@@ -118,8 +119,8 @@ export const SignIn = () => {
                   }}
                   _autofill={{
                     boxShadow: hasEmailError
-                      ? '0 0 0px 1000px white inset, 0 0 0 1px var(--chakra-colors-error) !important'
-                      : '0 0 0px 1000px white inset',
+                      ? '0 0 0px 1000px var(--chakra-colors-inputBg) inset, 0 0 0 1px var(--chakra-colors-error) !important'
+                      : '0 0 0px 1000px var(--chakra-colors-inputBg) inset',
                   }}
                   {...register('email', { onChange: handleInputChange })}
                 />
@@ -133,7 +134,8 @@ export const SignIn = () => {
                 <Input
                   type='password'
                   placeholder='Type your password'
-                  bg='white'
+                  bg='inputBg'
+                  color='text'
                   border='1px solid'
                   borderColor={hasPasswordError ? 'error' : 'inputBorder'}
                   borderRadius='md'
@@ -148,8 +150,8 @@ export const SignIn = () => {
                   }}
                   _autofill={{
                     boxShadow: hasPasswordError
-                      ? '0 0 0px 1000px white inset, 0 0 0 1px var(--chakra-colors-error) !important'
-                      : '0 0 0px 1000px white inset',
+                      ? '0 0 0px 1000px var(--chakra-colors-inputBg) inset, 0 0 0 1px var(--chakra-colors-error) !important'
+                      : '0 0 0px 1000px var(--chakra-colors-inputBg) inset',
                   }}
                   {...register('password', { onChange: handleInputChange })}
                 />

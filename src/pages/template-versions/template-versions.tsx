@@ -255,7 +255,7 @@ export const TemplateVersions: React.FC = () => {
           w={{ base: 'full', sm: 'auto' }}
           minW={{ sm: '170px' }}
           alignSelf={{ base: 'stretch', md: 'center' }}
-          bg='primary'
+          bg='actionBg'
           color='white'
           px='6'
           py='2.5'
@@ -263,7 +263,7 @@ export const TemplateVersions: React.FC = () => {
           fontWeight='bold'
           boxShadow='lg'
           flexShrink={0}
-          _hover={{ bg: 'secondary' }}
+          _hover={{ bg: 'actionHover' }}
           onClick={openCreateDrawer}
         >
           Create Version

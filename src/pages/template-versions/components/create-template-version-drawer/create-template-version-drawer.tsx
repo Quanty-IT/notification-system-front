@@ -173,7 +173,8 @@ export const CreateTemplateVersionDrawer = ({ isOpen, onClose, templateId }: Pro
                     h='11'
                     px='4'
                     placeholder='Confirme seu cadastro'
-                    bg='white'
+                    bg='inputBg'
+                    color='text'
                     borderColor={errors.subject ? 'error' : 'inputBorder'}
                     {...register('subject')}
                   />
@@ -280,13 +281,11 @@ export const CreateTemplateVersionDrawer = ({ isOpen, onClose, templateId }: Pro
                 h='11'
                 px='6'
                 borderRadius='xl'
-                bg='primary'
+                bg='actionBg'
                 color='white'
                 fontWeight='bold'
                 loading={mutation.isPending}
-                _hover={{
-                  opacity: 0.9,
-                }}
+                _hover={{ bg: 'actionHover' }}
               >
                 Create
               </Button>

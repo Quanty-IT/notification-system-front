@@ -11,6 +11,70 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+:root[data-theme='dark'] {
+  --chakra-colors-primary: #74d66f;
+  --chakra-colors-secondary: #2f7d32;
+  --chakra-colors-tertiary: #ffde00;
+  --chakra-colors-background: #0f1712;
+  --chakra-colors-sidebar-bg: #123f18;
+  --chakra-colors-sidebar-active: #1f6f2d;
+  --chakra-colors-action-bg: #1f6f2d;
+  --chakra-colors-action-hover: #2a8438;
+  --chakra-colors-surface: #18231c;
+  --chakra-colors-surface-muted: #223026;
+  --chakra-colors-text: #f3f7f1;
+  --chakra-colors-text-secondary: #c8d4c5;
+  --chakra-colors-border: #415345;
+  --chakra-colors-input-bg: #223026;
+  --chakra-colors-input-border: #5d7061;
+  --chakra-colors-placeholder: #9daf9b;
+  --chakra-colors-icon-surface: #dcf8e2;
+  --chakra-colors-success-bg: #153d26;
+  --chakra-colors-success-text: #bdf7cf;
+  --chakra-colors-danger-bg: #4a1f24;
+  --chakra-colors-danger-text: #fecaca;
+  --chakra-colors-active: #48bb78;
+  --chakra-colors-inactive: #fc8181;
+  --chakra-colors-error: #fc8181;
+  --chakra-colors-sidebarBg: var(--chakra-colors-sidebar-bg);
+  --chakra-colors-sidebarActive: var(--chakra-colors-sidebar-active);
+  --chakra-colors-actionBg: var(--chakra-colors-action-bg);
+  --chakra-colors-actionHover: var(--chakra-colors-action-hover);
+  --chakra-colors-surfaceMuted: var(--chakra-colors-surface-muted);
+  --chakra-colors-textSecondary: var(--chakra-colors-text-secondary);
+  --chakra-colors-inputBg: var(--chakra-colors-input-bg);
+  --chakra-colors-inputBorder: var(--chakra-colors-input-border);
+  --chakra-colors-iconSurface: var(--chakra-colors-icon-surface);
+  --chakra-colors-successBg: var(--chakra-colors-success-bg);
+  --chakra-colors-successText: var(--chakra-colors-success-text);
+  --chakra-colors-dangerBg: var(--chakra-colors-danger-bg);
+  --chakra-colors-dangerText: var(--chakra-colors-danger-text);
+  --chakra-colors-gray-50: #202922;
+  --chakra-colors-gray-100: #344238;
+  --chakra-colors-gray-500: #b3c0b1;
+  --chakra-colors-gray-600: #c2cec0;
+  --chakra-colors-gray-700: #d9e3d6;
+  --chakra-colors-gray-800: #f3f7f1;
+  --chakra-colors-gray-900: #f8fbf6;
+  --chakra-colors-green-50: #153d26;
+  --chakra-colors-green-100: #245739;
+  --chakra-colors-green-700: #a7f3b9;
+  --chakra-colors-green-800: #c8fbd6;
+  --chakra-colors-red-50: #4a1f24;
+  --chakra-colors-red-100: #5f252b;
+  --chakra-colors-red-500: #f87171;
+  --chakra-colors-red-600: #fecaca;
+  --chakra-colors-red-800: #fecaca;
+  --chakra-colors-blue-100: #17324d;
+  --chakra-colors-blue-800: #bfdbfe;
+  --chakra-colors-purple-100: #32214c;
+  --chakra-colors-purple-800: #ddd6fe;
+  --chakra-colors-orange-100: #4a2d14;
+  --chakra-colors-orange-800: #fed7aa;
+  --chakra-colors-yellow-100: #3f3414;
+  --chakra-colors-yellow-800: #fde68a;
+}
+
 body {
   overscroll-behavior: none;
   -webkit-font-smoothing: antialiased;

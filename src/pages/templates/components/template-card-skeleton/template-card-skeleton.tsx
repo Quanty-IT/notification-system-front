@@ -5,10 +5,10 @@ export const TemplateCardSkeleton = () => (
     w='100%'
     minW={0}
     border='2px solid'
-    borderColor='gray.200'
+    borderColor='border'
     borderRadius='2xl'
     p={5}
-    bg='gray.50'
+    bg='surfaceMuted'
     h='220px'
     overflow='hidden'
   >

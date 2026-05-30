@@ -372,7 +372,7 @@ export const UpdateCommunication: React.FC = () => {
           <Button
             w={{ base: 'full', sm: 'auto' }}
             minW={{ sm: '170px' }}
-            bg='primary'
+            bg='actionBg'
             color='white'
             px='6'
             py='2.5'
@@ -382,7 +382,7 @@ export const UpdateCommunication: React.FC = () => {
             loading={isSaving}
             loadingText='Saving...'
             onClick={handleSubmit(onSave)}
-            _hover={{ bg: 'secondary' }}
+            _hover={{ bg: 'actionHover' }}
             flexShrink={0}
           >
             <HStack gap='2'>
@@ -526,14 +526,14 @@ export const UpdateCommunication: React.FC = () => {
                   <Stack gap='5' minW='0'>
                     <Box
                       p={{ base: '4', md: '4' }}
-                      bg='green.50'
+                      bg='successBg'
                       borderRadius='xl'
                       borderWidth='1px'
                       borderStyle='solid'
-                      borderColor='green.100'
+                      borderColor='border'
                       minW='0'
                     >
-                      <Text color='green.800' fontWeight='bold' wordBreak='break-word'>
+                      <Text color='successText' fontWeight='bold' wordBreak='break-word'>
                         Template based communication
                       </Text>
 
@@ -544,7 +544,7 @@ export const UpdateCommunication: React.FC = () => {
 
                     {communication.templateVariablesJson &&
                     Object.keys(communication.templateVariablesJson).length > 0 ? (
-                      <Box p={{ base: '4', md: '4' }} bg='gray.50' borderRadius='xl' minW='0'>
+                      <Box p={{ base: '4', md: '4' }} bg='surfaceMuted' borderRadius='xl' minW='0'>
                         <Text fontWeight='bold' fontSize='sm' color='primary' mb='4'>
                           Template Variables
                         </Text>
@@ -576,7 +576,7 @@ export const UpdateCommunication: React.FC = () => {
                         </Stack>
                       </Box>
                     ) : (
-                      <Box p='4' bg='gray.50' borderRadius='xl' minW='0'>
+                      <Box p='4' bg='surfaceMuted' borderRadius='xl' minW='0'>
                         <Text color='textSecondary' fontSize='sm'>
                           This template has no variables.
                         </Text>

@@ -8,10 +8,10 @@ type Props = ButtonProps & {
 
 const visualStyles: Record<ButtonVisual, ButtonProps> = {
   primary: {
-    bg: 'primary',
+    bg: 'actionBg',
     color: 'white',
-    _hover: { bg: 'secondary' },
-    _active: { bg: 'secondary' },
+    _hover: { bg: 'actionHover' },
+    _active: { bg: 'actionHover' },
   },
   secondary: {
     bg: 'transparent',

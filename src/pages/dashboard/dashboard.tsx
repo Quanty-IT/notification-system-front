@@ -110,7 +110,7 @@ export const Dashboard: React.FC = () => {
         <Button
           w={{ base: 'full', sm: 'auto' }}
           minW={{ sm: '170px' }}
-          bg='primary'
+          bg='actionBg'
           color='white'
           px='6'
           py='2.5'
@@ -118,7 +118,7 @@ export const Dashboard: React.FC = () => {
           fontWeight='bold'
           boxShadow='lg'
           flexShrink={0}
-          _hover={{ bg: 'secondary' }}
+          _hover={{ bg: 'actionHover' }}
           onClick={() => navigate(getCreateCommunicationPath())}
         >
           <HStack gap='2'>
@@ -151,7 +151,7 @@ export const Dashboard: React.FC = () => {
             boxShadow='sm'
             borderWidth='1px'
             borderStyle='solid'
-            borderColor='gray.100'
+            borderColor='border'
             minW='0'
             overflow='hidden'
           >
@@ -173,7 +173,7 @@ export const Dashboard: React.FC = () => {
                 w={{ base: '9', md: '10' }}
                 h={{ base: '9', md: '10' }}
                 borderRadius='full'
-                bg='green.50'
+                bg='iconSurface'
                 color='primary'
                 flexShrink={0}
               >
@@ -232,7 +232,7 @@ export const Dashboard: React.FC = () => {
             </Button>
           </Flex>
         ) : communications.length === 0 ? (
-          <Flex py='14' justify='center' align='center' direction='column' gap='3' bg='gray.50' borderRadius='2xl'>
+          <Flex py='14' justify='center' align='center' direction='column' gap='3' bg='surfaceMuted' borderRadius='2xl'>
             <Text color='text' fontWeight='bold'>
               No communications yet
             </Text>
@@ -300,7 +300,7 @@ export const Dashboard: React.FC = () => {
                       boxShadow='sm'
                       borderWidth='1px'
                       borderStyle='solid'
-                      borderColor='gray.100'
+                      borderColor='border'
                       outline='1px solid transparent'
                       fontSize='sm'
                       cursor='pointer'
@@ -375,7 +375,7 @@ export const Dashboard: React.FC = () => {
                   boxShadow='sm'
                   borderWidth='1px'
                   borderStyle='solid'
-                  borderColor='gray.100'
+                  borderColor='border'
                   outline='1px solid transparent'
                   cursor='pointer'
                   role='button'
@@ -420,7 +420,7 @@ export const Dashboard: React.FC = () => {
                     justify='space-between'
                     align='center'
                     borderTopWidth='1px'
-                    borderColor='gray.100'
+                    borderColor='border'
                     pt='3'
                     gap='3'
                   >

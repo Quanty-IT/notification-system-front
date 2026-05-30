@@ -20,7 +20,7 @@ export const TemplateCard = ({
       p='6'
       borderRadius='2xl'
       borderWidth='1px'
-      borderColor='gray.100'
+      borderColor='border'
       boxShadow='sm'
       display='flex'
       flexDirection='column'
@@ -45,7 +45,7 @@ export const TemplateCard = ({
       <Heading
         as='h3'
         size='md'
-        color='gray.800'
+        color='text'
         lineHeight='1.3'
         overflow='hidden'
         textOverflow='ellipsis'
@@ -58,7 +58,7 @@ export const TemplateCard = ({
       <Box display='flex' flexDirection='column' gap={1} minW={0} overflow='hidden'>
         <Text
           fontSize='sm'
-          color='gray.600'
+          color='textSecondary'
           lineHeight='1.6'
           overflow='hidden'
           display='-webkit-box'
@@ -89,10 +89,10 @@ export const TemplateCard = ({
             aria-label='Edit template'
             size='sm'
             variant='ghost'
-            color='gray.500'
+            color='textSecondary'
             _hover={{
-              color: 'green.700',
-              bg: 'green.50',
+              color: 'primary',
+              bg: 'surfaceMuted',
             }}
             onClick={(event) => {
               event.stopPropagation();
@@ -106,11 +106,11 @@ export const TemplateCard = ({
             aria-label='Delete template'
             size='sm'
             variant='ghost'
-            color='gray.500'
+            color='textSecondary'
             loading={isDeleting}
             _hover={{
-              color: 'red.600',
-              bg: 'red.50',
+              color: 'dangerText',
+              bg: 'dangerBg',
             }}
             onClick={(event) => {
               event.stopPropagation();
