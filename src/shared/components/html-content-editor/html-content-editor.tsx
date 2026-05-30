@@ -1,7 +1,9 @@
 import { Box } from '@chakra-ui/react';
 import { autocompletion, CompletionContext, snippetCompletion } from '@codemirror/autocomplete';
 import { html } from '@codemirror/lang-html';
+import { oneDark } from '@codemirror/theme-one-dark';
 import CodeMirror from '@uiw/react-codemirror';
+import { useThemeMode } from '@/contexts';
 import type { HtmlContentEditorProps } from './types';
 
 const htmlSnippets = [
@@ -361,6 +363,8 @@ const htmlSnippetCompletionSource = (context: CompletionContext) => {
 };
 
 export const HtmlContentEditor = ({ value, onChange, hasError }: HtmlContentEditorProps) => {
+  const { mode } = useThemeMode();
+
   return (
     <Box
       w='full'
@@ -370,11 +374,62 @@ export const HtmlContentEditor = ({ value, onChange, hasError }: HtmlContentEdit
       borderRadius='md'
       overflow='hidden'
       bg='inputBg'
+      css={{
+        '& .cm-editor': {
+          backgroundColor: 'var(--chakra-colors-inputBg)',
+          color: 'var(--chakra-colors-text)',
+        },
+        '& .cm-scroller': {
+          backgroundColor: 'var(--chakra-colors-inputBg)',
+          color: 'var(--chakra-colors-text)',
+        },
+        '& .cm-content': {
+          caretColor: 'var(--chakra-colors-primary)',
+        },
+        '& .cm-line': {
+          color: 'var(--chakra-colors-text)',
+        },
+        '& .cm-gutters': {
+          backgroundColor: 'var(--chakra-colors-surfaceMuted)',
+          color: 'var(--chakra-colors-textSecondary)',
+          borderRight: '1px solid var(--chakra-colors-inputBorder)',
+        },
+        '& .cm-activeLine': {
+          backgroundColor: 'var(--chakra-colors-surfaceMuted)',
+        },
+        '& .cm-activeLineGutter': {
+          backgroundColor: 'var(--chakra-colors-surfaceMuted)',
+          color: 'var(--chakra-colors-text)',
+        },
+        '& .cm-cursor': {
+          borderLeftColor: 'var(--chakra-colors-primary)',
+        },
+        '& .cm-selectionBackground, & .cm-focused .cm-selectionBackground': {
+          backgroundColor: 'rgba(74, 222, 128, 0.24)',
+        },
+        '& .cm-placeholder': {
+          color: 'var(--chakra-colors-placeholder)',
+        },
+        '& .cm-tooltip': {
+          backgroundColor: 'var(--chakra-colors-surface)',
+          color: 'var(--chakra-colors-text)',
+          border: '1px solid var(--chakra-colors-border)',
+          boxShadow: '0 18px 40px rgba(0, 0, 0, 0.28)',
+        },
+        '& .cm-tooltip-autocomplete ul li[aria-selected]': {
+          backgroundColor: 'var(--chakra-colors-sidebarActive)',
+          color: 'var(--chakra-colors-text)',
+        },
+        '& .cm-editor.cm-focused': {
+          outline: hasError ? '1px solid var(--chakra-colors-error)' : '1px solid var(--chakra-colors-primary)',
+        },
+      }}
     >
       <CodeMirror
         value={value}
         height='20rem'
         extensions={[
+          ...(mode === 'dark' ? [oneDark] : []),
           html(),
           autocompletion({
             override: [htmlSnippetCompletionSource],

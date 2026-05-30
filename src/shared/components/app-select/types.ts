@@ -11,6 +11,7 @@ export type AppSelectProps = {
     value: string;
   }[];
   onChange: (value: string) => void;
+  hasError?: boolean;
   isDisabled?: boolean;
   width?: string;
 };

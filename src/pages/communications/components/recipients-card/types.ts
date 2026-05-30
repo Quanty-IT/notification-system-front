@@ -7,6 +7,7 @@ export type RecipientItem = {
 export type RecipientsCardProps = {
   recipients: RecipientItem[];
   disabled?: boolean;
+  errorMessage?: string;
   onAddClick: () => void;
   onRemove: (recipient: RecipientItem) => void;
 };

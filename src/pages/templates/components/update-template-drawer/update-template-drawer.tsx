@@ -198,7 +198,7 @@ export const UpdateTemplateDrawer = ({ isOpen, onClose, uuid }: UpdateTemplateDr
 
                 <Field.Root invalid={!!errors.description} position='relative' pb='22px'>
                   <Field.Label mb={1} color='primary' fontWeight='bold' fontSize='sm'>
-                    Description *
+                    Description
                   </Field.Label>
 
                   <Textarea

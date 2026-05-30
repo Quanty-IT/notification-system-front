@@ -109,7 +109,7 @@ export const Dashboard: React.FC = () => {
 
         <Button
           w={{ base: 'full', sm: 'auto' }}
-          minW={{ sm: '170px' }}
+          minW={{ sm: '150px' }}
           bg='actionBg'
           color='white'
           px='6'
@@ -123,7 +123,7 @@ export const Dashboard: React.FC = () => {
         >
           <HStack gap='2'>
             <PaperPlaneTiltIcon size={18} />
-            <Text>Send New</Text>
+            <Text>Send</Text>
           </HStack>
         </Button>
       </Flex>
@@ -238,7 +238,7 @@ export const Dashboard: React.FC = () => {
             </Text>
 
             <Text fontSize='sm' color='textSecondary' textAlign='center'>
-              Click "Send New" to create your first communication.
+              Click "Send" to create your first communication.
             </Text>
           </Flex>
         ) : (
@@ -416,14 +416,7 @@ export const Dashboard: React.FC = () => {
                     </Box>
                   </Flex>
 
-                  <Flex
-                    justify='space-between'
-                    align='center'
-                    borderTopWidth='1px'
-                    borderColor='border'
-                    pt='3'
-                    gap='3'
-                  >
+                  <Flex justify='space-between' align='center' borderTopWidth='1px' borderColor='border' pt='3' gap='3'>
                     <Text color='textSecondary' fontSize='xs' minW='0'>
                       {formatDateTime(comm.createdAt)}
                     </Text>

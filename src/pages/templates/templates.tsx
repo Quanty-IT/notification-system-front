@@ -1,4 +1,5 @@
-import { Box, Button, Flex, Grid, Heading, Text } from '@chakra-ui/react';
+import { Box, Button, Flex, Grid, Heading, HStack, Text } from '@chakra-ui/react';
+import { PlusIcon } from '@phosphor-icons/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -174,26 +175,27 @@ export const Templates: React.FC = () => {
       <UpdateTemplateDrawer isOpen={isUpdateDrawerOpen} onClose={closeUpdateDrawer} uuid={editUuid ?? undefined} />
 
       <Flex
-        w='full'
         justify='space-between'
-        align={{ base: 'stretch', sm: 'flex-start' }}
+        align={{ base: 'stretch', sm: 'center' }}
         direction={{ base: 'column', sm: 'row' }}
         gap={{ base: '4', md: '6' }}
-        mb='8'
+        mb={{ base: '6', md: '8', xl: '10' }}
+        w='full'
+        minW='0'
       >
-        <Box minW={0}>
-          <Heading size={{ base: 'lg', md: 'xl' }} color='text' letterSpacing='tight' mb='2'>
+        <Box minW='0'>
+          <Heading size={{ base: 'lg', md: 'xl' }} color='text' letterSpacing='tight' wordBreak='break-word'>
             Templates
           </Heading>
 
-          <Text color='textSecondary' fontSize={{ base: 'sm', md: 'md' }}>
+          <Text mt='2' color='textSecondary' fontSize='sm' wordBreak='break-word'>
             Manage reusable communication templates.
           </Text>
         </Box>
 
         <Button
           w={{ base: 'full', sm: 'auto' }}
-          minW={{ sm: '170px' }}
+          minW={{ sm: '150px' }}
           bg='actionBg'
           color='white'
           px='6'
@@ -205,7 +207,10 @@ export const Templates: React.FC = () => {
           _hover={{ bg: 'actionHover' }}
           onClick={openCreateDrawer}
         >
-          Create Template
+          <HStack gap='2'>
+            <PlusIcon size={18} />
+            <Text>Create</Text>
+          </HStack>
         </Button>
       </Flex>
 

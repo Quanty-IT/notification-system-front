@@ -16,7 +16,7 @@ import logo from '../../../assets/logo.png';
 
 const NAV_ITEMS = [
   { to: ROUTES.DASHBOARD.BASE, label: 'Dashboard', icon: HouseIcon },
-  { to: ROUTES.COMMUNICATIONS.CREATE, label: 'Send New', icon: PlusSquareIcon },
+  { to: ROUTES.COMMUNICATIONS.CREATE, label: 'Send', icon: PlusSquareIcon },
   { to: ROUTES.TEMPLATES.BASE, label: 'Templates', icon: SquaresFourIcon },
 ];
 
@@ -43,7 +43,6 @@ export const Sidebar: React.FC = () => {
 
   return (
     <>
-      {/* Desktop Sidebar */}
       <Box
         display={{ base: 'none', md: 'block' }}
         position='fixed'
@@ -63,8 +62,8 @@ export const Sidebar: React.FC = () => {
           }
         }}
       >
-        <Flex h='88px' align='center' px='3' borderBottom='1px solid' borderColor='whiteAlpha.200'>
-          <Flex w={ICON_COLUMN_WIDTH} h='88px' align='center' justify='center' flexShrink={0}>
+        <Flex h='88px' align='center' px='0' borderBottom='1px solid' borderColor='whiteAlpha.200'>
+          <Flex w={SIDEBAR_COLLAPSED_WIDTH} h='88px' align='center' justify='center' flexShrink={0}>
             <Image src={logo} alt='John Deere' boxSize='40px' objectFit='contain' />
           </Flex>
 
@@ -82,7 +81,7 @@ export const Sidebar: React.FC = () => {
           </Box>
 
           {isExpanded && (
-            <Flex ml='auto' gap='1' flexShrink={0}>
+            <Flex ml='auto' mr='3' gap='1' flexShrink={0}>
               <Button
                 onClick={toggleMode}
                 size='sm'
@@ -148,7 +147,7 @@ export const Sidebar: React.FC = () => {
                     fontSize='sm'
                     fontWeight='bold'
                     opacity={isExpanded ? 1 : 0}
-                    maxW={isExpanded ? '170px' : '0'}
+                    maxW={isExpanded ? '150px' : '0'}
                     transition='opacity 0.2s ease, max-width 0.25s ease'
                   >
                     {label}
@@ -182,7 +181,7 @@ export const Sidebar: React.FC = () => {
                 whiteSpace='nowrap'
                 overflow='hidden'
                 opacity={isExpanded ? 1 : 0}
-                maxW={isExpanded ? '170px' : '0'}
+                maxW={isExpanded ? '150px' : '0'}
                 transition='opacity 0.2s ease, max-width 0.25s ease'
               >
                 Logout
@@ -192,7 +191,6 @@ export const Sidebar: React.FC = () => {
         </Box>
       </Box>
 
-      {/* Mobile Bottom Navigation */}
       <Flex
         display={{ base: 'flex', md: 'none' }}
         position='fixed'

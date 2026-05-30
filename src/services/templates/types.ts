@@ -9,7 +9,7 @@ export type Template = {
 
 export type CreateTemplateRequest = {
   name: string;
-  description: string;
+  description?: string;
 };
 
 export type GetTemplatesRequest = {
@@ -28,7 +28,7 @@ export type UpdateTemplateRequest = {
   uuid: string;
   data: {
     name: string;
-    description: string;
+    description?: string;
   };
 };
 

@@ -1,5 +1,5 @@
 import { Box, Button, Flex, Grid, Heading, HStack, Spinner, Text } from '@chakra-ui/react';
-import { ArrowLeftIcon } from '@phosphor-icons/react';
+import { ArrowLeftIcon, PlusIcon } from '@phosphor-icons/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -238,7 +238,7 @@ export const TemplateVersions: React.FC = () => {
         align={{ base: 'stretch', md: 'center' }}
         direction={{ base: 'column', md: 'row' }}
         gap={{ base: '4', md: '6' }}
-        mb='8'
+        mb={{ base: '6', md: '8', xl: '10' }}
         minW='0'
       >
         <Box minW='0'>
@@ -253,7 +253,7 @@ export const TemplateVersions: React.FC = () => {
 
         <Button
           w={{ base: 'full', sm: 'auto' }}
-          minW={{ sm: '170px' }}
+          minW={{ sm: '150px' }}
           alignSelf={{ base: 'stretch', md: 'center' }}
           bg='actionBg'
           color='white'
@@ -266,7 +266,10 @@ export const TemplateVersions: React.FC = () => {
           _hover={{ bg: 'actionHover' }}
           onClick={openCreateDrawer}
         >
-          Create Version
+          <HStack gap='2'>
+            <PlusIcon size={18} />
+            <Text>Create</Text>
+          </HStack>
         </Button>
       </Flex>
 

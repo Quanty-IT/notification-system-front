@@ -371,7 +371,7 @@ export const UpdateCommunication: React.FC = () => {
         {canEdit && (
           <Button
             w={{ base: 'full', sm: 'auto' }}
-            minW={{ sm: '170px' }}
+            minW={{ sm: '150px' }}
             bg='actionBg'
             color='white'
             px='6'

@@ -149,7 +149,7 @@ export const CreateTemplateDrawer = ({ isOpen, onClose }: CreateTemplateDrawerPr
 
               <Field.Root invalid={!!errors.description} position='relative' pb='22px'>
                 <Field.Label mb={1} color='primary' fontWeight='bold' fontSize='sm'>
-                  Description *
+                  Description
                 </Field.Label>
 
                 <Textarea

@@ -280,7 +280,7 @@ export const CommunicationDetails: React.FC = () => {
             >
               <HStack gap='2'>
                 <PaperPlaneTiltIcon size={18} />
-                <Text>Send Now</Text>
+                <Text>Send</Text>
               </HStack>
             </Button>
           )}
