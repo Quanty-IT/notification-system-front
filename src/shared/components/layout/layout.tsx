@@ -11,7 +11,7 @@ export const Layout = () => {
         flex='1'
         minH='100vh'
         overflowX='hidden'
-        ml={{ base: '0', md: '88px' }}
+        ml={{ base: '0', md: 'var(--sidebar-desktop-width, 88px)' }}
         pb={{ base: '70px', md: '0' }}
       >
         <Outlet />

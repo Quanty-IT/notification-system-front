@@ -1,6 +1,6 @@
 import { Box, Button, Flex, Icon, Image, Text, VStack } from '@chakra-ui/react';
 import { HouseIcon, PlusSquareIcon, SignOutIcon, SquaresFourIcon } from '@phosphor-icons/react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts';
 import { ROUTES } from '@/routes';
@@ -13,13 +13,19 @@ const NAV_ITEMS = [
 ];
 
 const SIDEBAR_COLLAPSED_WIDTH = '88px';
-const SIDEBAR_EXPANDED_WIDTH = '220px';
+const SIDEBAR_EXPANDED_WIDTH = '232px';
 const ICON_COLUMN_WIDTH = '72px';
 
 export const Sidebar: React.FC = () => {
   const { logout } = useAuth();
   const navigate = useNavigate();
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
+  const [isPinnedExpanded, setIsPinnedExpanded] = useState(true);
+
+  useEffect(() => {
+    const desktopWidth = isPinnedExpanded ? SIDEBAR_EXPANDED_WIDTH : SIDEBAR_COLLAPSED_WIDTH;
+    document.documentElement.style.setProperty('--sidebar-desktop-width', desktopWidth);
+  }, [isPinnedExpanded]);
 
   const handleLogout = () => {
     logout();
@@ -42,25 +48,52 @@ export const Sidebar: React.FC = () => {
         overflow='hidden'
         transition='width 0.25s ease'
         onMouseEnter={() => setIsExpanded(true)}
-        onMouseLeave={() => setIsExpanded(false)}
+        onMouseLeave={() => {
+          if (!isPinnedExpanded) {
+            setIsExpanded(false);
+          }
+        }}
       >
         <Flex h='88px' align='center' px='2' borderBottom='1px solid' borderColor='whiteAlpha.200'>
           <Flex w={ICON_COLUMN_WIDTH} h='88px' align='center' justify='center' flexShrink={0}>
             <Image src={logo} alt='John Deere' boxSize='40px' objectFit='contain' />
           </Flex>
 
-          <Text
-            color='tertiary'
-            fontSize='xl'
-            fontWeight='extrabold'
-            whiteSpace='nowrap'
+          <Box
+            flex='1'
+            minW='0'
             overflow='hidden'
             opacity={isExpanded ? 1 : 0}
-            maxW={isExpanded ? '140px' : '0'}
+            maxW={isExpanded ? '100%' : '0'}
             transition='opacity 0.2s ease, max-width 0.25s ease'
           >
-            JD Notify
-          </Text>
+            <Text color='tertiary' fontSize='xl' fontWeight='extrabold' lineHeight='1.1' whiteSpace='nowrap' pr='2'>
+              JD Notify
+            </Text>
+          </Box>
+
+          <Button
+            onClick={() => {
+              const nextPinned = !isPinnedExpanded;
+              setIsPinnedExpanded(nextPinned);
+              setIsExpanded(nextPinned);
+            }}
+            ml='auto'
+            mr='2'
+            size='sm'
+            variant='ghost'
+            minW='36px'
+            h='36px'
+            p='0'
+            color='whiteAlpha.900'
+            _hover={{ bg: 'whiteAlpha.200', color: 'white' }}
+            aria-label={isPinnedExpanded ? 'Collapse sidebar' : 'Expand sidebar'}
+            title={isPinnedExpanded ? 'Recolher menu' : 'Expandir menu'}
+          >
+            <Text fontSize='lg' lineHeight='1'>
+              ≡
+            </Text>
+          </Button>
         </Flex>
 
         <VStack align='stretch' gap='2' px='2' py='6'>
